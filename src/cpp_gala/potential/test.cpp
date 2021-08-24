@@ -6,7 +6,7 @@ int add(int i, int j) {
     return i + j;
 }
 
-PYBIND11_MODULE(cpp_gala, m) {
+PYBIND11_MODULE(_test, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
         -----------------------
