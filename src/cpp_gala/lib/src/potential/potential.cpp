@@ -43,6 +43,7 @@ int BasePotential::get_ndim() const {
 
 double BasePotential::_density(double *q, double t) { return NAN; }
 double BasePotential::_energy(double *q, double t) { return NAN; }
+void BasePotential::_gradient(double *q, double t, double *grad) { }
 
 
 // Potential implementations
@@ -62,9 +63,16 @@ double KeplerPotential::_density(double *q, double t) {
 
 double KeplerPotential::_energy(double *q, double t) {
     double r = xyz_to_r(q);
-    std::cout << typeid(parameters["GM"]).name() << "\n";
-    std::cout << parameters["GM"]->get_value(t) << ", " << r << "\n";
     return - parameters["GM"]->get_value(t) / r;
+}
+
+void KeplerPotential::_gradient(double *q, double t, double *grad) {
+    double r = xyz_to_r(q);
+    double GM = parameters["GM"]->get_value(t);
+    double fac = GM / pow(r, 3);
+    grad[0] = fac * q[0];
+    grad[1] = fac * q[1];
+    grad[2] = fac * q[2];
 }
 
 
