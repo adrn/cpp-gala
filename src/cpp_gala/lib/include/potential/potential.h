@@ -1,29 +1,50 @@
 #include <string>
+#include <map>
 
 namespace gala {
 namespace potential {
 
+/*
+    Parameters
+*/
 
-class PotentialParameter {
+class BasePotentialParameter {
 
     public:
         // Attributes:
         std::string const m_name;
 
-        // Constructors:
-        PotentialParameter(std::string name);
-
         // Methods:
-        double get_value(double t);
+        virtual double get_value(double t);
 
 };
 
+class StaticPotentialParameter : public BasePotentialParameter {
+
+    public:
+        // Attributes:
+        double m_val;
+
+        // Constructors:
+        // TODO: implement int, long, double, array constructors!
+        StaticPotentialParameter(double val);
+
+        // Methods:
+        double get_value(double t) override;
+
+};
+
+
+/*
+    Potentials
+*/
 
 class BasePotential {
 
     public:
         // Attributes:
         int m_ndim;
+        std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors:
         BasePotential(int ndim=3);
@@ -41,7 +62,10 @@ class BasePotential {
 class KeplerPotential : public BasePotential {
 
     public:
-        using BasePotential::BasePotential;
+        // Constructors:
+        KeplerPotential(BasePotentialParameter *GM, int ndim=3);
+
+        // Methods::
         double _density(double *q, double t) override;
         double _energy(double *q, double t) override;
         // void _gradient(double *q, double t, double *grad) override;
