@@ -6,10 +6,8 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::potential;
 
-// TODO: implement density function that takes a numpy array and does the thing _density
-// py::array_t<double, py::array::c_style
 
-py::array_t<double> density(py::class_<BasePotential> pot,
+py::array_t<double> density(BasePotential pot,
                             py::array_t<double, py::array::c_style> q,
                             double t) {
     py::buffer_info buf = q.request();
@@ -19,6 +17,8 @@ py::array_t<double> density(py::class_<BasePotential> pot,
     }
 
     auto result = py::array_t<double>(buf.size);
+
+    // TODO: fill in the result array...
 
     return result;
 }

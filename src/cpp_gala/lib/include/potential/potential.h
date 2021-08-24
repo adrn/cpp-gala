@@ -33,16 +33,18 @@ class BasePotential {
 
         double _density(double *q, double t);
         double _energy(double *q, double t);
-        void _gradient(double *q, double t, double *grad);
-        void _hessian(double *q, double t, double *hess);
+        // void _gradient(double *q, double t, double *grad);
+        // void _hessian(double *q, double t, double *hess);
 
 };
 
 class KeplerPotential : public BasePotential {
+    using BasePotential::BasePotential;
+
     virtual double _density(double *q, double t);
     virtual double _energy(double *q, double t);
-    virtual void _gradient(double *q, double t, double *grad);
-    virtual void _hessian(double *q, double t, double *hess);
+    // virtual void _gradient(double *q, double t, double *grad);
+    // virtual void _hessian(double *q, double t, double *hess);
 };
 
 }} // namespace: gala::potential

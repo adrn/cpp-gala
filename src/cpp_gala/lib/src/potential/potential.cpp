@@ -30,6 +30,9 @@ double KeplerPotential::_density(double *q, double t) {
 
 double KeplerPotential::_energy(double *q, double t) {
     double r = xyz_to_r(q);
+
+    // TODO: use parameters to actually evalute this...
+
     return 0.;
 }
 
