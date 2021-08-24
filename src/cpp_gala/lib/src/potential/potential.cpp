@@ -1,5 +1,6 @@
-#include "potential/potential.h"
+#include <potential/potential.h>
 #include <cmath>
+#include <iostream>
 
 namespace gala {
 namespace potential {
@@ -18,8 +19,13 @@ int BasePotential::get_ndim() const {
     return m_ndim;
 }
 
+double BasePotential::_density(double *q, double t) { return NAN; }
+double BasePotential::_energy(double *q, double t) { return NAN; }
+
+
 // Potential implementations
 double KeplerPotential::_density(double *q, double t) {
+    std::cout << "Hello World!\n";
     double r = xyz_to_r(q);
     if (r == 0) {
         return INFINITY;
