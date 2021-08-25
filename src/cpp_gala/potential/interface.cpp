@@ -103,11 +103,11 @@ PYBIND11_MODULE(_potential, mod) {
 
     // TODO: do we need to expose this...?
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<int>(), "ndim"_a=DEFAULT_NDIM)
+        .def(py::init<double, int>(), "G"_a, "ndim"_a=DEFAULT_NDIM)
         .def("get_ndim", &BasePotential::get_ndim);
 
     py::class_<KeplerPotential, BasePotential>(mod, "KeplerPotential")
-        .def(py::init<BasePotentialParameter*, int>(), "GM"_a, "ndim"_a=DEFAULT_NDIM)
+        .def(py::init<double, BasePotentialParameter*, int>(), "G"_a, "m"_a, "ndim"_a=DEFAULT_NDIM)
         .def("get_ndim", &KeplerPotential::get_ndim)
         .def("density", &density)
         .def("energy", &energy)
