@@ -12,6 +12,7 @@ double xyz_to_r(double *q) {
 
 // Base class
 BasePotential::BasePotential(double G, int ndim) {
+    m_G = G;
     m_ndim = ndim;
 }
 
@@ -24,7 +25,7 @@ void BasePotential::_gradient(double *q, double t, double *grad) { }
 
 // Potential implementations
 KeplerPotential::KeplerPotential(double G, BasePotentialParameter *M, int ndim)
-: BasePotential(ndim) {
+: BasePotential(G, ndim) {
     parameters.insert(std::make_pair("M", M));
 }
 

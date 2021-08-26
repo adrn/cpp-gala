@@ -28,9 +28,13 @@ py::array_t<double> density(BasePotential *pot,
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
+    int q_ndim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
+    } else if (pot->m_ndim != q_ndim) {
+        throw std::runtime_error("Input position dimensionality must be the same "
+                                 "as the potential dimensionality");
     }
 
     auto result = py::array_t<double>(q_buf.shape[0]);
@@ -38,7 +42,7 @@ py::array_t<double> density(BasePotential *pot,
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->_density(&q_arr[i], t);
+        result_arr[i] = pot->_density(&q_arr[q_ndim * i], t);
     }
 
     return result;
@@ -51,9 +55,13 @@ py::array_t<double> energy(BasePotential *pot,
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
+    int q_ndim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
+    } else if (pot->m_ndim != q_ndim) {
+        throw std::runtime_error("Input position dimensionality must be the same "
+                                 "as the potential dimensionality");
     }
 
     auto result = py::array_t<double>(q_buf.shape[0]);
@@ -61,7 +69,7 @@ py::array_t<double> energy(BasePotential *pot,
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->_energy(&q_arr[i], t);
+        result_arr[i] = pot->_energy(&q_arr[q_ndim * i], t);
     }
 
     return result;
@@ -74,9 +82,13 @@ py::array_t<double> gradient(BasePotential *pot,
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
+    int q_ndim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
+    } else if (pot->m_ndim != q_ndim) {
+        throw std::runtime_error("Input position dimensionality must be the same "
+                                 "as the potential dimensionality");
     }
 
     auto result = py::array_t<double>(q_buf.size);
@@ -86,7 +98,7 @@ py::array_t<double> gradient(BasePotential *pot,
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        pot->_gradient(&q_arr[i], t, &result_arr[pot->m_ndim * i]);
+        pot->_gradient(&q_arr[q_ndim * i], t, &result_arr[q_ndim * i]);
     }
 
     return result;
