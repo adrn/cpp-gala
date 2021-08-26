@@ -1,45 +1,13 @@
+#ifndef _GALA_POTENTIAL_H
+#define _GALA_POTENTIAL_H
+
 #include <string>
 #include <map>
+#include <potential/potentialparameter.h>
 
 #define DEFAULT_NDIM 3
 
-namespace gala {
-namespace potential {
-
-/*
-    Parameters
-*/
-
-class BasePotentialParameter {
-
-    public:
-        // Attributes:
-        std::string const m_name;
-
-        // Methods:
-        virtual double get_value(double t);
-
-};
-
-class StaticPotentialParameter : public BasePotentialParameter {
-
-    public:
-        // Attributes:
-        double m_val;
-
-        // Constructors:
-        // TODO: implement int, long, double, array constructors!
-        StaticPotentialParameter(double val);
-
-        // Methods:
-        double get_value(double t) override;
-
-};
-
-
-/*
-    Potentials
-*/
+namespace gala { namespace potential {
 
 class BasePotential {
 
@@ -80,3 +48,5 @@ class KeplerPotential : public BasePotential {
 };
 
 }} // namespace: gala::potential
+
+#endif

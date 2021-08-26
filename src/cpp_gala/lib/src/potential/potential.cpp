@@ -1,36 +1,14 @@
 #include <potential/potential.h>
+#include <potential/potentialparameter.h>
 #include <cmath>
 #include <iostream>
 
-namespace gala {
-namespace potential {
+namespace gala { namespace potential {
 
 // Utilties: TODO: move these elsewhere
 double xyz_to_r(double *q) {
     return sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 }
-
-/*
-    Parameters
-*/
-
-double BasePotentialParameter::get_value(double t) {
-    return NAN;
-}
-
-
-StaticPotentialParameter::StaticPotentialParameter(double val) {
-    m_val = val;
-}
-
-double StaticPotentialParameter::get_value(double t) {
-    return m_val;
-}
-
-
-/*
-    Potentials
-*/
 
 // Base class
 BasePotential::BasePotential(double G, int ndim) {
