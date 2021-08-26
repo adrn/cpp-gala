@@ -5,8 +5,8 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <potential/potential.h>
-#include <potential/potentialparameter.h>
+#include <cpp_gala/potential/potential.h>
+#include <cpp_gala/potential/potentialparameter.h>
 #include <iostream>
 
 namespace py = pybind11;

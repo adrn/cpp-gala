@@ -22,15 +22,20 @@ M = StaticPotentialParameter(1.)
 pot = KeplerPotential(1., M, 3)
 print(pot.get_ndim())
 
-q = np.array([[1., 2., 3.]])
-# q = np.random.random(size=(100_000, 3))
-ntrials = 100
+rng = np.random.default_rng(42)
+# q = np.array([[1., 2., 3.]])
+# q = rng.random(size=(2, 3))
+q = rng.random(size=(100_000, 3))
+ntrials = 1
 
-for funcname in ['density', 'energy']:
+print("q", q)
+print("r", np.sqrt(np.sum(q**2, axis=1)))
+
+for funcname in ['density', 'energy', 'gradient']:
     print(funcname)
     cpp_vals = getattr(pot, funcname)(q, 0.)
     gala_vals = getattr(gala_pot, '_' + funcname)(q, np.array([0.]))
-    print(cpp_vals - gala_vals)
+    print("max. difference:", np.max(np.abs(cpp_vals - gala_vals)), "\n")
 
     t0 = time.time()
     for n in range(ntrials):

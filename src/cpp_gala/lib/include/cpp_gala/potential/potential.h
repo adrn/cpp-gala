@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include <potential/potentialparameter.h>
+#include <cpp_gala/potential/potentialparameter.h>
 
 #define DEFAULT_NDIM 3
 

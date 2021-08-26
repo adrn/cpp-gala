@@ -1,5 +1,5 @@
 #include <cmath>
-#include <potential/potentialparameter.h>
+#include <cpp_gala/potential/potentialparameter.h>
 
 namespace gala { namespace potential {
 
