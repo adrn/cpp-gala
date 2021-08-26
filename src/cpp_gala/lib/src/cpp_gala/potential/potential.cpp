@@ -1,14 +1,9 @@
+#include <iostream>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/potential/potentialparameter.h>
-#include <cmath>
-#include <iostream>
+#include <cpp_gala/utils.h>
 
 namespace gala { namespace potential {
-
-// Utilties: TODO: move these elsewhere
-double xyz_to_r(double *q) {
-    return sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
-}
 
 // Base class
 BasePotential::BasePotential(double G, int ndim) {
@@ -30,7 +25,7 @@ KeplerPotential::KeplerPotential(double G, BasePotentialParameter *M, int ndim)
 }
 
 double KeplerPotential::_density(double *q, double t) {
-    double r = xyz_to_r(q);
+    double r = gala::utils::xyz_to_r(q);
     if (r == 0) {
         return INFINITY;
     } else {
@@ -39,12 +34,12 @@ double KeplerPotential::_density(double *q, double t) {
 }
 
 double KeplerPotential::_energy(double *q, double t) {
-    double r = xyz_to_r(q);
+    double r = gala::utils::xyz_to_r(q);
     return - m_G * parameters["M"]->get_value(t) / r;
 }
 
 void KeplerPotential::_gradient(double *q, double t, double *grad) {
-    double r = xyz_to_r(q);
+    double r = gala::utils::xyz_to_r(q);
     double GM = m_G * parameters["M"]->get_value(t);
     double fac = GM / pow(r, 3);
     grad[0] = fac * q[0];
