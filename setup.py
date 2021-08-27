@@ -10,7 +10,8 @@ ext_modules = [
          "src/cpp_gala/lib/src/cpp_gala/potential/potential.cpp",
          "src/cpp_gala/lib/src/cpp_gala/potential/potentialparameter.cpp"],
         cxx_std=11,
-        include_dirs=['src/cpp_gala/lib/include']
+        include_dirs=['src/cpp_gala/lib/include'],
+        libraries=['gsl']
     ),
 ]
 

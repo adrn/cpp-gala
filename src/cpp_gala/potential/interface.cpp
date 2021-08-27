@@ -1,6 +1,6 @@
 /*
     TODO:
-    - Use templating to enable float versions of these, for speed?
+    - Use templating to enable float versions of these, for speed? May not be worth it now...
 */
 
 #include <pybind11/pybind11.h>
@@ -113,6 +113,31 @@ PYBIND11_MODULE(_potential, mod) {
     py::class_<StaticPotentialParameter, BasePotentialParameter>(mod, "StaticPotentialParameter")
         .def(py::init<double>(), "val"_a)
         .def("get_value", &StaticPotentialParameter::get_value);
+
+    py::class_<InterpolatedPotentialParameter, BasePotentialParameter>(
+            mod, "InterpolatedPotentialParameter")
+        .def("__init__",
+            [](InterpolatedPotentialParameter &instance,
+               py::array_t<double> times,
+               py::array_t<double> vals,
+               int interp_order) {
+
+                py::buffer_info times_buf = times.request();
+                double *times_arr = (double*)times_buf.ptr;
+
+                py::buffer_info vals_buf = vals.request();
+                double *vals_arr = (double*)vals_buf.ptr;
+
+                if (times_buf.size != vals_buf.size) {
+                    throw std::runtime_error("times and vals arrays must have the same size");
+                } else if ((times_buf.ndim != 1) || (vals_buf.ndim != 1)){
+                    throw std::runtime_error("times and vals arrays must be 1D arrays");
+                }
+
+                new (&instance) InterpolatedPotentialParameter(
+                    &times_arr[0], &vals_arr[0], times_buf.size, interp_order);
+        })
+        .def("get_value", &InterpolatedPotentialParameter::get_value);
 
     // TODO: do we need to expose this...?
     py::class_<BasePotential>(mod, "BasePotential")
