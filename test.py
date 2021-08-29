@@ -83,21 +83,28 @@
 # -----------------------------------------------------------------------------
 # Simulation tmp testing
 #
-from cpp_gala._simulation import Simulation  # , Body
-sim = Simulation()
+# TODO: Note that this doesn't work on its own and I don't know why...
+# from cpp_gala._simulation import Simulation  # , Body
+# sim = Simulation()
 
 # ---
 
 from cpp_gala._potential import (KeplerPotential,
                                  StaticPotentialParameter)
-from cpp_gala._simulation import Simulation  # , Body
+from cpp_gala._simulation import Simulation, Body
 import numpy as np
 
 M = StaticPotentialParameter(1.)
-external_pot = KeplerPotential(1., M)
+pot = KeplerPotential(1., M)
 
-sim = Simulation(external_pot)
+# sim = Simulation(pot)
 sim = Simulation()
+
+# body = Body(pot, np.array([[1., 2., 3.]]))
+body = Body(pot, np.array([[1., 2., 3.]]), "derp")
+print(body.name, body.ndim)
+
+sim.add_body(body)
 
 
 # -----------------------------------------------------------------------------

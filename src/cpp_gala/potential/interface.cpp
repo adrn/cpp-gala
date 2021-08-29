@@ -116,11 +116,11 @@ PYBIND11_MODULE(_potential, mod) {
 
     py::class_<InterpolatedPotentialParameter, BasePotentialParameter>(
             mod, "InterpolatedPotentialParameter")
-        .def("__init__",
-            [](InterpolatedPotentialParameter &instance,
-               py::array_t<double> times,
-               py::array_t<double> vals,
-               int interp_order) {
+        .def("__init__", [](
+            InterpolatedPotentialParameter &instance,
+            py::array_t<double> times,
+            py::array_t<double> vals,
+            int interp_order) {
 
                 py::buffer_info times_buf = times.request();
                 double *times_arr = (double*)times_buf.ptr;
@@ -136,7 +136,8 @@ PYBIND11_MODULE(_potential, mod) {
 
                 new (&instance) InterpolatedPotentialParameter(
                     &times_arr[0], &vals_arr[0], times_buf.size, interp_order);
-        })
+            }
+        )
         .def("get_value", &InterpolatedPotentialParameter::get_value);
 
     // TODO: do we need to expose this...?
