@@ -15,11 +15,11 @@ class Simulation {
 
     public:
         // Attributes:
-        potential::BasePotential *potential;
+        gala::potential::BasePotential *potential;
         std::map<std::string, Body*> bodies;
 
         // Constructors:
-        Simulation(potential::BasePotential *potential);
+        Simulation(gala::potential::BasePotential *potential);
         Simulation() : Simulation(NULL) {};
 
         // Methods:

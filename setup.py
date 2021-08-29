@@ -16,7 +16,8 @@ ext_modules = [
     Pybind11Extension(
         "cpp_gala._simulation",
         ["src/cpp_gala/simulation/interface.cpp",
-         "src/cpp_gala/lib/src/cpp_gala/simulation/simulation.cpp"],
+         "src/cpp_gala/lib/src/cpp_gala/simulation/simulation.cpp",
+         "src/cpp_gala/lib/src/cpp_gala/simulation/body.cpp"],
         cxx_std=11,
         include_dirs=['src/cpp_gala/lib/include'],
         libraries=['gsl']

@@ -25,11 +25,11 @@ class Body {
         int ndim;
         int nbodies;
         double *w;
-        potential::BasePotential *potential;
+        gala::potential::BasePotential *potential;
         std::string name;
 
         // Constructors:
-        Body(potential::BasePotential *potential, double *w, int nbodies=1,
+        Body(gala::potential::BasePotential *potential, double *w, int nbodies=1,
              std::string name="", int ndim=DEFAULT_NDIM);
 
         // Methods:

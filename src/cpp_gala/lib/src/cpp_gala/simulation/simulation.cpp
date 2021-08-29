@@ -6,7 +6,7 @@
 namespace gala { namespace simulation {
 
 // Base class
-Simulation::Simulation(potential::BasePotential *potential) {
+Simulation::Simulation(gala::potential::BasePotential *potential) {
     // store potential pointer and initialize
     this->potential = potential;
 }

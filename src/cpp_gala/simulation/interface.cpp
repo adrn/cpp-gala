@@ -15,10 +15,11 @@ using namespace gala::simulation;
 
 
 PYBIND11_MODULE(_simulation, mod) {
+    py::module potential = py::module::import("cpp_gala._potential");
 
-    // TODO: do we need to expose this...?
     py::class_<Simulation>(mod, "Simulation")
-        .def(py::init<gala::potential::BasePotential*>(), "potential"_a=NULL)
+        .def(py::init<>())
+        .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def("add_body", &Simulation::add_body)
         .def_property_readonly("nbodies", &Simulation::get_nbodies);
 

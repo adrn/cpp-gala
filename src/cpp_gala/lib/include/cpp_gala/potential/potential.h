@@ -9,7 +9,7 @@
 
 namespace gala { namespace potential {
 
-class BasePotential {
+class __attribute__((visibility("default"))) BasePotential {
 
     public:
         // Attributes:

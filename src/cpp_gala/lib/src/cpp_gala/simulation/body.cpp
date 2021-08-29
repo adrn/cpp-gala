@@ -5,7 +5,7 @@
 namespace gala { namespace simulation {
 
 // Base class
-Body::Body(potential::BasePotential *potential, double *w, int nbodies,
+Body::Body(gala::potential::BasePotential *potential, double *w, int nbodies,
            std::string name, int ndim) {
     // store potential pointer and initialize
     this->potential = potential;
