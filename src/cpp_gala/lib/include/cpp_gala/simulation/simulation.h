@@ -6,36 +6,25 @@
 #ifndef _GALA_SIMULATION_H
 #define _GALA_SIMULATION_H
 
-#include <string>
+#include <cpp_gala/potential/potential.h>
+#include <cpp_gala/simulation/body.h>
 
 namespace gala { namespace simulation {
 
-class BaseSimulation {
+class Simulation {
 
     public:
         // Attributes:
-        // std::string const m_name;
-
-        // Methods:
-        // virtual double get_value(double t);
-
-};
-
-class PotentialSimulation : public BaseSimulation {
-    /*
-    A simulation with test particles orbiting in an external potential.
-    */
-
-    public:
-        // Attributes:
-        // double m_val;
+        potential::BasePotential *potential;
+        std::map<std::string, Body*> bodies;
 
         // Constructors:
-        // TODO: implement int, long, double, array constructors!
-        // StaticPotentialParameter(double val);
+        Simulation(potential::BasePotential *potential);
+        Simulation() : Simulation(NULL) {};
 
         // Methods:
-        // double get_value(double t) override;
+        void add_body(Body *body);
+        int get_nbodies();
 
 };
 

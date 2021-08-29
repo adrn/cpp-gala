@@ -11,11 +11,6 @@ namespace gala { namespace potential {
 
 class BasePotential {
 
-    // private:
-    //     // Attributes:
-    //     int ndim;  // phase-space dimensionality, 3 in most cases
-    //     double G;  // value of G in the unit system
-
     public:
         // Attributes:
         int ndim;  // phase-space dimensionality, 3 in most cases
