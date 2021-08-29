@@ -32,7 +32,7 @@ py::array_t<double> density(BasePotential *pot,
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->m_ndim != q_ndim) {
+    } else if (pot->ndim != q_ndim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }
@@ -59,7 +59,7 @@ py::array_t<double> energy(BasePotential *pot,
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->m_ndim != q_ndim) {
+    } else if (pot->ndim != q_ndim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }
@@ -86,7 +86,7 @@ py::array_t<double> gradient(BasePotential *pot,
 
     if (q_buf.ndim != 2) {
         throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->m_ndim != q_ndim) {
+    } else if (pot->ndim != q_ndim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }

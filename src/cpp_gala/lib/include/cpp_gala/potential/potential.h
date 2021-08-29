@@ -11,10 +11,15 @@ namespace gala { namespace potential {
 
 class BasePotential {
 
+    // private:
+    //     // Attributes:
+    //     int ndim;  // phase-space dimensionality, 3 in most cases
+    //     double G;  // value of G in the unit system
+
     public:
         // Attributes:
-        int m_ndim;  // phase-space dimensionality, 3 in most cases
-        double m_G;  // value of G in the unit system
+        int ndim;  // phase-space dimensionality, 3 in most cases
+        double G;  // value of G in the unit system
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors:

@@ -7,11 +7,12 @@ namespace gala { namespace potential {
 
 // Base class
 BasePotential::BasePotential(double G, int ndim) {
-    m_G = G;
-    m_ndim = ndim;
+    this->G = G;
+    this->ndim = ndim;
 }
 
-int BasePotential::get_ndim() const { return m_ndim; }
+int BasePotential::get_ndim() const { return this->ndim; }
+double BasePotential::get_G() const { return this->G; }
 
 double BasePotential::_density(double *q, double t) { return NAN; }
 double BasePotential::_energy(double *q, double t) { return NAN; }
@@ -35,12 +36,12 @@ double KeplerPotential::_density(double *q, double t) {
 
 double KeplerPotential::_energy(double *q, double t) {
     double r = gala::utils::xyz_to_r(q);
-    return - m_G * parameters["M"]->get_value(t) / r;
+    return - this->G * parameters["M"]->get_value(t) / r;
 }
 
 void KeplerPotential::_gradient(double *q, double t, double *grad) {
     double r = gala::utils::xyz_to_r(q);
-    double GM = m_G * parameters["M"]->get_value(t);
+    double GM = this->G * parameters["M"]->get_value(t);
     double fac = GM / pow(r, 3);
     grad[0] = fac * q[0];
     grad[1] = fac * q[1];
