@@ -16,6 +16,7 @@ using namespace gala::simulation;
 
 PYBIND11_MODULE(_simulation, mod) {
     py::module potential = py::module::import("cpp_gala._potential");
+    potential.attr("BasePotential");
 
     py::class_<Simulation>(mod, "Simulation")
         .def(py::init<>())

@@ -4,12 +4,15 @@
 #include <string>
 #include <map>
 #include <cpp_gala/potential/potentialparameter.h>
+// #include <pybind11/pybind11.h>
 
 #define DEFAULT_NDIM 3
 
 namespace gala { namespace potential {
 
+// TODO: should we use pybind11_export here instead?
 class __attribute__((visibility("default"))) BasePotential {
+// class PYBIND11_EXPORT BasePotential {
 
     public:
         // Attributes:

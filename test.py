@@ -83,6 +83,10 @@
 # -----------------------------------------------------------------------------
 # Simulation tmp testing
 #
+from cpp_gala._simulation import Simulation  # , Body
+sim = Simulation()
+
+# ---
 
 from cpp_gala._potential import (KeplerPotential,
                                  StaticPotentialParameter)
