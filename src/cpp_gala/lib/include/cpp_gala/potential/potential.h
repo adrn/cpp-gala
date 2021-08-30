@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <cpp_gala/potential/potentialparameter.h>
 // #include <pybind11/pybind11.h>
 
@@ -16,22 +17,31 @@ class __attribute__((visibility("default"))) BasePotential {
 
     public:
         // Attributes:
-        int ndim;  // phase-space dimensionality, 3 in most cases
-        double G;  // value of G in the unit system
+        int ndim; // phase-space dimensionality, 3 in most cases
+        double G; // value of G in the unit system
+        double *q0; // the origin of the potential
         std::map<std::string, BasePotentialParameter*> parameters;
 
-        // Constructors:
+        // Constructors and Destructors:
         BasePotential(double G,
-                      int ndim=DEFAULT_NDIM);
+                      int ndim=DEFAULT_NDIM,
+                      double *q0=nullptr);
 
         // Methods::
-        int get_ndim() const;
-        double get_G() const;
+        void shift_rotate_q(double *q);
 
         virtual double _density(double *q, double t);
         virtual double _energy(double *q, double t);
         virtual void _gradient(double *q, double t, double *grad);
+
+        double density(double *q, double t);
+        double energy(double *q, double t);
+        void gradient(double *q, double t, double *grad);
+        void acceleration(double *q, double t, double *grad);
         // void _hessian(double *q, double t, double *hess);
+
+    private:
+        std::vector<double> tmp_q; // used for storing shifted/rotated q values
 
 };
 
@@ -41,7 +51,8 @@ class KeplerPotential : public BasePotential {
         // Constructors:
         KeplerPotential(double G,
                         BasePotentialParameter *M,
-                        int ndim=DEFAULT_NDIM);
+                        int ndim=DEFAULT_NDIM,
+                        double *q0=nullptr);
 
         // Methods::
         double _density(double *q, double t) override;

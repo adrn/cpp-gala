@@ -13,6 +13,8 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::potential;
 
+using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>;
+
 
 // void test() {
 //     StaticPotentialParameter m(1.);
@@ -22,9 +24,7 @@ using namespace gala::potential;
 // }
 
 
-py::array_t<double> density(BasePotential *pot,
-                            py::array_t<double, py::array::c_style> q,
-                            double t) {
+array_t density(BasePotential *pot, array_t q, double t) {
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
@@ -37,21 +37,19 @@ py::array_t<double> density(BasePotential *pot,
                                  "as the potential dimensionality");
     }
 
-    auto result = py::array_t<double>(q_buf.shape[0]);
+    auto result = array_t(q_buf.shape[0]);
     py::buffer_info result_buf = result.request();
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->_density(&q_arr[q_ndim * i], t);
+        result_arr[i] = pot->density(&q_arr[q_ndim * i], t);
     }
 
     return result;
 }
 
 
-py::array_t<double> energy(BasePotential *pot,
-                           py::array_t<double, py::array::c_style> q,
-                           double t) {
+array_t energy(BasePotential *pot, array_t q, double t) {
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
@@ -64,21 +62,19 @@ py::array_t<double> energy(BasePotential *pot,
                                  "as the potential dimensionality");
     }
 
-    auto result = py::array_t<double>(q_buf.shape[0]);
+    auto result = array_t(q_buf.shape[0]);
     py::buffer_info result_buf = result.request();
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->_energy(&q_arr[q_ndim * i], t);
+        result_arr[i] = pot->energy(&q_arr[q_ndim * i], t);
     }
 
     return result;
 }
 
 
-py::array_t<double> gradient(BasePotential *pot,
-                             py::array_t<double, py::array::c_style> q,
-                             double t) {
+array_t gradient(BasePotential *pot, array_t q, double t) {
     // TODO: make a validate function to check q array and pot ndim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
@@ -91,17 +87,25 @@ py::array_t<double> gradient(BasePotential *pot,
                                  "as the potential dimensionality");
     }
 
-    auto result = py::array_t<double>(q_buf.size);
+    auto result = array_t(q_buf.size);
     result.resize({q_buf.shape[0], q_buf.shape[1]});
 
     py::buffer_info result_buf = result.request();
     double *result_arr = (double*)result_buf.ptr;
 
+    // Zero out the values:
+    for (int i=0; i < q_buf.size; i++)
+        result_arr[i] = 0.;
+
     for (int i=0; i < q_buf.shape[0]; i++) {
-        pot->_gradient(&q_arr[q_ndim * i], t, &result_arr[q_ndim * i]);
+        pot->gradient(&q_arr[q_ndim * i], t, &result_arr[q_ndim * i]);
     }
 
     return result;
+}
+
+array_t acceleration(BasePotential *pot, array_t q, double t) {
+    return - gradient(pot, q, t);
 }
 
 
@@ -117,9 +121,9 @@ PYBIND11_MODULE(_potential, mod) {
     py::class_<InterpolatedPotentialParameter, BasePotentialParameter>(
             mod, "InterpolatedPotentialParameter")
         .def("__init__", [](
-            InterpolatedPotentialParameter &instance,
-            py::array_t<double> times,
-            py::array_t<double> vals,
+            InterpolatedPotentialParameter &self,
+            array_t times,
+            array_t vals,
             int interp_order) {
 
                 py::buffer_info times_buf = times.request();
@@ -134,7 +138,7 @@ PYBIND11_MODULE(_potential, mod) {
                     throw std::runtime_error("times and vals arrays must be 1D arrays");
                 }
 
-                new (&instance) InterpolatedPotentialParameter(
+                new (&self) InterpolatedPotentialParameter(
                     &times_arr[0], &vals_arr[0], times_buf.size, interp_order);
             }
         )
@@ -142,14 +146,36 @@ PYBIND11_MODULE(_potential, mod) {
 
     // TODO: do we need to expose this...?
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<double, int>(), "G"_a, "ndim"_a=DEFAULT_NDIM)
-        .def("get_ndim", &BasePotential::get_ndim);
+        .def(py::init<double, int, double*>(), "G"_a, "ndim"_a=DEFAULT_NDIM, "q0"_a=NULL);
 
+    // TODO: how much of this boilerplate needs to be copy-pasta'd for each subclass? is there a
+    // simpler way?
     py::class_<KeplerPotential, BasePotential>(mod, "KeplerPotential")
-        .def(py::init<double, BasePotentialParameter*, int>(), "G"_a, "m"_a, "ndim"_a=DEFAULT_NDIM)
-        .def("get_ndim", &KeplerPotential::get_ndim)
+        .def("__init__", [](
+            BasePotential &self,
+            double G,
+            BasePotentialParameter* m,
+            int ndim,
+            array_t q0) {
+                py::buffer_info q0_buf = q0.request();
+                double *q0_arr = (double*)q0_buf.ptr;
+
+                if (std::isnan(q0_arr[0])) {
+                    new (&self) KeplerPotential(G, m, ndim);
+                } else {
+                    new (&self) KeplerPotential(G, m, ndim, &q0_arr[0]);
+                }
+
+            }, "G"_a, "m"_a, "ndim"_a=DEFAULT_NDIM, "q0"_a=py::none()
+        )
+        .def_property_readonly("ndim", [](KeplerPotential &pot) { return pot.ndim; })
+        .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
+        .def_property_readonly("q0", [](KeplerPotential &pot) {
+            return py::array(pot.ndim, pot.q0);
+        })
         .def("density", &density)
         .def("energy", &energy)
-        .def("gradient", &gradient);
+        .def("gradient", &gradient)
+        .def("acceleration", &acceleration);
 
 }
