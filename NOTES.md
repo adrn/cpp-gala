@@ -1,3 +1,8 @@
+Notes
+=====
+- n_dim is always half of the phase-space dimensionality (i.e. 3 not 6)
+
+
 Questions
 =========
 
