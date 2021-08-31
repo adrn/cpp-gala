@@ -22,13 +22,29 @@ PYBIND11_MODULE(_simulation, mod) {
         .def(py::init<>())
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def("add_body", &Simulation::add_body)
-        .def_property_readonly("nbodies", &Simulation::get_nbodies);
+        .def_property_readonly("nbodies", &Simulation::get_nbodies)
+        .def("acceleration", [](
+            Simulation &self,
+            Body *body,
+            double t) {
+                // Array to return:
+                auto acc = py::array_t<double>(body->nbodies * body->ndim);
+                acc.resize({body->nbodies, body->ndim});
+
+                py::buffer_info acc_buf = acc.request();
+                double *acc_arr = (double*)acc_buf.ptr;
+
+                self.get_acceleration(body, t, acc_arr);
+
+                return acc;
+            }
+        );
 
     py::class_<Body>(mod, "Body")
         .def("__init__", [](
-            Body &instance,
-            gala::potential::BasePotential *potential,
+            Body &self,
             py::array_t<double> w,
+            gala::potential::BasePotential *potential,
             std::string name,
             int ndim) {
 
@@ -40,9 +56,9 @@ PYBIND11_MODULE(_simulation, mod) {
                         "Input Body phase-space coordinates w must be a 2D array");
                 }
 
-                new (&instance) Body(
+                new (&self) Body(
                     potential, &w_arr[0], w_buf.shape[0], name, ndim);
-            }, "potential"_a, "w"_a, "name"_a = "", "ndim"_a = DEFAULT_NDIM
+            }, "w"_a, "potential"_a = NULL, "name"_a = "", "ndim"_a = DEFAULT_NDIM
         )
         .def_property_readonly("nbodies", [](Body &body) {
             return body.nbodies;

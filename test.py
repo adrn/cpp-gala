@@ -4,11 +4,24 @@
 # import numpy as np
 
 # M = StaticPotentialParameter(1.)
-# pot = KeplerPotential(1., M, 3)
-# print(pot.get_ndim())
+# q0 = np.array([0., 0, 0])
+# pot = KeplerPotential(1., M, 3, q0=q0)
+# # pot = KeplerPotential(1., M, 3)
+# print(pot.ndim, pot.G, pot.q0)
 
-# q = np.array([[1., 2., 3.]])
-# print(pot.density(q, 0.))
+# q = np.array([[2., 0., 0.]])
+# print('density', pot.density(q, 0.))
+# print('density 2', pot.density(q, 0.))
+# print('density 3', pot.density(q, 0.))
+# print('gradient', pot.gradient(q, 0.))
+# print('gradient 2', pot.gradient(q, 0.))
+# print('gradient 3', pot.gradient(q, 0.))
+# print('acceleration', pot.acceleration(q, 0.))
+
+# print("final q0", pot.q0)
+
+# import sys
+# sys.exit(0)
 
 
 # -----------------------------------------------------------------------------
@@ -94,18 +107,57 @@ from cpp_gala._potential import (KeplerPotential,
 from cpp_gala._simulation import Simulation, Body
 import numpy as np
 
+ext_M = StaticPotentialParameter(1.)
+ext_pot = KeplerPotential(1., ext_M)
+
 M = StaticPotentialParameter(1.)
 pot = KeplerPotential(1., M)
 
-# sim = Simulation(pot)
+# sim = Simulation(ext_pot)
 sim = Simulation()
 
-# body = Body(pot, np.array([[1., 2., 3.]]))
-body = Body(pot, np.array([[1., 2., 3.]]), "derp")
-print(body.name, body.ndim)
+# body1 = Body(
+#     np.array([[1., 0., 0., 0, 0, 0],
+#               [2., 0, 0, 0, 0, 0]]),
+#     potential=pot,
+#     # potential=None,
+#     name="derp1"
+# )
 
-sim.add_body(body)
+# body2 = Body(
+#     np.array([[-1., 0., 0., 0, 0, 0],
+#               [-2., 0, 0, 0, 0, 0]]),
+#     # potential=pot,
+#     potential=None,
+#     name="derp2"
+# )
 
+body1_w = np.array([[1., 0., 0., 0, 0, 0],
+                    [2., 0, 0, 0, 0, 0]])
+body1 = Body(
+    body1_w,
+    potential=pot,
+    # potential=None,
+    name="derp1"
+)
+
+body2_w = np.array([[-1., 0., 0., 0, 0, 0],
+                    [-2., 0, 0, 0, 0, 0]])
+body2 = Body(
+    body2_w,
+    potential=pot,
+    # potential=None,
+    name="derp2"
+)
+
+sim.add_body(body1)
+sim.add_body(body2)
+
+print(sim.nbodies)
+print(sim.acceleration(body1, 0.))
+
+import sys
+sys.exit(0)
 
 # -----------------------------------------------------------------------------
 # Simulation desired API

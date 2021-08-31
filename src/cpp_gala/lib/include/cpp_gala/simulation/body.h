@@ -33,7 +33,7 @@ class Body {
              std::string name="", int ndim=DEFAULT_NDIM);
 
         // Methods:
-        // void get_acceleration(double *w, double *acc); // computed at other positions from these bodies
+        void get_acceleration(Body *body, double t, double *acc);
         // void register_extra_force();
         // TODO: figure this out, but will enable things like dynamical friction
 

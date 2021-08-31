@@ -25,7 +25,7 @@ class Simulation {
         // Methods:
         void add_body(Body *body);
         int get_nbodies();
-
+        void get_acceleration(Body *body, double t, double *acc);
 };
 
 }} // namespace: gala::simulation
