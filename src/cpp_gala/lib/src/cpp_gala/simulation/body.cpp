@@ -4,9 +4,8 @@
 
 namespace gala { namespace simulation {
 
-// TODO: rename Body -> BodyCollection
-Body::Body(gala::potential::BasePotential *potential, double *w, int nbodies,
-           std::string name, int ndim) {
+BodyCollection::BodyCollection(gala::potential::BasePotential *potential, double *w, int nbodies,
+                               std::string name, int ndim) {
     // store potential pointer and initialize
     this->potential = potential;
     this->w = w;
@@ -22,7 +21,7 @@ Body::Body(gala::potential::BasePotential *potential, double *w, int nbodies,
     }
 }
 
-void Body::get_acceleration(Body *body, double t, double *acc) {
+void BodyCollection::get_acceleration(BodyCollection *body, double t, double *acc) {
     /*
     Compute the acceleration from this body at a single position `w`
 

@@ -18,6 +18,36 @@ using namespace gala::simulation;
 PYBIND11_MODULE(_simulation, mod) {
     py::module::import("cpp_gala._potential");
 
+    py::class_<BodyCollection>(mod, "BodyCollection")
+        .def("__init__", [](
+            BodyCollection &self,
+            py::array_t<double> w,
+            gala::potential::BasePotential *potential,
+            std::string name,
+            int ndim) {
+
+                py::buffer_info w_buf = w.request();
+                double *w_arr = (double*)w_buf.ptr;
+
+                if (w_buf.ndim != 2){
+                    throw std::runtime_error(
+                        "Input BodyCollection phase-space coordinates w must be a 2D array");
+                }
+
+                new (&self) BodyCollection(
+                    potential, &w_arr[0], w_buf.shape[0], name, ndim);
+            }, "w"_a, "potential"_a = NULL, "name"_a = "", "ndim"_a = DEFAULT_NDIM
+        )
+        .def_property_readonly("nbodies", [](BodyCollection &body) {
+            return body.nbodies;
+        })
+        .def_property_readonly("ndim", [](BodyCollection &body) {
+            return body.ndim;
+        })
+        .def_property_readonly("name", [](BodyCollection &body) {
+            return body.name;
+        });
+
     py::class_<Simulation>(mod, "Simulation")
         .def(py::init<>())
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
@@ -25,7 +55,7 @@ PYBIND11_MODULE(_simulation, mod) {
         .def_property_readonly("nbodies", &Simulation::get_nbodies)
         .def("acceleration", [](
             Simulation &self,
-            Body *body,
+            BodyCollection *body,
             double t) {
                 // Array to return:
                 auto acc = py::array_t<double>(body->nbodies * body->ndim);
@@ -39,35 +69,4 @@ PYBIND11_MODULE(_simulation, mod) {
                 return acc;
             }
         );
-
-    py::class_<Body>(mod, "Body")
-        .def("__init__", [](
-            Body &self,
-            py::array_t<double> w,
-            gala::potential::BasePotential *potential,
-            std::string name,
-            int ndim) {
-
-                py::buffer_info w_buf = w.request();
-                double *w_arr = (double*)w_buf.ptr;
-
-                if (w_buf.ndim != 2){
-                    throw std::runtime_error(
-                        "Input Body phase-space coordinates w must be a 2D array");
-                }
-
-                new (&self) Body(
-                    potential, &w_arr[0], w_buf.shape[0], name, ndim);
-            }, "w"_a, "potential"_a = NULL, "name"_a = "", "ndim"_a = DEFAULT_NDIM
-        )
-        .def_property_readonly("nbodies", [](Body &body) {
-            return body.nbodies;
-        })
-        .def_property_readonly("ndim", [](Body &body) {
-            return body.ndim;
-        })
-        .def_property_readonly("name", [](Body &body) {
-            return body.name;
-        });
-
 }

@@ -11,7 +11,7 @@ Simulation::Simulation(gala::potential::BasePotential *potential) {
     this->potential = potential;
 }
 
-void Simulation::add_body(Body *body) {
+void Simulation::add_body(BodyCollection *body) {
     /*
     TODO: check body->ndim against this->potential->ndim?
     TODO: error if the name is the same as an existing body
@@ -36,7 +36,7 @@ int Simulation::get_nbodies() {
     return nbodies;
 }
 
-void Simulation::get_acceleration(Body *body, double t, double *acc) {
+void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
     /*
     Compute the acceleration on a body given all other elements (bodies, external potentials, and
     forces) in the simulation.

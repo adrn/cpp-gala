@@ -6,7 +6,7 @@
 
 namespace gala { namespace simulation {
 
-class Body {
+class BodyCollection {
     /*
     Parameters
     ----------
@@ -29,11 +29,11 @@ class Body {
         std::string name;
 
         // Constructors:
-        Body(gala::potential::BasePotential *potential, double *w, int nbodies=1,
-             std::string name="", int ndim=DEFAULT_NDIM);
+        BodyCollection(gala::potential::BasePotential *potential, double *w, int nbodies=1,
+                       std::string name="", int ndim=DEFAULT_NDIM);
 
         // Methods:
-        void get_acceleration(Body *body, double t, double *acc);
+        void get_acceleration(BodyCollection *body, double t, double *acc);
         // void register_extra_force();
         // TODO: figure this out, but will enable things like dynamical friction
 
