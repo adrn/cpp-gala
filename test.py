@@ -97,14 +97,14 @@
 # Simulation tmp testing
 #
 # TODO: Note that this doesn't work on its own and I don't know why...
-# from cpp_gala._simulation import Simulation  # , Body
+# from cpp_gala._simulation import Simulation
 # sim = Simulation()
 
 # ---
 
 from cpp_gala._potential import (KeplerPotential,
                                  StaticPotentialParameter)
-from cpp_gala._simulation import Simulation, Body
+from cpp_gala._simulation import Simulation, BodyCollection
 import numpy as np
 
 ext_M = StaticPotentialParameter(1.)
@@ -116,7 +116,7 @@ pot = KeplerPotential(1., M)
 # sim = Simulation(ext_pot)
 sim = Simulation()
 
-# body1 = Body(
+# body1 = BodyCollection(
 #     np.array([[1., 0., 0., 0, 0, 0],
 #               [2., 0, 0, 0, 0, 0]]),
 #     potential=pot,
@@ -124,7 +124,7 @@ sim = Simulation()
 #     name="derp1"
 # )
 
-# body2 = Body(
+# body2 = BodyCollection(
 #     np.array([[-1., 0., 0., 0, 0, 0],
 #               [-2., 0, 0, 0, 0, 0]]),
 #     # potential=pot,
@@ -134,7 +134,7 @@ sim = Simulation()
 
 body1_w = np.array([[1., 0., 0., 0, 0, 0],
                     [2., 0, 0, 0, 0, 0]])
-body1 = Body(
+body1 = BodyCollection(
     body1_w,
     potential=pot,
     # potential=None,
@@ -143,7 +143,7 @@ body1 = Body(
 
 body2_w = np.array([[-1., 0., 0., 0, 0, 0],
                     [-2., 0, 0, 0, 0, 0]])
-body2 = Body(
+body2 = BodyCollection(
     body2_w,
     potential=pot,
     # potential=None,
@@ -164,7 +164,7 @@ sys.exit(0)
 #
 # from cpp_gala._potential import (KeplerPotential,
 #                                  StaticPotentialParameter)
-# from cpp_gala._simulation import Simulation, Body
+# from cpp_gala._simulation import Simulation, BodyCollection
 # import numpy as np
 
 # M = StaticPotentialParameter(1.)
@@ -172,12 +172,12 @@ sys.exit(0)
 
 # """
 # Notes:
-# - TestParticle() and Body() can actually be array-like
+# - TestParticle() and BodyCollection() can actually be array-like
 # """
 # sim = Simulation(potential=external_pot)
-# sim.add_body(Body())  # test particle
-# sim.add_body(Body(), name='Sag')  # test particle, named
-# sim.add_body(Body(potential=KeplerPotential()))  # massive body
+# sim.add_body(BodyCollection())  # test particle
+# sim.add_body(BodyCollection(), name='Sag')  # test particle, named
+# sim.add_body(BodyCollection(potential=KeplerPotential()))  # massive body
 # # sim.add_body(MockStream())
 # state = sim.run()  # TODO: snapshot options, save_timesteps, ...
 
