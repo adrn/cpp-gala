@@ -34,7 +34,6 @@ void BasePotential::_gradient(double *q, double t, double *grad) { }
 
 // These are the methods that should be called by anything that actually needs to use potentials
 double BasePotential::density(double *q, double t) {
-
     this->shift_rotate_q(q);
     return _density(this->tmp_q.data(), t);
 }
@@ -50,11 +49,11 @@ void BasePotential::gradient(double *q, double t, double *grad) {
 }
 
 void BasePotential::acceleration(double *q, double t, double *acc) {
-    gradient(q, t, acc);
+    std::vector<double> tmp_grad(this->ndim, 0.);
+
+    gradient(q, t, &tmp_grad[0]);
     for (int i=0; i < this->ndim; i++) {
-        std::cout << "grad " << acc[i];
-        acc[i] = -acc[i];
-        std::cout << " acc " << acc[i] << "\n";
+        acc[i] = acc[i] - tmp_grad[i];
     }
 }
 
@@ -83,9 +82,11 @@ void KeplerPotential::_gradient(double *q, double t, double *grad) {
     double r = gala::utils::xyz_to_r(q);
     double GM = this->G * parameters["M"]->get_value(t);
     double fac = GM / pow(r, 3);
+
     grad[0] += fac * q[0];
     grad[1] += fac * q[1];
     grad[2] += fac * q[2];
+
 }
 
 
