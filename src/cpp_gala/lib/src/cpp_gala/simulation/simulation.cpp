@@ -27,7 +27,13 @@ void Simulation::add_body(Body *body) {
 }
 
 int Simulation::get_nbodies() {
-    return this->bodies.size();
+    /*
+    Return the total number of bodies added to the simulation.
+    */
+    int nbodies = 0;
+    for (const auto &pair : this->bodies)
+        nbodies += pair.second->nbodies;
+    return nbodies;
 }
 
 void Simulation::get_acceleration(Body *body, double t, double *acc) {
