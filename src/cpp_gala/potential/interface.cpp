@@ -146,7 +146,8 @@ PYBIND11_MODULE(_potential, mod) {
 
     // TODO: do we need to expose this...?
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<double, int, double*>(), "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=NULL);
+        .def(py::init<double, int, std::vector<double>>(),
+             "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none());
 
     // TODO: how much of this boilerplate needs to be copy-pasta'd for each subclass? is there a
     // simpler way?
@@ -157,13 +158,13 @@ PYBIND11_MODULE(_potential, mod) {
             BasePotentialParameter* m,
             int n_dim,
             array_t q0) {
-                py::buffer_info q0_buf = q0.request();
-                double *q0_arr = (double*)q0_buf.ptr;
+                std::vector<double> q0_vec;
+                q0_vec.assign(q0.data(), q0.data() + q0.size());
 
-                if (std::isnan(q0_arr[0])) {
+                if (std::isnan(q0_vec[0])) {
                     new (&self) KeplerPotential(G, m, n_dim);
                 } else {
-                    new (&self) KeplerPotential(G, m, n_dim, &q0_arr[0]);
+                    new (&self) KeplerPotential(G, m, n_dim, q0_vec);
                 }
 
             }, "G"_a, "m"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none()
@@ -171,7 +172,7 @@ PYBIND11_MODULE(_potential, mod) {
         .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
         .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
         .def_property_readonly("q0", [](KeplerPotential &pot) {
-            return py::array(pot.n_dim, pot.q0);
+            return py::array(pot.q0.size(), pot.q0.data());
         })
         .def("density", &density)
         .def("energy", &energy)

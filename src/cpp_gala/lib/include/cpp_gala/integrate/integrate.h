@@ -12,33 +12,38 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         // Attributes:
 
         // Constructors and Destructors:
-        BaseIntegrator();
+        BaseIntegrator(Simulation *sim);
         ~BaseIntegrator();
 
         // Methods:
-        virtual void step(Simulation *sim, double t0, double dt, double *w);
-        void integrate(Simulation *sim, double *t, int n_t, double *result_w);
+        virtual void step(double *w0, double t, double dt, double *result_w);
+        virtual void integrate(double *t, int n_t, double *result_w);
 };
 
 
 class LeapfrogIntegrator : public BaseIntegrator {
     public:
         // Constructors and Destructors:
-        LeapfrogIntegrator();
+        LeapfrogIntegrator(Simulation *sim);
 
         // Methods:
-        void step(Simulation *sim, double t0, double dt, double *w) override;
+        void step(double *w0, double t, double dt, double *result_w) override;
+        void integrate(double *t, int n_t, double *result_w) override;
+
+    private:
+        std::vector<double> v_ip1_2;
 };
 
 
-class GSLIntegrator : public BaseIntegrator {
-    public:
-        // Constructors:
-        //TODO: GSLIntegrator(); ...
+// class GSLIntegrator : public BaseIntegrator {
+//     public:
+//         // Constructors:
+//         //TODO: GSLIntegrator(); ...
 
-        // Methods:
-        void step(Simulation *sim, double t0, double dt, double *w) override;
-};
+//         // Methods:
+//         void step(double *w0, double t, double dt, double *result_w) override;
+//         void integrate(double *t, int n_t, double *result_w) override;
+// };
 
 }} // namespace: gala::integrate
 

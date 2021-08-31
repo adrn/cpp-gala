@@ -36,7 +36,7 @@ int Simulation::get_n_bodies() {
     return n_bodies;
 }
 
-void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
+void Simulation::get_body_acceleration(BodyCollection *body, double t, double *acc) {
     /*
     Compute the acceleration on a body given all other elements (bodies, external potentials, and
     forces) in the simulation.
@@ -50,7 +50,7 @@ void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
     if (this->potential != NULL) {
         // Compute the acceleration from the simulation external potential, if set
         for (i=0; i < body->n_bodies; i++)
-            this->potential->acceleration(&body->w[2 * body->n_dim * i],
+            this->potential->acceleration(&body->w[i][0],
                                           t,
                                           &acc[body->n_dim * i]);
     }
@@ -59,10 +59,13 @@ void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
     for (const auto &pair : this->bodies)
         pair.second->get_acceleration(body, t, acc);
 
-
     // TODO: Compute acceleration from additional forces registered to this body
 
 }
+
+// TODO: get_all_w to retrieve all body w ??
+// TODO: set_all_w to take a single array w and set all of the body w's
+// TODO: get_all_acceleration to retrieve acceleration ??
 
 
 }} // namespace: gala::simulation

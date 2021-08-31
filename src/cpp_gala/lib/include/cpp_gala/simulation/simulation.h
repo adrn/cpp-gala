@@ -26,7 +26,7 @@ class __attribute__((visibility("default"))) Simulation {
         // Methods:
         void add_body(BodyCollection *body);
         int get_n_bodies();
-        void get_acceleration(BodyCollection *body, double t, double *acc);
+        void get_body_acceleration(BodyCollection *body, double t, double *acc);
 };
 
 }} // namespace: gala::simulation

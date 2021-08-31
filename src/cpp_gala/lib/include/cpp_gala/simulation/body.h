@@ -22,15 +22,16 @@ class BodyCollection {
     public:
         // Attributes:
         bool massless;
+        std::vector<std::vector<double>> w;
         int n_dim;
         int n_bodies;
-        double *w;
         gala::potential::BasePotential *potential;
         std::string name;
 
         // Constructors:
-        BodyCollection(gala::potential::BasePotential *potential, double *w, int n_bodies=1,
-                       std::string name="", int n_dim=DEFAULT_n_dim);
+        BodyCollection(gala::potential::BasePotential *potential,
+                       std::vector<std::vector<double>> w,
+                       std::string name="");
 
         // Methods:
         void get_acceleration(BodyCollection *body, double t, double *acc);

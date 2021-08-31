@@ -23,20 +23,19 @@ PYBIND11_MODULE(_simulation, mod) {
             BodyCollection &self,
             py::array_t<double> w,
             gala::potential::BasePotential *potential,
-            std::string name,
-            int n_dim) {
-
-                py::buffer_info w_buf = w.request();
-                double *w_arr = (double*)w_buf.ptr;
-
-                if (w_buf.ndim != 2){
+            std::string name) {
+                if (w.ndim() != 2){
                     throw std::runtime_error(
                         "Input BodyCollection phase-space coordinates w must be a 2D array");
                 }
 
-                new (&self) BodyCollection(
-                    potential, &w_arr[0], w_buf.shape[0], name, n_dim);
-            }, "w"_a, "potential"_a = NULL, "name"_a = "", "n_dim"_a = DEFAULT_n_dim
+                std::vector<std::vector<double>> w_vec(w.shape(0),
+                                                       std::vector<double> (w.shape(1)));
+                for (int i=0; i < w.shape(0); i++)
+                    w_vec[i].assign(w.data(i), w.data(i) + w.shape(1));
+
+                new (&self) BodyCollection(potential, w_vec, name);
+            }, "w"_a, "potential"_a = NULL, "name"_a = ""
         )
         .def_property_readonly("n_bodies", [](BodyCollection &body) {
             return body.n_bodies;
@@ -53,7 +52,7 @@ PYBIND11_MODULE(_simulation, mod) {
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def("add_body", &Simulation::add_body)
         .def_property_readonly("n_bodies", &Simulation::get_n_bodies)
-        .def("acceleration", [](
+        .def("body_acceleration", [](
             Simulation &self,
             BodyCollection *body,
             double t) {
@@ -64,7 +63,7 @@ PYBIND11_MODULE(_simulation, mod) {
                 py::buffer_info acc_buf = acc.request();
                 double *acc_arr = (double*)acc_buf.ptr;
 
-                self.get_acceleration(body, t, acc_arr);
+                self.get_body_acceleration(body, t, acc_arr);
 
                 return acc;
             }

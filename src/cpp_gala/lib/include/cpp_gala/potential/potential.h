@@ -19,13 +19,13 @@ class __attribute__((visibility("default"))) BasePotential {
         // Attributes:
         int n_dim; // phase-space dimensionality, 3 in most cases
         double G; // value of G in the unit system
-        double *q0; // the origin of the potential
+        std::vector<double> q0; // the origin of the potential
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors and Destructors:
         BasePotential(double G,
                       int n_dim=DEFAULT_n_dim,
-                      double *q0=nullptr);
+                      std::vector<double> q0={});
 
         // Methods::
         void shift_rotate_q(double *q);
@@ -52,7 +52,7 @@ class KeplerPotential : public BasePotential {
         KeplerPotential(double G,
                         BasePotentialParameter *M,
                         int n_dim=DEFAULT_n_dim,
-                        double *q0=nullptr);
+                        std::vector<double> q0={});
 
         // Methods::
         double _density(double *q, double t) override;
