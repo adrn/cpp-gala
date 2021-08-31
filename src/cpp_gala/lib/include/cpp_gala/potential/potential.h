@@ -7,7 +7,7 @@
 #include <cpp_gala/potential/potentialparameter.h>
 // #include <pybind11/pybind11.h>
 
-#define DEFAULT_NDIM 3
+#define DEFAULT_n_dim 3
 
 namespace gala { namespace potential {
 
@@ -17,14 +17,14 @@ class __attribute__((visibility("default"))) BasePotential {
 
     public:
         // Attributes:
-        int ndim; // phase-space dimensionality, 3 in most cases
+        int n_dim; // phase-space dimensionality, 3 in most cases
         double G; // value of G in the unit system
         double *q0; // the origin of the potential
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors and Destructors:
         BasePotential(double G,
-                      int ndim=DEFAULT_NDIM,
+                      int n_dim=DEFAULT_n_dim,
                       double *q0=nullptr);
 
         // Methods::
@@ -51,7 +51,7 @@ class KeplerPotential : public BasePotential {
         // Constructors:
         KeplerPotential(double G,
                         BasePotentialParameter *M,
-                        int ndim=DEFAULT_NDIM,
+                        int n_dim=DEFAULT_n_dim,
                         double *q0=nullptr);
 
         // Methods::

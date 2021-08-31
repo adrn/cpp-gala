@@ -7,12 +7,12 @@
 namespace gala { namespace potential {
 
 // Base class
-BasePotential::BasePotential(double G, int ndim, double *q0) {
+BasePotential::BasePotential(double G, int n_dim, double *q0) {
     this->G = G;
-    this->ndim = ndim;
+    this->n_dim = n_dim;
     this->q0 = q0;
 
-    for (int i=0; i < ndim; i++)
+    for (int i=0; i < n_dim; i++)
         this->tmp_q.push_back(NAN);
 }
 
@@ -20,7 +20,7 @@ void BasePotential::shift_rotate_q(double *q) {
     if (this->q0 == nullptr)
         return;
 
-    for (int i=0; i < this->ndim; i++) {
+    for (int i=0; i < this->n_dim; i++) {
         this->tmp_q[i] = q[i] - this->q0[i];
     }
 
@@ -49,18 +49,18 @@ void BasePotential::gradient(double *q, double t, double *grad) {
 }
 
 void BasePotential::acceleration(double *q, double t, double *acc) {
-    std::vector<double> tmp_grad(this->ndim, 0.);
+    std::vector<double> tmp_grad(this->n_dim, 0.);
 
     gradient(q, t, &tmp_grad[0]);
-    for (int i=0; i < this->ndim; i++) {
+    for (int i=0; i < this->n_dim; i++) {
         acc[i] = acc[i] - tmp_grad[i];
     }
 }
 
 
 // Potential implementations
-KeplerPotential::KeplerPotential(double G, BasePotentialParameter *M, int ndim, double *q0)
-: BasePotential(G, ndim, q0) {
+KeplerPotential::KeplerPotential(double G, BasePotentialParameter *M, int n_dim, double *q0)
+: BasePotential(G, n_dim, q0) {
     parameters.insert(std::make_pair("M", M));
 }
 

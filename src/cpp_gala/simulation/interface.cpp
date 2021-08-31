@@ -24,7 +24,7 @@ PYBIND11_MODULE(_simulation, mod) {
             py::array_t<double> w,
             gala::potential::BasePotential *potential,
             std::string name,
-            int ndim) {
+            int n_dim) {
 
                 py::buffer_info w_buf = w.request();
                 double *w_arr = (double*)w_buf.ptr;
@@ -35,14 +35,14 @@ PYBIND11_MODULE(_simulation, mod) {
                 }
 
                 new (&self) BodyCollection(
-                    potential, &w_arr[0], w_buf.shape[0], name, ndim);
-            }, "w"_a, "potential"_a = NULL, "name"_a = "", "ndim"_a = DEFAULT_NDIM
+                    potential, &w_arr[0], w_buf.shape[0], name, n_dim);
+            }, "w"_a, "potential"_a = NULL, "name"_a = "", "n_dim"_a = DEFAULT_n_dim
         )
-        .def_property_readonly("nbodies", [](BodyCollection &body) {
-            return body.nbodies;
+        .def_property_readonly("n_bodies", [](BodyCollection &body) {
+            return body.n_bodies;
         })
-        .def_property_readonly("ndim", [](BodyCollection &body) {
-            return body.ndim;
+        .def_property_readonly("n_dim", [](BodyCollection &body) {
+            return body.n_dim;
         })
         .def_property_readonly("name", [](BodyCollection &body) {
             return body.name;
@@ -52,14 +52,14 @@ PYBIND11_MODULE(_simulation, mod) {
         .def(py::init<>())
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def("add_body", &Simulation::add_body)
-        .def_property_readonly("nbodies", &Simulation::get_nbodies)
+        .def_property_readonly("n_bodies", &Simulation::get_n_bodies)
         .def("acceleration", [](
             Simulation &self,
             BodyCollection *body,
             double t) {
                 // Array to return:
-                auto acc = py::array_t<double>(body->nbodies * body->ndim);
-                acc.resize({body->nbodies, body->ndim});
+                auto acc = py::array_t<double>(body->n_bodies * body->n_dim);
+                acc.resize({body->n_bodies, body->n_dim});
 
                 py::buffer_info acc_buf = acc.request();
                 double *acc_arr = (double*)acc_buf.ptr;

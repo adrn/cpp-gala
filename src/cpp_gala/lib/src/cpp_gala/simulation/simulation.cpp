@@ -13,27 +13,27 @@ Simulation::Simulation(gala::potential::BasePotential *potential) {
 
 void Simulation::add_body(BodyCollection *body) {
     /*
-    TODO: check body->ndim against this->potential->ndim?
+    TODO: check body->n_dim against this->potential->n_dim?
     TODO: error if the name is the same as an existing body
     */
     std::string key;
 
     if (body->name == "") {
-        key = "body[" + std::to_string(this->get_nbodies()) + "]";
+        key = "body[" + std::to_string(this->get_n_bodies()) + "]";
     } else {
         key = body->name;
     }
     this->bodies.insert(std::make_pair(key, body));
 }
 
-int Simulation::get_nbodies() {
+int Simulation::get_n_bodies() {
     /*
     Return the total number of bodies added to the simulation.
     */
-    int nbodies = 0;
+    int n_bodies = 0;
     for (const auto &pair : this->bodies)
-        nbodies += pair.second->nbodies;
-    return nbodies;
+        n_bodies += pair.second->n_bodies;
+    return n_bodies;
 }
 
 void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
@@ -44,15 +44,15 @@ void Simulation::get_acceleration(BodyCollection *body, double t, double *acc) {
     int i;
 
     // Zero out any existing acceleration values
-    for (i=0; i < (body->nbodies * body->ndim); i++)
+    for (i=0; i < (body->n_bodies * body->n_dim); i++)
         acc[i] = 0.;
 
     if (this->potential != NULL) {
         // Compute the acceleration from the simulation external potential, if set
-        for (i=0; i < body->nbodies; i++)
-            this->potential->acceleration(&body->w[2 * body->ndim * i],
+        for (i=0; i < body->n_bodies; i++)
+            this->potential->acceleration(&body->w[2 * body->n_dim * i],
                                           t,
-                                          &acc[body->ndim * i]);
+                                          &acc[body->n_dim * i]);
     }
 
     // Compute the acceleration from all other bodies

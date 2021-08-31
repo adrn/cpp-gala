@@ -4,14 +4,14 @@
 
 namespace gala { namespace simulation {
 
-BodyCollection::BodyCollection(gala::potential::BasePotential *potential, double *w, int nbodies,
-                               std::string name, int ndim) {
+BodyCollection::BodyCollection(gala::potential::BasePotential *potential, double *w, int n_bodies,
+                               std::string name, int n_dim) {
     // store potential pointer and initialize
     this->potential = potential;
     this->w = w;
-    this->nbodies = nbodies;
+    this->n_bodies = n_bodies;
     this->name = name;
-    this->ndim = ndim;
+    this->n_dim = n_dim;
 
     // If the potential is NULL, this is a massless particle
     if (potential == nullptr) {
@@ -38,15 +38,15 @@ void BodyCollection::get_acceleration(BodyCollection *body, double t, double *ac
         return;
     }
 
-    for (int j=0; j < body->nbodies; j++) {
-        for (int i=0; i < this->nbodies; i++) {
+    for (int j=0; j < body->n_bodies; j++) {
+        for (int i=0; i < this->n_bodies; i++) {
             if ((body->name == this->name) && (i == j)) {
                 continue;
             }
 
             // the potential has to be centered at each body:
-            this->potential->q0 = &this->w[2 * this->ndim * i];
-            this->potential->acceleration(&body->w[2 * body->ndim * j], t, &acc[body->ndim * j]);
+            this->potential->q0 = &this->w[2 * this->n_dim * i];
+            this->potential->acceleration(&body->w[2 * body->n_dim * j], t, &acc[body->n_dim * j]);
         }
     }
 }

@@ -11,7 +11,8 @@
 
 namespace gala { namespace simulation {
 
-class Simulation {
+// TODO: should we use pybind11_export here instead?
+class __attribute__((visibility("default"))) Simulation {
 
     public:
         // Attributes:
@@ -24,7 +25,7 @@ class Simulation {
 
         // Methods:
         void add_body(BodyCollection *body);
-        int get_nbodies();
+        int get_n_bodies();
         void get_acceleration(BodyCollection *body, double t, double *acc);
 };
 

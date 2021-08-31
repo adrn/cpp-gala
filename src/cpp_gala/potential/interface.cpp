@@ -25,14 +25,14 @@ using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::
 
 
 array_t density(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot ndim?
+    // TODO: make a validate function to check q array and pot n_dim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
-    int q_ndim = q_buf.shape[1];
+    int q_n_dim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
-        throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->ndim != q_ndim) {
+        throw std::runtime_error("numpy.ndarray n_dim must be 2!");
+    } else if (pot->n_dim != q_n_dim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }
@@ -42,7 +42,7 @@ array_t density(BasePotential *pot, array_t q, double t) {
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->density(&q_arr[q_ndim * i], t);
+        result_arr[i] = pot->density(&q_arr[q_n_dim * i], t);
     }
 
     return result;
@@ -50,14 +50,14 @@ array_t density(BasePotential *pot, array_t q, double t) {
 
 
 array_t energy(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot ndim?
+    // TODO: make a validate function to check q array and pot n_dim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
-    int q_ndim = q_buf.shape[1];
+    int q_n_dim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
-        throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->ndim != q_ndim) {
+        throw std::runtime_error("numpy.ndarray n_dim must be 2!");
+    } else if (pot->n_dim != q_n_dim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }
@@ -67,7 +67,7 @@ array_t energy(BasePotential *pot, array_t q, double t) {
     double *result_arr = (double*)result_buf.ptr;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->energy(&q_arr[q_ndim * i], t);
+        result_arr[i] = pot->energy(&q_arr[q_n_dim * i], t);
     }
 
     return result;
@@ -75,14 +75,14 @@ array_t energy(BasePotential *pot, array_t q, double t) {
 
 
 array_t gradient(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot ndim?
+    // TODO: make a validate function to check q array and pot n_dim?
     py::buffer_info q_buf = q.request();
     double *q_arr = (double*)q_buf.ptr;
-    int q_ndim = q_buf.shape[1];
+    int q_n_dim = q_buf.shape[1];
 
     if (q_buf.ndim != 2) {
-        throw std::runtime_error("numpy.ndarray ndim must be 2!");
-    } else if (pot->ndim != q_ndim) {
+        throw std::runtime_error("numpy.ndarray n_dim must be 2!");
+    } else if (pot->n_dim != q_n_dim) {
         throw std::runtime_error("Input position dimensionality must be the same "
                                  "as the potential dimensionality");
     }
@@ -98,7 +98,7 @@ array_t gradient(BasePotential *pot, array_t q, double t) {
         result_arr[i] = 0.;
 
     for (int i=0; i < q_buf.shape[0]; i++) {
-        pot->gradient(&q_arr[q_ndim * i], t, &result_arr[q_ndim * i]);
+        pot->gradient(&q_arr[q_n_dim * i], t, &result_arr[q_n_dim * i]);
     }
 
     return result;
@@ -146,7 +146,7 @@ PYBIND11_MODULE(_potential, mod) {
 
     // TODO: do we need to expose this...?
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<double, int, double*>(), "G"_a, "ndim"_a=DEFAULT_NDIM, "q0"_a=NULL);
+        .def(py::init<double, int, double*>(), "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=NULL);
 
     // TODO: how much of this boilerplate needs to be copy-pasta'd for each subclass? is there a
     // simpler way?
@@ -155,23 +155,23 @@ PYBIND11_MODULE(_potential, mod) {
             BasePotential &self,
             double G,
             BasePotentialParameter* m,
-            int ndim,
+            int n_dim,
             array_t q0) {
                 py::buffer_info q0_buf = q0.request();
                 double *q0_arr = (double*)q0_buf.ptr;
 
                 if (std::isnan(q0_arr[0])) {
-                    new (&self) KeplerPotential(G, m, ndim);
+                    new (&self) KeplerPotential(G, m, n_dim);
                 } else {
-                    new (&self) KeplerPotential(G, m, ndim, &q0_arr[0]);
+                    new (&self) KeplerPotential(G, m, n_dim, &q0_arr[0]);
                 }
 
-            }, "G"_a, "m"_a, "ndim"_a=DEFAULT_NDIM, "q0"_a=py::none()
+            }, "G"_a, "m"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none()
         )
-        .def_property_readonly("ndim", [](KeplerPotential &pot) { return pot.ndim; })
+        .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
         .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
         .def_property_readonly("q0", [](KeplerPotential &pot) {
-            return py::array(pot.ndim, pot.q0);
+            return py::array(pot.n_dim, pot.q0);
         })
         .def("density", &density)
         .def("energy", &energy)

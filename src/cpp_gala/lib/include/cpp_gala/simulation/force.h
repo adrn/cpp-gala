@@ -13,9 +13,9 @@ class Force {
     ----------
     massless : bool
         Short-circuit flag for massless bodies.
-    ndim : int
+    n_dim : int
         Phase-space dimensionality (e.g., 3 for 3D positions / 6D phase-space).
-    m_nbodies : int
+    m_n_bodies : int
         The number of bodies represented by this object.
     w :
         The instantaneous phase-space coordinates of the body.
