@@ -53,7 +53,7 @@ void LeapfrogIntegrator::integrate(double *t, int n_t, double *result_w) {
 
     // First step all of the velocities by 1/2 step to initialize
     sim->get_acceleration()
-    for (int i=0; i < sim->potential->n_dim; i++)
+    for (int i=0; i < sim->n_dim; i++)
         this->v_ip1_2
 
 }

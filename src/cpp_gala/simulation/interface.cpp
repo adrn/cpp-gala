@@ -14,6 +14,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::simulation;
 
+using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>;
 
 PYBIND11_MODULE(_simulation, mod) {
     py::module::import("cpp_gala._potential");
@@ -21,7 +22,7 @@ PYBIND11_MODULE(_simulation, mod) {
     py::class_<BodyCollection>(mod, "BodyCollection")
         .def("__init__", [](
             BodyCollection &self,
-            py::array_t<double> w,
+            array_t w,
             gala::potential::BasePotential *potential,
             std::string name) {
                 if (w.ndim() != 2){
@@ -57,7 +58,7 @@ PYBIND11_MODULE(_simulation, mod) {
             BodyCollection *body,
             double t) {
                 // Array to return:
-                auto acc = py::array_t<double>(body->n_bodies * body->n_dim);
+                auto acc = array_t(body->n_bodies * body->n_dim);
                 acc.resize({body->n_bodies, body->n_dim});
 
                 py::buffer_info acc_buf = acc.request();
@@ -65,6 +66,21 @@ PYBIND11_MODULE(_simulation, mod) {
 
                 self.get_body_acceleration(body, t, acc_arr);
 
+                return acc;
+            }
+        )
+        .def("acceleration", [](
+            Simulation &self,
+            double t) {
+                // Array to catch return from get_acceleration:
+                auto acc = array_t(self.get_n_bodies() * self.n_dim);
+                acc.resize({self.get_n_bodies(), self.n_dim});
+                py::buffer_info acc_buf = acc.request();
+                double *acc_arr = (double*)acc_buf.ptr;
+
+                self.get_acceleration(t, acc_arr);
+
+                // TODO: return a dictionary instead?
                 return acc;
             }
         );

@@ -9,6 +9,11 @@ namespace gala { namespace simulation {
 Simulation::Simulation(gala::potential::BasePotential *potential) {
     // store potential pointer and initialize
     this->potential = potential;
+    if (potential != nullptr) {
+        this->n_dim = potential->n_dim;
+    } else {
+        this->n_dim = 0;
+    }
 }
 
 void Simulation::add_body(BodyCollection *body) {
@@ -23,6 +28,14 @@ void Simulation::add_body(BodyCollection *body) {
     } else {
         key = body->name;
     }
+
+    if (this->n_dim == 0) {
+        this->n_dim = body->n_dim;
+    } else if (this->n_dim != body->n_dim) {
+        throw std::runtime_error(
+            "Input BodyCollection must have the same n_dim as the simulation");
+    }
+
     this->bodies.insert(std::make_pair(key, body));
 }
 
@@ -63,9 +76,17 @@ void Simulation::get_body_acceleration(BodyCollection *body, double t, double *a
 
 }
 
+void Simulation::get_acceleration(double t, double *acc) {
+    int n = 0;
+    for (const auto &pair : this->bodies) {
+        this->get_body_acceleration(pair.second, t, &acc[n * this->n_dim]);
+        n += pair.second->n_bodies;
+    }
+}
+
 // TODO: get_all_w to retrieve all body w ??
 // TODO: set_all_w to take a single array w and set all of the body w's
-// TODO: get_all_acceleration to retrieve acceleration ??
+// TODO: get_acceleration to retrieve acceleration ??
 
 
 }} // namespace: gala::simulation

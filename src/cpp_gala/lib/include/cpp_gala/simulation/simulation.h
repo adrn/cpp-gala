@@ -16,6 +16,7 @@ class __attribute__((visibility("default"))) Simulation {
 
     public:
         // Attributes:
+        int n_dim;
         gala::potential::BasePotential *potential;
         std::map<std::string, BodyCollection*> bodies;
 
@@ -27,6 +28,7 @@ class __attribute__((visibility("default"))) Simulation {
         void add_body(BodyCollection *body);
         int get_n_bodies();
         void get_body_acceleration(BodyCollection *body, double t, double *acc);
+        void get_acceleration(double t, double *acc);
 };
 
 }} // namespace: gala::simulation

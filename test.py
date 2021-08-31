@@ -156,8 +156,8 @@ sim.add_body(body2)
 print(sim.n_bodies)
 print(sim.body_acceleration(body1, 0.))
 
-# TODO: return a dictionary with acceleration on all bodies
-# print(sim.acceleration(0.))
+# TODO: return a dictionary instead??
+print(sim.acceleration(0.))
 
 import sys
 sys.exit(0)
