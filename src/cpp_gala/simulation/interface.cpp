@@ -57,43 +57,48 @@ PYBIND11_MODULE(_simulation, mod) {
             Simulation &self,
             BodyCollection *body,
             double t) {
+                gala::utils::vector_2d acc_vec(body->n_bodies, gala::utils::vector_1d(body->n_dim));
+                self.get_body_acceleration(body, t, &acc_vec);
+
                 // Array to return:
                 auto acc = array_t(body->n_bodies * body->n_dim);
+                for (int i=0; i < body->n_bodies; i++) {
+                    for (int j=0; j < self.n_dim; j++) {
+                        acc.mutable_at(j + self.n_dim * i) = acc_vec[i][j];
+                    }
+                }
                 acc.resize({body->n_bodies, body->n_dim});
 
-                py::buffer_info acc_buf = acc.request();
-                double *acc_arr = (double*)acc_buf.ptr;
-
-                self.get_body_acceleration(body, t, acc_arr);
-
                 return acc;
             }
         )
-        .def("acceleration", [](
-            Simulation &self,
-            double t) {
-                // Array to catch return from get_acceleration:
-                auto acc = array_t(self.get_n_bodies() * self.n_dim);
-                acc.resize({self.get_n_bodies(), self.n_dim});
-                py::buffer_info acc_buf = acc.request();
-                double *acc_arr = (double*)acc_buf.ptr;
+        // .def("acceleration", [](
+        //     Simulation &self,
+        //     double t) {
+        //         // Array to catch return from get_acceleration:
+        //         auto acc = array_t(self.get_n_bodies() * self.n_dim);
+        //         acc.resize({self.get_n_bodies(), self.n_dim});
+        //         py::buffer_info acc_buf = acc.request();
+        //         double *acc_arr = (double*)acc_buf.ptr;
 
-                self.get_acceleration(t, acc_arr);
+        //         self.get_acceleration(t, acc_arr);
 
-                // TODO: return a dictionary instead?
-                return acc;
-            }
-        )
+        //         // TODO: return a dictionary instead?
+        //         return acc;
+        //     }
+        // )
         .def_property_readonly("_w", [](Simulation &self) {
-                // Array to catch return from get_acceleration:
+                auto w_vec = self.get_w();
+
+                // Array to return:
                 auto w = array_t(self.get_n_bodies() * 2 * self.n_dim);
+                for (int i=0; i < self.get_n_bodies(); i++) {
+                    for (int j=0; j < 2 * self.n_dim; j++) {
+                        w.mutable_at(j + 2 * self.n_dim * i) = w_vec[i][j];
+                    }
+                }
                 w.resize({self.get_n_bodies(), 2 * self.n_dim});
-                py::buffer_info w_buf = w.request();
-                double *w_arr = (double*)w_buf.ptr;
 
-                self.get_w(w_arr);
-
-                // TODO: return a dictionary instead?
                 return w;
             }
         );

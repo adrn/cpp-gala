@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cpp_gala/potential/potential.h>
+#include <cpp_gala/utils.h>
 
 namespace gala { namespace simulation {
 
@@ -23,7 +24,7 @@ class BodyCollection {
     public:
         // Attributes:
         bool massless;
-        std::vector<std::vector<double>> w;
+        gala::utils::vector_2d w;
         std::vector<std::string> ids;
         int n_dim;
         int n_bodies;
@@ -32,13 +33,13 @@ class BodyCollection {
 
         // Constructors:
         BodyCollection(gala::potential::BasePotential *potential,
-                       std::vector<std::vector<double>> w,
+                       gala::utils::vector_2d w,
                        std::string name);
 
         // Methods:
-        void get_acceleration(BodyCollection *body, double t, double *acc);
-        void get_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
-                              double *acc);
+        void get_acceleration(BodyCollection *body, double t, gala::utils::vector_2d *acc);
+        void get_acceleration(gala::utils::vector_2d *w, double t, std::vector<std::string> *ids,
+                              gala::utils::vector_2d *acc);
         // TODO: figure this out, but will enable things like dynamical friction
         // void register_extra_force();
 

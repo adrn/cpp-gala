@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/body.h>
+#include <cpp_gala/utils.h>
 
 namespace gala { namespace simulation {
 
@@ -25,8 +26,9 @@ BodyCollection::BodyCollection(gala::potential::BasePotential *potential,
     }
 }
 
-void BodyCollection::get_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
-                                      double *acc) {
+void BodyCollection::get_acceleration(gala::utils::vector_2d *w, double t,
+                                      std::vector<std::string> *ids,
+                                      gala::utils::vector_2d *acc) {
     /*
     Compute the acceleration from this body for the input positions w
     */
@@ -36,26 +38,26 @@ void BodyCollection::get_acceleration(double *w, int n_w, double t, std::vector<
         return;
     }
 
-    for (int j=0; j < n_w; j++) {
+    for (int j=0; j < w->size(); j++) {
         for (int i=0; i < this->n_bodies; i++) {
             if ((ids != nullptr) && (ids->at(j) == this->ids[i])) {
                 continue;
             }
 
             // the potential has to be centered at each body:
-            // TODO: is this assign slow? could make it a pointer and replace the pointer?
+            // TODO: is this assign slow? could make q0 a pointer and replace the pointer?
             this->potential->q0.assign(&this->w[i][0],
                                        &this->w[i][this->n_dim]);
-            this->potential->acceleration(&w[j * 2 * this->n_dim], t, &acc[j * this->n_dim]);
+            this->potential->acceleration(&w->at(j)[0], t, &acc->at(j)[0]);
         }
     }
 }
 
-void BodyCollection::get_acceleration(BodyCollection *body, double t, double *acc) {
+void BodyCollection::get_acceleration(BodyCollection *body, double t, gala::utils::vector_2d *acc) {
     /*
     Compute the acceleration from this body collection on all bodies in the input body collection
     */
-    this->get_acceleration(&body->w[0][0], body->n_bodies, t, &body->ids, acc);
+    this->get_acceleration(&body->w, t, &body->ids, acc);
 }
 
 }} // namespace: gala::simulation

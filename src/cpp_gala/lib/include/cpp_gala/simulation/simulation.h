@@ -10,6 +10,7 @@
 #include <string>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/body.h>
+#include <cpp_gala/utils.h>
 
 namespace gala { namespace simulation {
 
@@ -29,11 +30,11 @@ class __attribute__((visibility("default"))) Simulation {
         // Methods:
         void add_body(BodyCollection *body);
         int get_n_bodies();
-        void get_body_acceleration(BodyCollection *body, double t, double *acc);
-        void get_w_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
-                                double *acc);
-        void get_acceleration(double t, double *acc);
-        void get_w(double *w);
+        void get_body_acceleration(BodyCollection *body, double t, gala::utils::vector_2d *acc);
+        void get_w_acceleration(gala::utils::vector_2d *w, double t, std::vector<std::string> *ids,
+                                gala::utils::vector_2d *acc);
+        // void get_acceleration(double t, vector_2d *acc);
+        gala::utils::vector_2d get_w();
 };
 
 }} // namespace: gala::simulation

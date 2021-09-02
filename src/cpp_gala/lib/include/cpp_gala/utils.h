@@ -6,9 +6,13 @@
 
 namespace gala { namespace utils {
 
-double xyz_to_r(double *q) {
+inline double xyz_to_r(double *q) {
     return sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 }
+
+using vector_3d = std::vector<std::vector<std::vector<double>>>;
+using vector_2d = std::vector<std::vector<double>>;
+using vector_1d = std::vector<double>;
 
 }} // namespace: gala::utils
 

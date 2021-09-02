@@ -4,12 +4,11 @@
 #include <string>
 #include <vector>
 #include <cpp_gala/simulation/simulation.h>
+#include <cpp_gala/utils.h>
+
+using namespace gala::utils;
 
 namespace gala { namespace integrate {
-
-using vector_3d = std::vector<std::vector<std::vector<double>>>;
-using vector_2d = std::vector<std::vector<double>>;
-using vector_1d = std::vector<double>;
 
 // TODO: should we use pybind11_export here instead?
 class __attribute__((visibility("default"))) BaseIntegrator {
