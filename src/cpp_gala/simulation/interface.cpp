@@ -83,5 +83,18 @@ PYBIND11_MODULE(_simulation, mod) {
                 // TODO: return a dictionary instead?
                 return acc;
             }
+        )
+        .def_property_readonly("_w", [](Simulation &self) {
+                // Array to catch return from get_acceleration:
+                auto w = array_t(self.get_n_bodies() * 2 * self.n_dim);
+                w.resize({self.get_n_bodies(), 2 * self.n_dim});
+                py::buffer_info w_buf = w.request();
+                double *w_arr = (double*)w_buf.ptr;
+
+                self.get_w(w_arr);
+
+                // TODO: return a dictionary instead?
+                return w;
+            }
         );
 }

@@ -1,6 +1,7 @@
 #ifndef _GALA_BODY_H
 #define _GALA_BODY_H
 
+#include <vector>
 #include <string>
 #include <cpp_gala/potential/potential.h>
 
@@ -23,6 +24,7 @@ class BodyCollection {
         // Attributes:
         bool massless;
         std::vector<std::vector<double>> w;
+        std::vector<std::string> ids;
         int n_dim;
         int n_bodies;
         gala::potential::BasePotential *potential;
@@ -31,12 +33,14 @@ class BodyCollection {
         // Constructors:
         BodyCollection(gala::potential::BasePotential *potential,
                        std::vector<std::vector<double>> w,
-                       std::string name="");
+                       std::string name);
 
         // Methods:
         void get_acceleration(BodyCollection *body, double t, double *acc);
-        // void register_extra_force();
+        void get_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
+                              double *acc);
         // TODO: figure this out, but will enable things like dynamical friction
+        // void register_extra_force();
 
 };
 

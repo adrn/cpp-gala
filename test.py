@@ -158,6 +158,7 @@ print(sim.body_acceleration(body1, 0.))
 
 # TODO: return a dictionary instead??
 print(sim.acceleration(0.))
+print(sim._w)
 
 import sys
 sys.exit(0)

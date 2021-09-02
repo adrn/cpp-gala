@@ -6,6 +6,8 @@
 #ifndef _GALA_SIMULATION_H
 #define _GALA_SIMULATION_H
 
+#include <vector>
+#include <string>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/body.h>
 
@@ -28,7 +30,13 @@ class __attribute__((visibility("default"))) Simulation {
         void add_body(BodyCollection *body);
         int get_n_bodies();
         void get_body_acceleration(BodyCollection *body, double t, double *acc);
+        void get_w_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
+                                double *acc);
         void get_acceleration(double t, double *acc);
+        void get_w(double *w);
+
+    private:
+        std::vector<std::string> body_ids;
 };
 
 }} // namespace: gala::simulation

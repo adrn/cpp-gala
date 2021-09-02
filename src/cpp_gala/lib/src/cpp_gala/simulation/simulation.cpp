@@ -37,6 +37,8 @@ void Simulation::add_body(BodyCollection *body) {
     }
 
     this->bodies.insert(std::make_pair(key, body));
+    for (int i=0; i < body->n_bodies; i++)
+        this->body_ids.push_back(body->ids[i]);
 }
 
 int Simulation::get_n_bodies() {
@@ -76,6 +78,32 @@ void Simulation::get_body_acceleration(BodyCollection *body, double t, double *a
 
 }
 
+void Simulation::get_w_acceleration(double *w, int n_w, double t, std::vector<std::string> *ids,
+                                    double *acc) {
+    /*
+    Compute the acceleration at the input phase-space position from all bodies and external
+    potentials in the simulation.
+    */
+    int i;
+
+    // Zero out any existing acceleration values
+    for (i=0; i < (n_w * this->n_dim); i++)
+        acc[i] = 0.;
+
+    if (this->potential != NULL) {
+        // Compute the acceleration from the simulation external potential, if set
+        for (i=0; i < n_w; i++)
+            this->potential->acceleration(&w[2 * this->n_dim * i],
+                                          t,
+                                          &acc[this->n_dim * i]);
+    }
+
+    // Compute the acceleration from all bodies
+    for (const auto &pair : this->bodies)
+        pair.second->get_acceleration(w, n_w, t, ids, acc);
+
+}
+
 void Simulation::get_acceleration(double t, double *acc) {
     int n = 0;
     for (const auto &pair : this->bodies) {
@@ -84,9 +112,15 @@ void Simulation::get_acceleration(double t, double *acc) {
     }
 }
 
-// TODO: get_all_w to retrieve all body w ??
-// TODO: set_all_w to take a single array w and set all of the body w's
-// TODO: get_acceleration to retrieve acceleration ??
-
+void Simulation::get_w(double *w) {
+    // TODO: return an array here...
+    int i, j, ps_ndim = 2 * this->n_dim, n = 0;
+    for (const auto &pair : this->bodies) {
+        for (i=0; i < pair.second->n_bodies; i++)
+            for (j=0; j < ps_ndim; j++)
+                w[n + j + ps_ndim * i] = pair.second->w[i][j];
+        n += pair.second->n_bodies * ps_ndim;
+    }
+}
 
 }} // namespace: gala::simulation
