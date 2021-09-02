@@ -34,9 +34,6 @@ class __attribute__((visibility("default"))) Simulation {
                                 double *acc);
         void get_acceleration(double t, double *acc);
         void get_w(double *w);
-
-    private:
-        std::vector<std::string> body_ids;
 };
 
 }} // namespace: gala::simulation

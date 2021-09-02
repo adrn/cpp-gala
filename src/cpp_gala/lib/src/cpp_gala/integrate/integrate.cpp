@@ -3,7 +3,7 @@
 #include <cpp_gala/integrate/integrate.h>
 #include <cpp_gala/simulation/simulation.h>
 
-namespace gala { namespace integrate {
+using namespace gala::integrate;
 
 /* ------------------------------------------------------------------------------------------------
     Base class
@@ -18,6 +18,11 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
         this->tmp_acc.push_back(vector_1d(this->sim.n_dim, NAN));
         this->tmp_w.push_back(vector_1d(this->sim.n_dim, NAN));
     }
+
+    for (const auto &pair : sim.bodies)
+        for (int i=0; i < pair.second->n_bodies; i++)
+            this->body_ids.push_back(pair.second->ids[i]);
+
 }
 
 // TODO: implement another that returns vector_2d with a flag "save_all" or something??
@@ -31,11 +36,11 @@ vector_3d BaseIntegrator::integrate(vector_1d t) {
     vector_3d result_w(t.size(), vector_2d(sim.get_n_bodies(), vector_1d(ps_ndim, NAN)));
 
     // Store the initial values in the first block of the result array:
-    for (i=0; i < this->sim.get_n_bodies(); i++)
-        for (j=0; j < ps_ndim; j++)
-            // result_w[0][i][j] = this->sim.get_w()[i][j];
-            this->sim.get_w(&result_w[0][i][j])
-    this->sim.get_w(&this->tmp_w[0][0])
+    // for (i=0; i < this->sim.get_n_bodies(); i++)
+    //     for (j=0; j < ps_ndim; j++)
+    //         // result_w[0][i][j] = this->sim.get_w()[i][j];
+    this->sim.get_w(&result_w[0][0][0]);
+    this->sim.get_w(&this->tmp_w[0][0]);
 
     this->setup_integrate(t[0], t[1] - t[0]);
 
@@ -51,6 +56,11 @@ vector_3d BaseIntegrator::integrate(vector_1d t) {
 
     return result_w;
 }
+
+// These are the methods that are overridden by subclasses
+// Note: If I don't include these, I get a "Symbol not found" error on import of cpp_gala._integrate
+void BaseIntegrator::setup_integrate(double t0, double dt) { }
+void BaseIntegrator::step(double t, double dt) { }
 
 /* ------------------------------------------------------------------------------------------------
     Leapfrog
@@ -79,7 +89,8 @@ void LeapfrogIntegrator::step(double t, double dt) {
             this->tmp_w[i][j] = this->tmp_w[i][j] + this->v_ip1_2[i][j] * dt;
 
     // compute the acceleration at the new positions:
-    this->sim.get_w_acceleration(&this->tmp_w[0][0], t, &this->body_ids, &this->tmp_acc[0][0]);
+    this->sim.get_w_acceleration(&this->tmp_w[0][0], sim.get_n_bodies(), t, &this->body_ids,
+                                 &this->tmp_acc[0][0]);
 
     // step velocity forward by half step, aligned w/ position, then finish the full step to
     // leapfrog over the positions
@@ -88,5 +99,3 @@ void LeapfrogIntegrator::step(double t, double dt) {
             this->tmp_w[i][ndim + j] = this->v_ip1_2[i][j] + 0.5*dt * tmp_acc[i][j];
             this->v_ip1_2[i][j] = this->tmp_w[i][ndim + j] + 0.5*dt * tmp_acc[i][j];
 }
-
-}} // namespace: gala::integrate

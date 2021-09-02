@@ -37,8 +37,6 @@ void Simulation::add_body(BodyCollection *body) {
     }
 
     this->bodies.insert(std::make_pair(key, body));
-    for (int i=0; i < body->n_bodies; i++)
-        this->body_ids.push_back(body->ids[i]);
 }
 
 int Simulation::get_n_bodies() {

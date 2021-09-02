@@ -102,51 +102,93 @@
 
 # ---
 
-from cpp_gala._potential import (KeplerPotential,
-                                 StaticPotentialParameter)
-from cpp_gala._simulation import Simulation, BodyCollection
-import numpy as np
+# from cpp_gala._potential import (KeplerPotential,
+#                                  StaticPotentialParameter)
+# from cpp_gala._simulation import Simulation, BodyCollection
+# import numpy as np
 
-ext_M = StaticPotentialParameter(1.)
-ext_pot = KeplerPotential(1., ext_M)
+# ext_M = StaticPotentialParameter(1.)
+# ext_pot = KeplerPotential(1., ext_M)
 
-M = StaticPotentialParameter(1.)
-pot = KeplerPotential(1., M)
+# M = StaticPotentialParameter(1.)
+# pot = KeplerPotential(1., M)
 
-# sim = Simulation(ext_pot)
-sim = Simulation()
+# # sim = Simulation(ext_pot)
+# sim = Simulation()
 
+# # body1 = BodyCollection(
+# #     np.array([[1., 0., 0., 0, 0, 0],
+# #               [2., 0, 0, 0, 0, 0]]),
+# #     potential=pot,
+# #     # potential=None,
+# #     name="derp1"
+# # )
+
+# # body2 = BodyCollection(
+# #     np.array([[-1., 0., 0., 0, 0, 0],
+# #               [-2., 0, 0, 0, 0, 0]]),
+# #     # potential=pot,
+# #     potential=None,
+# #     name="derp2"
+# # )
+
+# body1_w = np.array([[1., 0., 0., 0, 0, 0],
+#                     [2., 0, 0, 0, 0, 0]])
 # body1 = BodyCollection(
-#     np.array([[1., 0., 0., 0, 0, 0],
-#               [2., 0, 0, 0, 0, 0]]),
+#     body1_w,
 #     potential=pot,
 #     # potential=None,
 #     name="derp1"
 # )
 
+# body2_w = np.array([[-1., 0., 0., 0, 0, 0],
+#                     [-2., 0, 0, 0, 0, 0]])
 # body2 = BodyCollection(
-#     np.array([[-1., 0., 0., 0, 0, 0],
-#               [-2., 0, 0, 0, 0, 0]]),
-#     # potential=pot,
-#     potential=None,
+#     body2_w,
+#     potential=pot,
+#     # potential=None,
 #     name="derp2"
 # )
 
-body1_w = np.array([[1., 0., 0., 0, 0, 0],
-                    [2., 0, 0, 0, 0, 0]])
+# sim.add_body(body1)
+# sim.add_body(body2)
+
+# print(sim.n_bodies)
+# print(sim.body_acceleration(body1, 0.))
+
+# # TODO: return a dictionary instead??
+# print(sim.acceleration(0.))
+# print(sim._w)
+
+# import sys
+# sys.exit(0)
+
+# -----------------------------------------------------------------------------
+# Integrators
+#
+
+from cpp_gala._potential import (KeplerPotential,
+                                 StaticPotentialParameter)
+from cpp_gala._simulation import Simulation, BodyCollection
+from cpp_gala._integrate import LeapfrogIntegrator
+
+import numpy as np
+
+M = StaticPotentialParameter(1.)
+pot = KeplerPotential(1., M)
+sim = Simulation()
+
+body1_w = np.array([[1., 0., 0., 0, -6., 0]])
 body1 = BodyCollection(
     body1_w,
     potential=pot,
-    # potential=None,
     name="derp1"
 )
 
-body2_w = np.array([[-1., 0., 0., 0, 0, 0],
-                    [-2., 0, 0, 0, 0, 0]])
+body2_w = np.array([[-1., 0., 0., 0, 6., 0]])
 body2 = BodyCollection(
     body2_w,
     potential=pot,
-    # potential=None,
     name="derp2"
 )
 
@@ -156,16 +198,10 @@ sim.add_body(body2)
 print(sim.n_bodies)
 print(sim.body_acceleration(body1, 0.))
 
-# TODO: return a dictionary instead??
-print(sim.acceleration(0.))
-print(sim._w)
+integrator = LeapfrogIntegrator(sim)
 
 import sys
 sys.exit(0)
-
-# -----------------------------------------------------------------------------
-# Integrators
-#
 
 
 # -----------------------------------------------------------------------------

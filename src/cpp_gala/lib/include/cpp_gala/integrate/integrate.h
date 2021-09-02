@@ -16,6 +16,9 @@ class __attribute__((visibility("default"))) BaseIntegrator {
     public:
         // Attributes:
         gala::simulation::Simulation sim;
+        vector_2d tmp_w;  // temporary container for per-step phase-space positions
+        vector_2d tmp_acc;  // temporary container for per-step accelerations
+        std::vector<std::string> body_ids;  // container for all sim body ids
 
         // Constructors and Destructors:
         BaseIntegrator(gala::simulation::Simulation sim);
@@ -24,10 +27,6 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         vector_3d integrate(vector_1d t);
         virtual void setup_integrate(double t0, double dt);
         virtual void step(double t, double dt);
-
-    private:
-        vector_2d tmp_w;
-        vector_2d tmp_acc;
 };
 
 

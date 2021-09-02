@@ -32,6 +32,7 @@ void BasePotential::shift_rotate_q(double *q) {
 }
 
 // These are the methods that are overridden by subclasses
+// Note: If I don't include these, I get a "Symbol not found" error on import of cpp_gala._potential
 double BasePotential::_density(double *q, double t) { return NAN; }
 double BasePotential::_energy(double *q, double t) { return NAN; }
 void BasePotential::_gradient(double *q, double t, double *grad) { }
