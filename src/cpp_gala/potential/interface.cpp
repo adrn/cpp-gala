@@ -13,15 +13,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::potential;
 
-using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>;
-
-
-// void test() {
-//     StaticPotentialParameter m(1.);
-//     KeplerPotential pot(&m, 3);
-//     double q[3] = {1., 2., 3.};
-//     pot._density(&q[0], 0.);
-// }
+using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 
 array_t density(BasePotential *pot, array_t q, double t) {
@@ -110,7 +102,9 @@ array_t acceleration(BasePotential *pot, array_t q, double t) {
 
 
 PYBIND11_MODULE(_potential, mod) {
-    // TODO: do we need to expose this...?
+    /*
+        PotentialParameters
+    */
     py::class_<BasePotentialParameter>(mod, "BasePotentialParameter")
         .def("get_value", &BasePotentialParameter::get_value);
 
@@ -144,7 +138,9 @@ PYBIND11_MODULE(_potential, mod) {
         )
         .def("get_value", &InterpolatedPotentialParameter::get_value);
 
-    // TODO: do we need to expose this...?
+    /*
+        Potentials
+    */
     py::class_<BasePotential>(mod, "BasePotential")
         .def(py::init<double, int, std::vector<double>>(),
              "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none());
