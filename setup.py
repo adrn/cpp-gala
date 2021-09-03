@@ -22,14 +22,14 @@ ext_modules = [
         include_dirs=['src/cpp_gala/lib/include'],
         libraries=['gsl']
     ),
-    # Pybind11Extension(
-    #     "cpp_gala._integrate",
-    #     ["src/cpp_gala/integrate/interface.cpp",
-    #      "src/cpp_gala/lib/src/cpp_gala/integrate/integrate.cpp"],
-    #     cxx_std=11,
-    #     include_dirs=['src/cpp_gala/lib/include'],
-    #     libraries=['gsl']
-    # ),
+    Pybind11Extension(
+        "cpp_gala._integrate",
+        ["src/cpp_gala/integrate/interface.cpp",
+         "src/cpp_gala/lib/src/cpp_gala/integrate/integrate.cpp"],
+        cxx_std=11,
+        include_dirs=['src/cpp_gala/lib/include'],
+        libraries=['gsl']
+    ),
 ]
 
 setup(

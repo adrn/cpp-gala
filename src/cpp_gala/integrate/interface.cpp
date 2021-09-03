@@ -6,13 +6,14 @@
 #include <pybind11/numpy.h>
 #include <cpp_gala/integrate/integrate.h>
 #include <cpp_gala/simulation/simulation.h>
+#include <cpp_gala/utils.h>
 #include <iostream>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::integrate;
 
-using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>;
+using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 PYBIND11_MODULE(_integrate, mod) {
     py::module::import("cpp_gala._simulation");
@@ -33,12 +34,24 @@ PYBIND11_MODULE(_integrate, mod) {
                 std::vector<double> t_vec;
                 t_vec.assign(t.data(), t.data() + t.size());
 
-                auto w = self.integrate(t_vec);
-                // auto w_arr = py::array(w.size(), &w[0][0][0]);
-                std::cout << t_vec.size() << " " << self.sim.get_n_bodies() << " " << self.sim.n_dim << "\n";
-                // w_arr.resize({t_vec.size(), self.sim.get_n_bodies(), self.sim.n_dim});
-                // return w_arr;
-                return py::none();
+                // Actually do the integration:
+                auto w_vec = self.integrate(t_vec);
+
+                // Copy data to an array:
+                auto w_arr = array_t({(int)t_vec.size(),
+                                      self.sim.get_n_bodies(),
+                                      self.sim.n_dim});
+                auto w_arr_m = w_arr.mutable_unchecked();
+
+                for (int i=0; i < t_vec.size(); i++) {
+                    for (int j=0; j < self.sim.get_n_bodies(); j++) {
+                        for (int k=0; k < 2 * self.sim.n_dim; k++) {
+                            w_arr_m(i, j, k) = w_vec[i][j][k];
+                        }
+                    }
+                }
+
+                return w_arr;
         });
 
 }

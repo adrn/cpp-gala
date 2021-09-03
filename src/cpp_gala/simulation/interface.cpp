@@ -14,7 +14,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::simulation;
 
-using array_t = py::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>;
+using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 PYBIND11_MODULE(_simulation, mod) {
     py::module::import("cpp_gala._potential");
