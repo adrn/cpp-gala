@@ -40,7 +40,7 @@ PYBIND11_MODULE(_integrate, mod) {
                 // Copy data to an array:
                 auto w_arr = array_t({(int)t_vec.size(),
                                       self.sim.get_n_bodies(),
-                                      self.sim.n_dim});
+                                      2 * self.sim.n_dim});
                 auto w_arr_m = w_arr.mutable_unchecked();
 
                 for (int i=0; i < t_vec.size(); i++) {
