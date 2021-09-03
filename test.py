@@ -201,13 +201,14 @@ print(sim.body_acceleration(body1, 0.))
 
 integrator = LeapfrogIntegrator(sim)
 t = np.linspace(0, 100, 2048)
-ws = integrator.integrate(t)
+for i in range(10):
+    ws = integrator.integrate(t)
 
-import matplotlib.pyplot as plt
-plt.figure(figsize=(6, 6))
-plt.plot(ws[:, 0, 0], ws[:, 0, 1])
-plt.plot(ws[:, 1, 0], ws[:, 1, 1])
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.figure(figsize=(6, 6))
+# plt.plot(ws[:, 0, 0], ws[:, 0, 1])
+# plt.plot(ws[:, 1, 0], ws[:, 1, 1])
+# plt.show()
 
 import sys
 sys.exit(0)
