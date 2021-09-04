@@ -42,16 +42,18 @@ class LeapfrogIntegrator : public BaseIntegrator {
         vector_2d v_ip1_2;
 };
 
+class GSLIntegrator : public BaseIntegrator {
+    public:
+        // Constructors and Destructors:
+        GSLIntegrator(gala::simulation::Simulation sim);
 
-// class GSLIntegrator : public BaseIntegrator {
-//     public:
-//         // Constructors:
-//         //TODO: GSLIntegrator(); ...
+        // Methods:
+        void setup_integrate(double t0, double dt) override;
+        void step(double t, double dt) override;
 
-//         // Methods:
-//         void step(double *w0, double t, double dt, double *result_w) override;
-//         void integrate(double *t, int n_t, double *result_w) override;
-// };
+    // private:
+    //     vector_2d v_ip1_2;
+};
 
 }} // namespace: gala::integrate
 
