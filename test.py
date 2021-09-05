@@ -102,116 +102,111 @@
 
 # ---
 
-# from cpp_gala._potential import (KeplerPotential,
-#                                  StaticPotentialParameter)
-# from cpp_gala._simulation import Simulation, BodyCollection
-# import numpy as np
+from cpp_gala._potential import (KeplerPotential,
+                                 StaticPotentialParameter)
+from cpp_gala._simulation import Simulation, ParticleCollection
+import numpy as np
 
-# ext_M = StaticPotentialParameter(1.)
-# ext_pot = KeplerPotential(1., ext_M)
+ext_M = StaticPotentialParameter(1.)
+ext_pot = KeplerPotential(1., ext_M)
 
-# M = StaticPotentialParameter(1.)
-# pot = KeplerPotential(1., M)
+M = StaticPotentialParameter(1.)
+pot = KeplerPotential(1., M)
 
-# # sim = Simulation(ext_pot)
-# sim = Simulation()
+# sim = Simulation(ext_pot)
+sim = Simulation()
 
-# # body1 = BodyCollection(
-# #     np.array([[1., 0., 0., 0, 0, 0],
-# #               [2., 0, 0, 0, 0, 0]]),
-# #     potential=pot,
-# #     # potential=None,
-# #     name="derp1"
-# # )
-
-# # body2 = BodyCollection(
-# #     np.array([[-1., 0., 0., 0, 0, 0],
-# #               [-2., 0, 0, 0, 0, 0]]),
-# #     # potential=pot,
-# #     potential=None,
-# #     name="derp2"
-# # )
-
-# body1_w = np.array([[1., 0., 0., 0, 0, 0],
-#                     [2., 0, 0, 0, 0, 0]])
-# body1 = BodyCollection(
-#     body1_w,
+# ptcl1 = ParticleCollection(
+#     np.array([[1., 0., 0., 0, 0, 0],
+#               [2., 0, 0, 0, 0, 0]]),
 #     potential=pot,
 #     # potential=None,
 #     name="derp1"
 # )
 
-# body2_w = np.array([[-1., 0., 0., 0, 0, 0],
-#                     [-2., 0, 0, 0, 0, 0]])
-# body2 = BodyCollection(
-#     body2_w,
-#     potential=pot,
-#     # potential=None,
+# ptcl2 = ParticleCollection(
+#     np.array([[-1., 0., 0., 0, 0, 0],
+#               [-2., 0, 0, 0, 0, 0]]),
+#     # potential=pot,
+#     potential=None,
 #     name="derp2"
 # )
 
-# sim.add_body(body1)
-# sim.add_body(body2)
+ptcl1_w = np.array([[1., 0., 0., 0, 0, 0]])
+ptcl1 = ParticleCollection(
+    ptcl1_w,
+    potential=pot,
+    # potential=None,
+    name="derp1"
+)
 
-# print(sim.n_bodies)
-# print(sim.body_acceleration(body1, 0.))
-# print(sim.body_acceleration(body2, 0.))
+ptcl2_w = np.array([[-1., 0., 0., 0, 0, 0]])
+ptcl2 = ParticleCollection(
+    ptcl2_w,
+    potential=pot,
+    # potential=None,
+    name="derp2"
+)
 
-# # TODO: return a dictionary instead??
-# # print(sim.acceleration(0.))
-# print(sim._w)
+sim.add_particle(ptcl1)
+sim.add_particle(ptcl2)
 
-# import sys
-# sys.exit(0)
+print(sim.n_particles)
+print(sim.state_w)
+print(sim.state_t)
+print(sim.get_dwdt())
+
+import sys
+sys.exit(0)
 
 # -----------------------------------------------------------------------------
 # Integrators
 #
 
-from cpp_gala._potential import (KeplerPotential,
-                                 StaticPotentialParameter)
-from cpp_gala._simulation import Simulation, BodyCollection
-from cpp_gala._integrate import LeapfrogIntegrator
+# from cpp_gala._potential import (KeplerPotential,
+#                                  StaticPotentialParameter)
+# from cpp_gala._simulation import Simulation, ParticleCollection
+# from cpp_gala._integrate import LeapfrogIntegrator
 
-import numpy as np
+# import numpy as np
 
-M = StaticPotentialParameter(1.)
-pot = KeplerPotential(1., M)
-sim = Simulation()
+# M = StaticPotentialParameter(1.)
+# pot = KeplerPotential(1., M)
+# sim = Simulation()
 
-body1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
-body1 = BodyCollection(
-    body1_w,
-    potential=pot,
-    name="derp1"
-)
+# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
+# ptcl1 = ParticleCollection(
+#     ptcl1_w,
+#     potential=pot,
+#     name="derp1"
+# )
 
-body2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
-body2 = BodyCollection(
-    body2_w,
-    potential=pot,
-    name="derp2"
-)
+# ptcl2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
+# ptcl2 = ParticleCollection(
+#     ptcl2_w,
+#     potential=pot,
+#     name="derp2"
+# )
 
-sim.add_body(body1)
-sim.add_body(body2)
+# sim.add_ptcl(ptcl1)
+# sim.add_ptcl(ptcl2)
 
-print(sim.n_bodies)
-print(sim.body_acceleration(body1, 0.))
+# print(sim.n_particles)
+# print(sim.ptcl_acceleration(ptcl1, 0.))
 
-integrator = LeapfrogIntegrator(sim)
-t = np.linspace(0, 100, 2048)
-for i in range(10):
-    ws = integrator.integrate(t)
+# integrator = LeapfrogIntegrator(sim)
+# t = np.linspace(0, 100, 2048)
+# for i in range(10):
+#     ws = integrator.integrate(t)
 
-# import matplotlib.pyplot as plt
-# plt.figure(figsize=(6, 6))
-# plt.plot(ws[:, 0, 0], ws[:, 0, 1])
-# plt.plot(ws[:, 1, 0], ws[:, 1, 1])
-# plt.show()
+# # import matplotlib.pyplot as plt
+# # plt.figure(figsize=(6, 6))
+# # plt.plot(ws[:, 0, 0], ws[:, 0, 1])
+# # plt.plot(ws[:, 1, 0], ws[:, 1, 1])
+# # plt.show()
 
-import sys
-sys.exit(0)
+# import sys
+# sys.exit(0)
 
 
 # -----------------------------------------------------------------------------
@@ -219,7 +214,7 @@ sys.exit(0)
 #
 # from cpp_gala._potential import (KeplerPotential,
 #                                  StaticPotentialParameter)
-# from cpp_gala._simulation import Simulation, BodyCollection
+# from cpp_gala._simulation import Simulation, ParticleCollection
 # import numpy as np
 
 # M = StaticPotentialParameter(1.)
@@ -227,13 +222,13 @@ sys.exit(0)
 
 # """
 # Notes:
-# - TestParticle() and BodyCollection() can actually be array-like
+# - TestParticle() and ParticleCollection() can actually be array-like
 # """
 # sim = Simulation(potential=external_pot)
-# sim.add_body(BodyCollection())  # test particle
-# sim.add_body(BodyCollection(), name='Sag')  # test particle, named
-# sim.add_body(BodyCollection(potential=KeplerPotential()))  # massive body
-# # sim.add_body(MockStream())
+# sim.add_ptcl(ParticleCollection())  # test particle
+# sim.add_ptcl(ParticleCollection(), name='Sag')  # test particle, named
+# sim.add_ptcl(ParticleCollection(potential=KeplerPotential()))  # massive ptcl
+# # sim.add_ptcl(MockStream())
 # state = sim.run()  # TODO: snapshot options, save_timesteps, ...
 
 # state[0]

@@ -1,5 +1,5 @@
 /*
-- Simulation class that allows specifying "bodies", potentials attached to bodies, and interactions between bodies
+- Simulation class that allows specifying "particles", potentials attached to particles, and interactions between particles
 - Pass integrator to simulation?
 */
 
@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <cpp_gala/potential/potential.h>
-#include <cpp_gala/simulation/body.h>
+#include <cpp_gala/simulation/particle.h>
 #include <cpp_gala/utils.h>
 
 using namespace gala::utils;
@@ -22,14 +22,14 @@ class __attribute__((visibility("default"))) Simulation {
     public:
         // Attributes:
         int n_dim;
-        int n_bodies;
+        int n_particles;
         gala::potential::BasePotential *potential;
-        std::map<std::string, BodyCollection> bodies;
+        std::map<std::string, ParticleCollection> particles;
 
         bool has_ext_potential;
-        bool has_nbody_interaction;
+        bool has_nptcl_interaction;
 
-        std::vector<std::string> body_ids;
+        std::vector<std::string> ptcl_ids;
         vector_2d state_w;
         double state_time;
 
@@ -38,8 +38,8 @@ class __attribute__((visibility("default"))) Simulation {
         Simulation();
 
         // Methods:
-        void add_body(BodyCollection body);
-        int get_n_bodies();
+        void add_particle(ParticleCollection ptcl);
+        int get_n_particles();
 
         void get_dwdt(vector_2d *dwdt);
         vector_2d get_dwdt();

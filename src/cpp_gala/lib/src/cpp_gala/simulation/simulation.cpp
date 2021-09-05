@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
-#include <cpp_gala/simulation/body.h>
+#include <cpp_gala/simulation/particle.h>
 
 using namespace gala::utils;
 
@@ -12,7 +12,7 @@ Simulation::Simulation() {
     // store potential pointer and initialize
     this->has_ext_potential = false;
     this->n_dim = 0;
-    this->n_bodies = 0;
+    this->n_particles = 0;
     this->state_time = 0.;
 }
 
@@ -24,41 +24,41 @@ Simulation::Simulation(gala::potential::BasePotential *potential)
     this->n_dim = potential->n_dim;
 }
 
-void Simulation::add_body(BodyCollection body) {
+void Simulation::add_particle(ParticleCollection ptcl) {
     /*
-    TODO: error if the name is the same as an existing body?
+    TODO: error if the name is the same as an existing ptcl?
     */
-    std::string key = body.name;
+    std::string key = ptcl.name;
 
     if (this->n_dim == 0) {
-        this->n_dim = body.n_dim;
-    } else if (this->n_dim != body.n_dim) {
+        this->n_dim = ptcl.n_dim;
+    } else if (this->n_dim != ptcl.n_dim) {
         throw std::runtime_error(
-            "Input BodyCollection must have the same n_dim as the simulation");
+            "Input ParticleCollection must have the same n_dim as the simulation");
     }
-    this->n_bodies += body.n_bodies;
+    this->n_particles += ptcl.n_particles;
 
-    if (!body.massless)
-        this->has_nbody_interaction = true;
+    if (!ptcl.massless)
+        this->has_nptcl_interaction = true;
 
-    // for (int i=0; i < body.n_bodies; i++) {
-    this->state_w.insert(this->state_w.end(), body.w.begin(), body.w.end());
-    this->body_ids.insert(this->body_ids.end(), body.ids.begin(), body.ids.end());
+    // for (int i=0; i < ptcl.n_particles; i++) {
+    this->state_w.insert(this->state_w.end(), ptcl.w.begin(), ptcl.w.end());
+    this->ptcl_ids.insert(this->ptcl_ids.end(), ptcl.ids.begin(), ptcl.ids.end());
     // }
 
-    this->bodies.insert(std::make_pair(key, body));
+    this->particles.insert(std::make_pair(key, ptcl));
 }
 
 void Simulation::get_dwdt(vector_2d *dwdt) {
     /*
     Compute the phase-space derivative for the current state of the simulation.
 
-    TODO: error if n_bodies == 0?
+    TODO: error if n_particles == 0?
     */
     int i, j;
 
     // Zero out any existing values
-    for (i=0; i < this->n_bodies; i++) {
+    for (i=0; i < this->n_particles; i++) {
         for (j=0; j < this->n_dim; j++) {
             // Set position derivative to velocity
             dwdt->at(i)[j] = this->state_w[i][j + this->n_dim];
@@ -76,16 +76,16 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
                                           &dwdt->at(i).at(this->n_dim));
     }
 
-    // Compute the acceleration from all bodies
-    for (auto &pair : this->bodies)
-        pair.second.get_acceleration_at(this->state_w, this->state_time, this->body_ids, dwdt,
+    // Compute the acceleration from all particles
+    for (auto &pair : this->particles)
+        pair.second.get_acceleration_at(this->state_w, this->state_time, this->ptcl_ids, dwdt,
                                         this->n_dim);
 
-    // TODO: something about computing the extra force on bodies...like from dynamical friction
+    // TODO: something about computing the extra force on particles...like from dynamical friction
 }
 
 vector_2d Simulation::get_dwdt() {
-    vector_2d dwdt(this->n_bodies, vector_1d(2 * this->n_dim));
+    vector_2d dwdt(this->n_particles, vector_1d(2 * this->n_dim));
     this->get_dwdt(&dwdt);
     return dwdt;
 }
@@ -95,13 +95,13 @@ void Simulation::set_state(vector_2d w, double t) {
     this->state_time = t;
     this->state_w = w;
 
-    for (auto &pair : this->bodies) {
-        for (int i=0; i < pair.second.n_bodies; i++) {
+    for (auto &pair : this->particles) {
+        for (int i=0; i < pair.second.n_particles; i++) {
             for (int j=0; j < this->n_dim; j++) {
                 pair.second.w[i][j] = w[n + i][j];
             }
         }
-        n += pair.second.n_bodies;
+        n += pair.second.n_particles;
     }
 }
 

@@ -17,7 +17,7 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         gala::simulation::Simulation sim;
         vector_2d tmp_w;  // temporary container for per-step phase-space positions
         vector_2d tmp_acc;  // temporary container for per-step accelerations
-        std::vector<std::string> body_ids;  // container for all sim body ids
+        std::vector<std::string> ptcl_ids;  // container for all sim ptcl ids
 
         // Constructors and Destructors:
         BaseIntegrator(gala::simulation::Simulation sim);

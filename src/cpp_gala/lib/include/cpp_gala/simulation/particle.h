@@ -10,18 +10,18 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-class BodyCollection {
+class ParticleCollection {
     /*
     Parameters
     ----------
     massless
-        Short-circuit flag for massless bodies.
+        Short-circuit flag for massless particles.
     n_dim
         Phase-space dimensionality (e.g., 3 for 3D positions / 6D phase-space).
-    n_bodies
-        The number of bodies represented by this object.
+    n_particles
+        The number of particles represented by this object.
     w
-        The instantaneous phase-space coordinates of the body.
+        The instantaneous phase-space coordinates of the ptcl.
     */
     public:
         // Attributes:
@@ -29,19 +29,19 @@ class BodyCollection {
         vector_2d w;
         std::vector<std::string> ids;
         int n_dim;
-        int n_bodies;
+        int n_particles;
         gala::potential::BasePotential *potential;
         std::string name;
 
         // Constructors:
-        BodyCollection(vector_2d w,
+        ParticleCollection(vector_2d w,
                        std::string name);
-        BodyCollection(vector_2d w,
+        ParticleCollection(vector_2d w,
                        gala::potential::BasePotential *potential,
                        std::string name);
 
         // Methods:
-        void get_acceleration_at(BodyCollection &body, double t,
+        void get_acceleration_at(ParticleCollection &ptcl, double t,
                                  vector_2d *acc, int acc_start_idx=0);
         void get_acceleration_at(vector_2d &w, double t, std::vector<std::string> &ids,
                                  vector_2d *acc, int acc_start_idx=0);

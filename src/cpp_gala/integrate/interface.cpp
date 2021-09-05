@@ -39,12 +39,12 @@ PYBIND11_MODULE(_integrate, mod) {
 
                 // Copy data to an array:
                 auto w_arr = array_t({(int)t_vec.size(),
-                                      self.sim.get_n_bodies(),
+                                      self.sim.get_n_particles(),
                                       2 * self.sim.n_dim});
                 auto w_arr_m = w_arr.mutable_unchecked();
 
                 for (int i=0; i < t_vec.size(); i++) {
-                    for (int j=0; j < self.sim.get_n_bodies(); j++) {
+                    for (int j=0; j < self.sim.get_n_particles(); j++) {
                         for (int k=0; k < 2 * self.sim.n_dim; k++) {
                             w_arr_m(i, j, k) = w_vec[i][j][k];
                         }
