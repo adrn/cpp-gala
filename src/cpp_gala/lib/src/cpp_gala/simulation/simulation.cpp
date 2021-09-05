@@ -3,6 +3,8 @@
     - When add_particle(), add the potential for that PC to a list and have a lookup table to go
       from particle index to its potential. Need to do the same for Forces but not our problem just
       yet.
+    - Also: using the do_step() interface to Boost integration may be slower than integrate with an
+      observer function that stores the results...
 */
 #include <iostream>
 #include <cpp_gala/potential/potential.h>
@@ -82,10 +84,11 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
     }
 
     // Compute the acceleration from all particles
-    if (this->has_interparticle_interactions)
+    if (this->has_interparticle_interactions) {
         for (auto &pair : this->particles)
             pair.second.get_acceleration_at(this->state_w, this->state_time, this->particle_ids,
                                             dwdt, this->n_dim);
+    }
 
     // TODO: something about computing the extra force on particles...like from dynamical friction
 }
@@ -96,7 +99,7 @@ vector_2d Simulation::get_dwdt() {
     return dwdt;
 }
 
-void Simulation::set_state(vector_2d &w, double t) {
+void Simulation::set_state(const vector_2d &w, const double t) {
     int n=0;
     this->state_time = t;
     this->state_w = w;

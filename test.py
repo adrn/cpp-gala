@@ -166,7 +166,7 @@
 from cpp_gala._potential import (KeplerPotential,
                                  StaticPotentialParameter)
 from cpp_gala._simulation import Simulation, ParticleCollection
-from cpp_gala._integrate import LeapfrogIntegrator
+from cpp_gala._integrate import LeapfrogIntegrator, BoostIntegrator
 
 import numpy as np
 
@@ -193,7 +193,8 @@ sim.add_particle(ptcl2)
 
 print(sim.n_particles)
 
-integrator = LeapfrogIntegrator(sim)
+# integrator = LeapfrogIntegrator(sim)
+integrator = BoostIntegrator(sim, choice='rk4')
 t = np.linspace(0, 100, 2048)
 for i in range(10):
     ws = integrator.integrate(t)

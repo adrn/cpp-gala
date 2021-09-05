@@ -6,7 +6,7 @@
 
 #include <boost/numeric/odeint.hpp>
 #include <cpp_gala/extern/nested_range_algebra.hpp>
-#include <cpp_gala/extern/nested_range_algebra.hpp>
+#include <cpp_gala/extern/vector_vector_resize.hpp>
 
 // TODO: remove! just for printing...s
 #include <pybind11/pybind11.h>
@@ -35,7 +35,7 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 }
 
 // TODO: implement another that returns vector_2d with a flag "save_all" or something??
-vector_3d BaseIntegrator::integrate(vector_1d t) {
+vector_3d BaseIntegrator::integrate(const vector_1d t) {
     if (t.size() < 2)
         throw std::runtime_error("Input time array must have > 1 element.");
 
@@ -65,8 +65,8 @@ vector_3d BaseIntegrator::integrate(vector_1d t) {
 
 // These are the methods that are overridden by subclasses
 // Note: If I don't include these, I get a "Symbol not found" error on import of cpp_gala._integrate
-void BaseIntegrator::setup_integrate(double t0, double dt) { }
-void BaseIntegrator::step(double t, double dt) { }
+void BaseIntegrator::setup_integrate(const double t0, const double dt) { }
+void BaseIntegrator::step(const double t, const double dt) { }
 
 
 /* ------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ LeapfrogIntegrator::LeapfrogIntegrator(gala::simulation::Simulation sim)
         this->v_ip1_2.push_back(vector_1d(this->sim.n_dim, NAN));
 }
 
-void LeapfrogIntegrator::setup_integrate(double t0, double dt) {
+void LeapfrogIntegrator::setup_integrate(const double t0, const double dt) {
     // First step all of the velocities by 1/2 step to initialize
     this->sim.get_dwdt(&this->tmp_dwdt);
 
@@ -89,7 +89,7 @@ void LeapfrogIntegrator::setup_integrate(double t0, double dt) {
         }
 }
 
-void LeapfrogIntegrator::step(double t, double dt) {
+void LeapfrogIntegrator::step(const double t, const double dt) {
     int i, j;
 
     // Evolve the positions forward by a full step, using the retarded velocities
@@ -115,7 +115,7 @@ void LeapfrogIntegrator::step(double t, double dt) {
     }
 
     // Set the simulation state: the position and velocity should be synced, so ready for output
-    this->sim.set_state(this->tmp_w, t);
+    this->sim.set_state(this->tmp_w, t + dt);
 }
 
 
@@ -123,124 +123,112 @@ void LeapfrogIntegrator::step(double t, double dt) {
     Boost
 */
 
-// BoostIntegrator::BaseIntegrator(gala::simulation::Simulation sim, std::string choice, int steps)
-// : BaseIntegrator(sim) {
-//     /*
-//     choice
-//         Can be one of:
-//             rk4 (4th order Runge-Kutta)
-//             dopri5 (5th rder Runge-Kutta)
-//             rk78 (8th order Runge-Kutta)
-//             adm (Adam-Bashforth-M)
-//     steps
-//         The number of sub-steps to take (used in the Adam-Bashforth method).
-//     */
-//     this->steps = steps;
-//     this->choice = choice;
-// }
+BoostIntegrator::BoostIntegrator(gala::simulation::Simulation sim,
+                                 std::string choice, int sub_steps)
+: BaseIntegrator(sim) {
+    /*
+    choice
+        Can be one of:
+            rk4 (4th order Runge-Kutta)
+            dopri5 (5th order Runge-Kutta)
+            rk78 (8th order Runge-Kutta)
+            adm (Adam-Bashforth-M)
+    sub_steps
+        The number of sub-steps to take (used in the Adam-Bashforth method).
+    */
+    this->sub_steps = sub_steps;
+    this->choice = choice;
+}
 
-// // Built from example here:
-// // https://github.com/headmyshoulder/odeint-v2/blob/master/examples/2d_lattice/spreading.cpp
+// Built from example here:
+// https://github.com/headmyshoulder/odeint-v2/blob/master/examples/2d_lattice/spreading.cpp
 
-// template <typename T>
-// vector_3d BoostIntegrator::integrate_worker(T stepper, vector_2d w, vector_1d t) {
-//     vector_3d all_w;
+template <typename T>
+void BoostIntegrator::step_worker(T stepper, const double t, const double dt) {
+    stepper.do_step([this](const vector_2d &w, vector_2d &dw, const double t) {
+        // TODO: this currently just gets the 3-acceleration, but need to compute the 6-acc
+        this->sim.set_state(w, t);
+        this->sim.get_dwdt(&dw);
+    }, this->tmp_w, t, dt);
+    this->sim.set_state(this->tmp_w, t + dt);
+}
 
-//     //[ integrate_const_loop
-//     double dt;
-//     all_w.push_back(w);
+// List of steppers here:
+// https://www.boost.org/doc/libs/1_63_0/libs/numeric/odeint/doc/html/boost_numeric_odeint/odeint_in_detail/steppers.html
 
-//     for (int i=1; i < t.size(); i++) {
-//         dt = t[i] - t[i-1];
-//         stepper.do_step([this](const vector_2d &w, vector_2d &dw, const double t) {
-//             // TODO: this currently just gets the 3-acceleration, but need to compute the 6-acc
-//             this->sim.get_w_acceleration(&w, t, &this->particle_ids, &dw);
-//         }, this->tmp_w, t[i-1], dt);
-//         all_w.push_back(this->tmp_w);
-//     }
-//     return all_w;
-// }
+// ---
+void BoostIntegrator::step_rk4(const double t, const double dt) {
+    // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta4.html
+    typedef odeint::runge_kutta4 <
+        vector_2d, double, vector_2d, double,
+        nested_range_algebra <odeint::range_algebra>,
+        odeint::default_operations
+    > stepper_type_rk4;
 
-// // List of steppers here:
-// // https://www.boost.org/doc/libs/1_63_0/libs/numeric/odeint/doc/html/boost_numeric_odeint/odeint_in_detail/steppers.html
+    stepper_type_rk4 stepper;
+    this->step_worker(stepper, t, dt);
+}
 
-// // ---
-// vector_3d BoostIntegrator::integrate_rk4(vector_2d w, vector_1d t) {
-//     // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta4.html
-//     typedef boost::numeric::odeint::runge_kutta4 <
-//         vector_2d, double, vector_2d, double,
-//         nested_range_algebra <boost::numeric::odeint::range_algebra>,
-//         boost::numeric::odeint::default_operations
-//     > stepper_type_rk4;
+void BoostIntegrator::step_dopri5(const double t, const double dt) {
+    // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta_dopri5.html
+    typedef odeint::runge_kutta_dopri5<
+        vector_2d, double, vector_2d, double,
+        nested_range_algebra< odeint::range_algebra >,
+        odeint::default_operations
+    > stepper_type_dopri5;
 
-//     stepper_type_rk4 stepper;
-//     return integrate_worker(stepper, w, t);
-// }
+    stepper_type_dopri5 stepper;
+    this->step_worker(stepper, t, dt);
+}
 
-// vector_3d BoostIntegrator::integrate_dopri5(vector_2d w, vector_1d t) {
-//     // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta_dopri5.html
-//     typedef boost::numeric::odeint::runge_kutta_dopri5<
-//         vector_2d, double, vector_2d, double,
-//         nested_range_algebra< boost::numeric::odeint::range_algebra >,
-//         boost::numeric::odeint::default_operations
-//     > stepper_type_dopri5;
+void BoostIntegrator::step_rk78(const double t, const double dt) {
+    // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta_fehlberg78.html
+    typedef odeint::runge_kutta_fehlberg78 <
+        vector_2d, double, vector_2d, double,
+        nested_range_algebra <odeint::range_algebra>,
+        odeint::default_operations
+    > stepper_type_rk78;
 
-//     stepper_type_dopri5 stepper;
-//     return integrate_worker(stepper, w, t);
-// }
+    stepper_type_rk78 stepper;
+    this->step_worker(stepper, t, dt);
+}
 
-// vector_3d BoostIntegrator::integrate_rk78(vector_2d w, vector_1d t) {
-//     // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/runge_kutta_fehlberg78.html
-//     typedef boost::numeric::odeint::runge_kutta_fehlberg78 <
-//         vector_2d, double, vector_2d, double,
-//         nested_range_algebra <boost::numeric::odeint::range_algebra>,
-//         boost::numeric::odeint::default_operations
-//     > stepper_type_rk78;
+template <const int substeps>
+void BoostIntegrator::step_adm(const double t, const double dt) {
+    // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/adams_bashforth_moulton.html
+    typedef odeint::adams_bashforth_moulton <
+        substeps,
+        vector_2d, double, vector_2d, double,
+        nested_range_algebra <odeint::range_algebra>,
+        odeint::default_operations
+    > stepper_type_adm;
 
-//     stepper_type_rk78 stepper;
-//     return integrate_worker(stepper, w, t);
-// }
+    stepper_type_adm stepper;
+    this->step_worker(stepper, t, dt);
+}
 
-// template <const int steps>
-// vector_3d BoostIntegrator::integrate_adm(vector_2d w, vector_1d t) {
-//     // https://www.boost.org/doc/libs/1_60_0/libs/numeric/odeint/doc/html/boost/numeric/odeint/adams_bashforth_moulton.html
-//     typedef boost::numeric::odeint::adams_bashforth_moulton <
-//         steps,
-//         vector_2d, double, vector_2d, double,
-//         nested_range_algebra <boost::numeric::odeint::range_algebra>,
-//         boost::numeric::odeint::default_operations
-//     > stepper_type_adm;
+void BoostIntegrator::step(const double t, const double dt) {
+    if (this->choice == "rk4") {
+        step_rk4(t, dt);
+    } else if (this->choice == "rk78") {
+        step_rk78(t, dt);
+    } else if (this->choice == "dopri5") {
+        step_dopri5(t, dt);
+    } else if (this->choice == "adm") {
+        switch (this->sub_steps) {
+            case 2:
+                step_adm<2>(t, dt);
+            case 4:
+                step_adm<4>(t, dt);
+            case 6:
+                step_adm<6>(t, dt);
+            case 8:
+                step_adm<8>(t, dt);
+            default:
+                throw std::invalid_argument("Invalid setting of sub_steps");
+        }
+    } else {
+        throw std::invalid_argument("Invalid integrator choice");
+    }
 
-//     stepper_type_adm stepper;
-//     return integrate_worker(stepper, w, t);
-// }
-
-// vector_3d BoostIntegrator::integrate(vector_1d t) {
-//     vector_3d nothing;
-
-//     if (this->choice == "rk4") {
-//         return integrate_rk4(w, t);
-//     } else if (this->choice == "rk78") {
-//         return integrate_rk78(w, t);
-//     } else if (this->choice == "dopri5") {
-//         return integrate_dopri5(w, t);
-//     } else if (this->choice == "adm") {
-//         switch (this->steps) {
-//             case 2:
-//                 return integrate_adm<2>(w, t);
-//             case 4:
-//                 return integrate_adm<4>(w, t);
-//             case 6:
-//                 return integrate_adm<6>(w, t);
-//             case 8:
-//                 return integrate_adm<8>(w, t);
-//             default:
-//                 throw std::invalid_argument("Invalid setting of steps");
-//                 return nothing;
-//         }
-//     } else {
-//         throw std::invalid_argument("Invalid integrator choice");
-//         return nothing;
-//     }
-
-// }
+}

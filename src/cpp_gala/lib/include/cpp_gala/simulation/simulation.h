@@ -43,7 +43,7 @@ class __attribute__((visibility("default"))) Simulation {
         void get_dwdt(vector_2d *dwdt);
         vector_2d get_dwdt();
 
-        void set_state(vector_2d &w, double t);
+        void set_state(const vector_2d &w, const double t);
 };
 
 }} // namespace: gala::simulation

@@ -22,9 +22,9 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         BaseIntegrator(gala::simulation::Simulation sim);
 
         // Methods:
-        vector_3d integrate(vector_1d t);
-        virtual void setup_integrate(double t0, double dt);
-        virtual void step(double t, double dt);
+        vector_3d integrate(const vector_1d t);
+        virtual void setup_integrate(const double t0, const double dt);
+        virtual void step(const double t, const double dt);
 };
 
 class LeapfrogIntegrator : public BaseIntegrator {
@@ -33,25 +33,35 @@ class LeapfrogIntegrator : public BaseIntegrator {
         LeapfrogIntegrator(gala::simulation::Simulation sim);
 
         // Methods:
-        void setup_integrate(double t0, double dt) override;
-        void step(double t, double dt) override;
+        void setup_integrate(const double t0, const double dt) override;
+        void step(const double t, const double dt) override;
 
     private:
         vector_2d v_ip1_2;
 };
 
-// class BoostIntegrator : public BaseIntegrator {
-//     public:
-//         // Constructors and Destructors:
-//         BoostIntegrator(gala::simulation::Simulation sim);
+class BoostIntegrator : public BaseIntegrator {
+    public:
+        // Constructors and Destructors:
+        BoostIntegrator(gala::simulation::Simulation sim, std::string choice, int sub_steps=0);
 
-//         // Methods:
-//         void setup_integrate(double t0, double dt) override;
-//         void step(double t, double dt) override;
+        // Methods:
+        // void setup_integrate(double t0, double dt) override;
+        void step(const double t, const double dt) override;
 
-//     // private:
-//     //     vector_2d v_ip1_2;
-// };
+        template <typename T>
+        void step_worker(T stepper, const double t, const double dt);
+        void step_rk4(const double t, const double dt);
+        void step_rk78(const double t, const double dt);
+        void step_dopri5(const double t, const double dt);
+
+        template <const int sub_steps>
+        void step_adm(const double t, const double dt);
+
+    private:
+        int sub_steps;
+        std::string choice;
+};
 
 }} // namespace: gala::integrate
 
