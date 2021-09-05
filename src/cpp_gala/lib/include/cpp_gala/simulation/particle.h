@@ -21,7 +21,7 @@ class ParticleCollection {
     n_particles
         The number of particles represented by this object.
     w
-        The instantaneous phase-space coordinates of the ptcl.
+        The instantaneous phase-space coordinates
     */
     public:
         // Attributes:
@@ -41,7 +41,7 @@ class ParticleCollection {
                        std::string name);
 
         // Methods:
-        void get_acceleration_at(ParticleCollection &ptcl, double t,
+        void get_acceleration_at(ParticleCollection &pc, double t,
                                  vector_2d *acc, int acc_start_idx=0);
         void get_acceleration_at(vector_2d &w, double t, std::vector<std::string> &ids,
                                  vector_2d *acc, int acc_start_idx=0);

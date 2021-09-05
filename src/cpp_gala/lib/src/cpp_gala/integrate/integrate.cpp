@@ -34,7 +34,7 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 
     for (const auto &pair : sim.particles)
         for (int i=0; i < pair.second->n_particles; i++)
-            this->ptcl_ids.push_back(pair.second->ids[i]);
+            this->particle_ids.push_back(pair.second->ids[i]);
 
 }
 
@@ -85,7 +85,7 @@ LeapfrogIntegrator::LeapfrogIntegrator(gala::simulation::Simulation sim)
 
 void LeapfrogIntegrator::setup_integrate(double t0, double dt) {
     // First step all of the velocities by 1/2 step to initialize
-    this->sim.get_w_acceleration(&this->tmp_w, t0, &this->ptcl_ids,
+    this->sim.get_w_acceleration(&this->tmp_w, t0, &this->particle_ids,
                                  &this->tmp_acc);
 
     for (int i=0; i < this->sim.get_n_particles(); i++) {
@@ -110,7 +110,7 @@ void LeapfrogIntegrator::step(double t, double dt) {
         }
 
     // compute the acceleration at the new positions:
-    this->sim.get_w_acceleration(&this->tmp_w, t, &this->ptcl_ids, &this->tmp_acc);
+    this->sim.get_w_acceleration(&this->tmp_w, t, &this->particle_ids, &this->tmp_acc);
 
     // step velocity forward by half step, aligned w/ position, then finish the full step to
     // leapfrog over the positions
@@ -158,7 +158,7 @@ vector_3d BoostIntegrator::integrate_worker(T stepper, vector_2d w, vector_1d t)
         dt = t[i] - t[i-1];
         stepper.do_step([this](const vector_2d &w, vector_2d &dw, const double t) {
             // TODO: this currently just gets the 3-acceleration, but need to compute the 6-acc
-            this->sim.get_w_acceleration(&w, t, &this->ptcl_ids, &dw);
+            this->sim.get_w_acceleration(&w, t, &this->particle_ids, &dw);
         }, this->tmp_w, t[i-1], dt);
         all_w.push_back(this->tmp_w);
     }

@@ -18,7 +18,7 @@ class Force {
     m_n_particles : int
         The number of particles represented by this object.
     w :
-        The instantaneous phase-space coordinates of the ptcl.
+        The instantaneous phase-space coordinates .
     */
     public:
         // Attributes:

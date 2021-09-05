@@ -27,9 +27,9 @@ class __attribute__((visibility("default"))) Simulation {
         std::map<std::string, ParticleCollection> particles;
 
         bool has_ext_potential;
-        bool has_nptcl_interaction;
+        bool has_interparticle_interactions;
 
-        std::vector<std::string> ptcl_ids;
+        std::vector<std::string> particle_ids;
         vector_2d state_w;
         double state_time;
 
@@ -38,7 +38,7 @@ class __attribute__((visibility("default"))) Simulation {
         Simulation();
 
         // Methods:
-        void add_particle(ParticleCollection ptcl);
+        void add_particle(ParticleCollection pc);
         int get_n_particles();
 
         void get_dwdt(vector_2d *dwdt);

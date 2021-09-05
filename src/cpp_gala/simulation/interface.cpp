@@ -39,14 +39,14 @@ PYBIND11_MODULE(_simulation, mod) {
                 new (&self) ParticleCollection(w_vec, potential, name);
             }, "w"_a, "potential"_a = NULL, "name"_a = ""
         )
-        .def_property_readonly("n_particles", [](ParticleCollection &ptcl) {
-            return ptcl.n_particles;
+        .def_property_readonly("n_particles", [](ParticleCollection &pc) {
+            return pc.n_particles;
         })
-        .def_property_readonly("n_dim", [](ParticleCollection &ptcl) {
-            return ptcl.n_dim;
+        .def_property_readonly("n_dim", [](ParticleCollection &pc) {
+            return pc.n_dim;
         })
-        .def_property_readonly("name", [](ParticleCollection &ptcl) {
-            return ptcl.name;
+        .def_property_readonly("name", [](ParticleCollection &pc) {
+            return pc.name;
         });
 
     py::class_<Simulation>(mod, "Simulation")

@@ -21,18 +21,18 @@ ParticleCollection::ParticleCollection(vector_2d w,
 }
 
 ParticleCollection::ParticleCollection(vector_2d w,
-                               gala::potential::BasePotential *potential,
-                               std::string name)
+                                       gala::potential::BasePotential *potential,
+                                       std::string name)
 : ParticleCollection::ParticleCollection(w, name) {
     this->potential = potential;
     this->massless = false;
 }
 
 void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
-                                         std::vector<std::string> &ids,
-                                         vector_2d *acc, int acc_start_idx) {
+                                             std::vector<std::string> &ids,
+                                             vector_2d *acc, int acc_start_idx) {
     /*
-    Compute the acceleration from this ptcl for the input positions w
+    Compute the acceleration from this particle collection for the input positions w
     */
     if (this->massless) {
         return;
@@ -44,7 +44,7 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
                 continue;
             }
 
-            // the potential has to be centered at each ptcl:
+            // the potential has to be centered at each particle:
             // TODO: is this assign slow? could make q0 a pointer and replace the pointer?
             this->potential->q0.assign(&this->w[i][0],
                                        &this->w[i][this->n_dim]);
@@ -53,12 +53,13 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
     }
 }
 
-void ParticleCollection::get_acceleration_at(ParticleCollection &ptcl, double t,
-                                         vector_2d *acc, int acc_start_idx) {
+void ParticleCollection::get_acceleration_at(ParticleCollection &pc, double t,
+                                             vector_2d *acc, int acc_start_idx) {
     /*
-    Compute the acceleration from this ptcl collection on all particles in the input ptcl collection
+    Compute the acceleration from this particle collection on all particles in the input particle
+    collection
     */
-    this->get_acceleration_at(ptcl.w, t, ptcl.ids, acc);
+    this->get_acceleration_at(pc.w, t, pc.ids, acc);
 }
 
 }} // namespace: gala::simulation

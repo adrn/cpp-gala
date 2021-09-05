@@ -11,6 +11,7 @@ namespace gala { namespace simulation {
 Simulation::Simulation() {
     // store potential pointer and initialize
     this->has_ext_potential = false;
+    this->has_interparticle_interactions = false;
     this->n_dim = 0;
     this->n_particles = 0;
     this->state_time = 0.;
@@ -24,29 +25,27 @@ Simulation::Simulation(gala::potential::BasePotential *potential)
     this->n_dim = potential->n_dim;
 }
 
-void Simulation::add_particle(ParticleCollection ptcl) {
+void Simulation::add_particle(ParticleCollection pc) {
     /*
-    TODO: error if the name is the same as an existing ptcl?
+    TODO: error if the name is the same as an existing particle?
     */
-    std::string key = ptcl.name;
+    std::string key = pc.name;
 
     if (this->n_dim == 0) {
-        this->n_dim = ptcl.n_dim;
-    } else if (this->n_dim != ptcl.n_dim) {
+        this->n_dim = pc.n_dim;
+    } else if (this->n_dim != pc.n_dim) {
         throw std::runtime_error(
             "Input ParticleCollection must have the same n_dim as the simulation");
     }
-    this->n_particles += ptcl.n_particles;
+    this->n_particles += pc.n_particles;
 
-    if (!ptcl.massless)
-        this->has_nptcl_interaction = true;
+    if (!pc.massless)
+        this->has_interparticle_interactions = true;
 
-    // for (int i=0; i < ptcl.n_particles; i++) {
-    this->state_w.insert(this->state_w.end(), ptcl.w.begin(), ptcl.w.end());
-    this->ptcl_ids.insert(this->ptcl_ids.end(), ptcl.ids.begin(), ptcl.ids.end());
-    // }
+    this->state_w.insert(this->state_w.end(), pc.w.begin(), pc.w.end());
+    this->particle_ids.insert(this->particle_ids.end(), pc.ids.begin(), pc.ids.end());
 
-    this->particles.insert(std::make_pair(key, ptcl));
+    this->particles.insert(std::make_pair(key, pc));
 }
 
 void Simulation::get_dwdt(vector_2d *dwdt) {
@@ -68,7 +67,7 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
         }
     }
 
-    if (has_ext_potential) {
+    if (this->has_ext_potential) {
         // Compute the acceleration from the external potential, if set
         for (i=0; i < this->state_w.size(); i++)
             this->potential->acceleration(&this->state_w[i][0],
@@ -77,9 +76,10 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
     }
 
     // Compute the acceleration from all particles
-    for (auto &pair : this->particles)
-        pair.second.get_acceleration_at(this->state_w, this->state_time, this->ptcl_ids, dwdt,
-                                        this->n_dim);
+    if (this->has_interparticle_interactions)
+        for (auto &pair : this->particles)
+            pair.second.get_acceleration_at(this->state_w, this->state_time, this->particle_ids,
+                                            dwdt, this->n_dim);
 
     // TODO: something about computing the extra force on particles...like from dynamical friction
 }
