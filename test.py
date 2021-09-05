@@ -102,49 +102,89 @@
 
 # ---
 
-from cpp_gala._potential import (KeplerPotential,
-                                 StaticPotentialParameter)
-from cpp_gala._simulation import Simulation, ParticleCollection
-import numpy as np
+# from cpp_gala._potential import (KeplerPotential,
+#                                  StaticPotentialParameter)
+# from cpp_gala._simulation import Simulation, ParticleCollection
+# import numpy as np
 
-ext_M = StaticPotentialParameter(1.)
-ext_pot = KeplerPotential(1., ext_M)
+# ext_M = StaticPotentialParameter(1.)
+# ext_pot = KeplerPotential(1., ext_M)
 
-M = StaticPotentialParameter(1.)
-pot = KeplerPotential(1., M)
+# M = StaticPotentialParameter(1.)
+# pot = KeplerPotential(1., M)
 
-# sim = Simulation(ext_pot)
-sim = Simulation()
+# # sim = Simulation(ext_pot)
+# sim = Simulation()
 
+# # ptcl1 = ParticleCollection(
+# #     np.array([[1., 0., 0., 0, 0, 0],
+# #               [2., 0, 0, 0, 0, 0]]),
+# #     potential=pot,
+# #     # potential=None,
+# #     name="derp1"
+# # )
+
+# # ptcl2 = ParticleCollection(
+# #     np.array([[-1., 0., 0., 0, 0, 0],
+# #               [-2., 0, 0, 0, 0, 0]]),
+# #     # potential=pot,
+# #     potential=None,
+# #     name="derp2"
+# # )
+
+# ptcl1_w = np.array([[1., 0., 0., 0, 0, 0]])
 # ptcl1 = ParticleCollection(
-#     np.array([[1., 0., 0., 0, 0, 0],
-#               [2., 0, 0, 0, 0, 0]]),
+#     ptcl1_w,
 #     potential=pot,
 #     # potential=None,
 #     name="derp1"
 # )
 
+# ptcl2_w = np.array([[-1., 0., 0., 0, 0, 0]])
 # ptcl2 = ParticleCollection(
-#     np.array([[-1., 0., 0., 0, 0, 0],
-#               [-2., 0, 0, 0, 0, 0]]),
-#     # potential=pot,
-#     potential=None,
+#     ptcl2_w,
+#     potential=pot,
+#     # potential=None,
 #     name="derp2"
 # )
 
-ptcl1_w = np.array([[1., 0., 0., 0, 0, 0]])
+# sim.add_particle(ptcl1)
+# sim.add_particle(ptcl2)
+
+# print(sim.n_particles)
+# print(sim.state_w)
+# print(sim.state_t)
+# print(sim.get_dwdt())
+
+# import sys
+# sys.exit(0)
+
+# -----------------------------------------------------------------------------
+# Integrators
+#
+
+from cpp_gala._potential import (KeplerPotential,
+                                 StaticPotentialParameter)
+from cpp_gala._simulation import Simulation, ParticleCollection
+from cpp_gala._integrate import LeapfrogIntegrator
+
+import numpy as np
+
+M = StaticPotentialParameter(1.)
+pot = KeplerPotential(1., M)
+sim = Simulation()
+
+ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
 ptcl1 = ParticleCollection(
     ptcl1_w,
     potential=pot,
-    # potential=None,
     name="derp1"
 )
 
-ptcl2_w = np.array([[-1., 0., 0., 0, 0, 0]])
+ptcl2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
 ptcl2 = ParticleCollection(
     ptcl2_w,
     potential=pot,
-    # potential=None,
     name="derp2"
 )
 
@@ -152,61 +192,20 @@ sim.add_particle(ptcl1)
 sim.add_particle(ptcl2)
 
 print(sim.n_particles)
-print(sim.state_w)
-print(sim.state_t)
-print(sim.get_dwdt())
+
+integrator = LeapfrogIntegrator(sim)
+t = np.linspace(0, 100, 2048)
+for i in range(10):
+    ws = integrator.integrate(t)
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(6, 6))
+plt.plot(ws[:, 0, 0], ws[:, 0, 1])
+plt.plot(ws[:, 1, 0], ws[:, 1, 1])
+plt.show()
 
 import sys
 sys.exit(0)
-
-# -----------------------------------------------------------------------------
-# Integrators
-#
-
-# from cpp_gala._potential import (KeplerPotential,
-#                                  StaticPotentialParameter)
-# from cpp_gala._simulation import Simulation, ParticleCollection
-# from cpp_gala._integrate import LeapfrogIntegrator
-
-# import numpy as np
-
-# M = StaticPotentialParameter(1.)
-# pot = KeplerPotential(1., M)
-# sim = Simulation()
-
-# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
-# ptcl1 = ParticleCollection(
-#     ptcl1_w,
-#     potential=pot,
-#     name="derp1"
-# )
-
-# ptcl2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
-# ptcl2 = ParticleCollection(
-#     ptcl2_w,
-#     potential=pot,
-#     name="derp2"
-# )
-
-# sim.add_ptcl(ptcl1)
-# sim.add_ptcl(ptcl2)
-
-# print(sim.n_particles)
-# print(sim.ptcl_acceleration(ptcl1, 0.))
-
-# integrator = LeapfrogIntegrator(sim)
-# t = np.linspace(0, 100, 2048)
-# for i in range(10):
-#     ws = integrator.integrate(t)
-
-# # import matplotlib.pyplot as plt
-# # plt.figure(figsize=(6, 6))
-# # plt.plot(ws[:, 0, 0], ws[:, 0, 1])
-# # plt.plot(ws[:, 1, 0], ws[:, 1, 1])
-# # plt.show()
-
-# import sys
-# sys.exit(0)
 
 
 # -----------------------------------------------------------------------------

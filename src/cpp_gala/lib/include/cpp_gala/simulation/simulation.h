@@ -39,7 +39,6 @@ class __attribute__((visibility("default"))) Simulation {
 
         // Methods:
         void add_particle(ParticleCollection pc);
-        int get_n_particles();
 
         void get_dwdt(vector_2d *dwdt);
         vector_2d get_dwdt();

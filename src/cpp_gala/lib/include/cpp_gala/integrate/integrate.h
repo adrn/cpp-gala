@@ -16,8 +16,7 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         // Attributes:
         gala::simulation::Simulation sim;
         vector_2d tmp_w;  // temporary container for per-step phase-space positions
-        vector_2d tmp_acc;  // temporary container for per-step accelerations
-        std::vector<std::string> ptcl_ids;  // container for all sim ptcl ids
+        vector_2d tmp_dwdt;  // temporary container for per-step dw/dt
 
         // Constructors and Destructors:
         BaseIntegrator(gala::simulation::Simulation sim);
@@ -27,7 +26,6 @@ class __attribute__((visibility("default"))) BaseIntegrator {
         virtual void setup_integrate(double t0, double dt);
         virtual void step(double t, double dt);
 };
-
 
 class LeapfrogIntegrator : public BaseIntegrator {
     public:
@@ -42,18 +40,18 @@ class LeapfrogIntegrator : public BaseIntegrator {
         vector_2d v_ip1_2;
 };
 
-class GSLIntegrator : public BaseIntegrator {
-    public:
-        // Constructors and Destructors:
-        GSLIntegrator(gala::simulation::Simulation sim);
+// class BoostIntegrator : public BaseIntegrator {
+//     public:
+//         // Constructors and Destructors:
+//         BoostIntegrator(gala::simulation::Simulation sim);
 
-        // Methods:
-        void setup_integrate(double t0, double dt) override;
-        void step(double t, double dt) override;
+//         // Methods:
+//         void setup_integrate(double t0, double dt) override;
+//         void step(double t, double dt) override;
 
-    // private:
-    //     vector_2d v_ip1_2;
-};
+//     // private:
+//     //     vector_2d v_ip1_2;
+// };
 
 }} // namespace: gala::integrate
 

@@ -9,6 +9,42 @@
 
 // See: https://www.boost.org/doc/libs/1_60_0/boost/numeric/odeint/algebra/detail/for_each.hpp
 
+/* APW: code generated with Python
+
+for N in range(2, 15+1):
+    class_iterators = ", ".join([f"class Iterator{i}" for i in range(1, N+1)])
+    iterators = ", ".join([f"Iterator{i} first{i}" for i in range(2, N+1)])
+    firsts = ", ".join([f"*first{i}++" for i in range(2, N+1)])
+    s = f"""
+    template< {class_iterators},
+              class Operation, class Algebra >
+    void for_each{N}( Iterator1 first1, Iterator1 last1,
+                    {iterators},
+                    Operation op, Algebra &algebra ) {{
+        for( ; first1 != last1 ; )
+            algebra.for_each{N}( *first1++, {firsts}, op );
+    }}
+    """
+    print(s)
+    print()
+
+for N in range(2, 15+1):
+    S_classes = ", ".join([f"class S{n}" for n in range(2, N+1)])
+    Ss_classes = ", ".join([f"S{n} &s{n}" for n in range(2, N+1)])
+    boost_begins = ", ".join([f"boost::begin( s{n} )" for n in range(2, N+1)])
+    s = f"""
+    template< class S1, {S_classes}, class Op >
+    void for_each{N}( S1 &s1, {Ss_classes}, Op op ) {{
+        detail::for_each{N}( boost::begin( s1 ),
+                           boost::end( s1 ),
+                           {boost_begins},
+                           op, m_inner_algebra );
+    }}
+    """
+    print(s)
+
+*/
+
 /* nested range algebra */
 
 #ifndef NESTED_RANGE_ALGEBRA
