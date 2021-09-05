@@ -23,6 +23,7 @@ class __attribute__((visibility("default"))) BasePotential {
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors and Destructors:
+        BasePotential();
         BasePotential(double G,
                       int n_dim=DEFAULT_n_dim,
                       std::vector<double> q0={});

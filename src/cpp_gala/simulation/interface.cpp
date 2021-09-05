@@ -8,11 +8,13 @@
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/body.h>
+#include <cpp_gala/utils.h>
 #include <iostream>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::simulation;
+using namespace gala::utils;
 
 using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
@@ -30,12 +32,11 @@ PYBIND11_MODULE(_simulation, mod) {
                         "Input BodyCollection phase-space coordinates w must be a 2D array");
                 }
 
-                std::vector<std::vector<double>> w_vec(w.shape(0),
-                                                       std::vector<double> (w.shape(1)));
+                vector_2d w_vec(w.shape(0), vector_1d(w.shape(1)));
                 for (int i=0; i < w.shape(0); i++)
                     w_vec[i].assign(w.data(i), w.data(i) + w.shape(1));
 
-                new (&self) BodyCollection(potential, w_vec, name);
+                new (&self) BodyCollection(w_vec, potential, name);
             }, "w"_a, "potential"_a = NULL, "name"_a = ""
         )
         .def_property_readonly("n_bodies", [](BodyCollection &body) {
@@ -52,54 +53,38 @@ PYBIND11_MODULE(_simulation, mod) {
         .def(py::init<>())
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def("add_body", &Simulation::add_body)
-        .def_property_readonly("n_bodies", &Simulation::get_n_bodies)
-        .def("body_acceleration", [](
-            Simulation &self,
-            BodyCollection *body,
-            double t) {
-                gala::utils::vector_2d acc_vec(body->n_bodies, gala::utils::vector_1d(body->n_dim));
-                self.get_body_acceleration(body, t, &acc_vec);
+        .def_property_readonly("n_bodies", [](Simulation &self){ return self.n_bodies; })
+        .def_property_readonly("n_dim", [](Simulation &self){ return self.n_dim; })
+        .def_property_readonly("state_t", [](Simulation &self){ return self.state_time; })
+        .def_property_readonly("state_w", [](Simulation &self) {
+                auto w_vec = self.state_w;
 
                 // Array to return:
-                auto acc = array_t(body->n_bodies * body->n_dim);
-                for (int i=0; i < body->n_bodies; i++) {
-                    for (int j=0; j < self.n_dim; j++) {
-                        acc.mutable_at(j + self.n_dim * i) = acc_vec[i][j];
-                    }
-                }
-                acc.resize({body->n_bodies, body->n_dim});
-
-                return acc;
-            }
-        )
-        // .def("acceleration", [](
-        //     Simulation &self,
-        //     double t) {
-        //         // Array to catch return from get_acceleration:
-        //         auto acc = array_t(self.get_n_bodies() * self.n_dim);
-        //         acc.resize({self.get_n_bodies(), self.n_dim});
-        //         py::buffer_info acc_buf = acc.request();
-        //         double *acc_arr = (double*)acc_buf.ptr;
-
-        //         self.get_acceleration(t, acc_arr);
-
-        //         // TODO: return a dictionary instead?
-        //         return acc;
-        //     }
-        // )
-        .def_property_readonly("_w", [](Simulation &self) {
-                auto w_vec = self.get_w();
-
-                // Array to return:
-                auto w = array_t(self.get_n_bodies() * 2 * self.n_dim);
-                for (int i=0; i < self.get_n_bodies(); i++) {
+                auto w = array_t(self.n_bodies * 2 * self.n_dim);
+                for (int i=0; i < self.n_bodies; i++) {
                     for (int j=0; j < 2 * self.n_dim; j++) {
                         w.mutable_at(j + 2 * self.n_dim * i) = w_vec[i][j];
                     }
                 }
-                w.resize({self.get_n_bodies(), 2 * self.n_dim});
+                w.resize({self.n_bodies, 2 * self.n_dim});
 
                 return w;
+            }
+        )
+        .def("get_dwdt", [](
+            Simulation &self) {
+                auto dwdt_vec = self.get_dwdt();
+
+                // Array to return:
+                auto dwdt = array_t(self.n_bodies * 2 * self.n_dim);
+                for (int i=0; i < self.n_bodies; i++) {
+                    for (int j=0; j < 2 * self.n_dim; j++) {
+                        dwdt.mutable_at(j + 2 * self.n_dim * i) = dwdt_vec[i][j];
+                    }
+                }
+                dwdt.resize({self.n_bodies, 2 * self.n_dim});
+
+                return dwdt;
             }
         );
 }

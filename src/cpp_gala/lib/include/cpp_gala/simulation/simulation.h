@@ -12,29 +12,39 @@
 #include <cpp_gala/simulation/body.h>
 #include <cpp_gala/utils.h>
 
+using namespace gala::utils;
+
 namespace gala { namespace simulation {
 
-// TODO: should we use pybind11_export here instead?
 class __attribute__((visibility("default"))) Simulation {
+// TODO: should we use pybind11_export here instead of visibility?
 
     public:
         // Attributes:
         int n_dim;
+        int n_bodies;
         gala::potential::BasePotential *potential;
-        std::map<std::string, BodyCollection*> bodies;
+        std::map<std::string, BodyCollection> bodies;
+
+        bool has_ext_potential;
+        bool has_nbody_interaction;
+
+        std::vector<std::string> body_ids;
+        vector_2d state_w;
+        double state_time;
 
         // Constructors:
         Simulation(gala::potential::BasePotential *potential);
-        Simulation() : Simulation(NULL) {};
+        Simulation();
 
         // Methods:
-        void add_body(BodyCollection *body);
+        void add_body(BodyCollection body);
         int get_n_bodies();
-        void get_body_acceleration(BodyCollection *body, double t, gala::utils::vector_2d *acc);
-        void get_w_acceleration(gala::utils::vector_2d *w, double t, std::vector<std::string> *ids,
-                                gala::utils::vector_2d *acc);
-        // void get_acceleration(double t, vector_2d *acc);
-        gala::utils::vector_2d get_w();
+
+        void get_dwdt(vector_2d *dwdt);
+        vector_2d get_dwdt();
+
+        void set_state(vector_2d w, double t);
 };
 
 }} // namespace: gala::simulation

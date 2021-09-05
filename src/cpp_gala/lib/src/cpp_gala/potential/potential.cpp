@@ -7,6 +7,8 @@
 namespace gala { namespace potential {
 
 // Base class
+BasePotential::BasePotential() { }
+
 BasePotential::BasePotential(double G, int n_dim, std::vector<double> q0) {
     this->G = G;
     this->n_dim = n_dim;
@@ -28,7 +30,7 @@ void BasePotential::shift_rotate_q(double *q) {
         this->tmp_q[i] = q[i] - this->q0[i];
     }
 
-    // TODO: deal with rotation...
+    // TODO: deal with rotation...s
 }
 
 // These are the methods that are overridden by subclasses
