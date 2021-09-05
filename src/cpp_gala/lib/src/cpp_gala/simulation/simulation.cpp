@@ -1,3 +1,9 @@
+/*
+    TODO: Idea for speed, to avoid copying data around every set_state() call.
+    - When add_particle(), add the potential for that PC to a list and have a lookup table to go
+      from particle index to its potential. Need to do the same for Forces but not our problem just
+      yet.
+*/
 #include <iostream>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
@@ -90,7 +96,7 @@ vector_2d Simulation::get_dwdt() {
     return dwdt;
 }
 
-void Simulation::set_state(vector_2d w, double t) {
+void Simulation::set_state(vector_2d &w, double t) {
     int n=0;
     this->state_time = t;
     this->state_w = w;

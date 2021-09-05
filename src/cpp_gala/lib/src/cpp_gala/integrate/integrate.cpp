@@ -114,7 +114,7 @@ void LeapfrogIntegrator::step(double t, double dt) {
         }
     }
 
-    // Set the simulation state: the position and velocity should be synced
+    // Set the simulation state: the position and velocity should be synced, so ready for output
     this->sim.set_state(this->tmp_w, t);
 }
 
