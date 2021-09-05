@@ -37,7 +37,6 @@ void Simulation::add_particle(ParticleCollection pc) {
     /*
     TODO: error if the name is the same as an existing particle?
     */
-    std::string key = pc.name;
 
     if (this->n_dim == 0) {
         this->n_dim = pc.n_dim;
@@ -52,8 +51,10 @@ void Simulation::add_particle(ParticleCollection pc) {
 
     this->state_w.insert(this->state_w.end(), pc.w.begin(), pc.w.end());
     this->particle_ids.insert(this->particle_ids.end(), pc.ids.begin(), pc.ids.end());
+    for (int i=0; i < pc.n_particles; i++)
+        this->particle_potentials.push_back(pc.potential);
 
-    this->particles.insert(std::make_pair(key, pc));
+    this->particles.insert(std::make_pair(pc.name, pc));
 }
 
 void Simulation::get_dwdt(vector_2d *dwdt) {
