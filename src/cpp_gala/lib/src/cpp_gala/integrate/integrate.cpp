@@ -50,7 +50,7 @@ vector_3d BaseIntegrator::integrate(const vector_1d t) {
     this->setup_integrate(t[0], t[1] - t[0]);
 
     for (int n=1; n < t.size(); n++) {
-        this->step(t[n], t[n] - t[n-1]);
+        this->step(t[n-1], t[n] - t[n-1]);
 
         // TODO: add a boolean flag to store all or just the final! as an attribute on the class
         // Store the w vector at this timestep
