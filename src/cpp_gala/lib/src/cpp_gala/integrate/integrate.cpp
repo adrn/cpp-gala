@@ -84,9 +84,9 @@ void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
 
         // TODO: add a boolean flag to store all or just the final! as an attribute on the class
         // Store the w vector at this timestep
-        // for (i=0; i < this->sim.n_particles; i++)
-        //     for (j=0; j < ps_ndim; j++)
-        //         result_w[i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim)] = sim.state_w[i][j];
+        for (i=0; i < this->sim.n_particles; i++)
+            for (j=0; j < ps_ndim; j++)
+                result_w[i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim)] = sim.state_w[i][j];
     }
 }
 

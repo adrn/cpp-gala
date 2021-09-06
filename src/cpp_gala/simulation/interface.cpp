@@ -5,6 +5,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>  // automatic type conversions
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/particle.h>
@@ -47,6 +48,9 @@ PYBIND11_MODULE(_simulation, mod) {
         })
         .def_property_readonly("name", [](ParticleCollection &pc) {
             return pc.name;
+        })
+        .def_property_readonly("_ids", [](ParticleCollection &pc) {
+            return pc.IDs;
         });
 
     py::class_<Simulation>(mod, "Simulation")
@@ -55,6 +59,7 @@ PYBIND11_MODULE(_simulation, mod) {
         .def("add_particle", &Simulation::add_particle)
         .def_property_readonly("n_particles", [](Simulation &self){ return self.n_particles; })
         .def_property_readonly("n_dim", [](Simulation &self){ return self.n_dim; })
+        .def_property_readonly("particle_ids", [](Simulation &self){ return self.particle_IDs; })
         .def_property_readonly("state_t", [](Simulation &self){ return self.state_time; })
         .def_property_readonly("state_w", [](Simulation &self) {
                 auto w_vec = self.state_w;

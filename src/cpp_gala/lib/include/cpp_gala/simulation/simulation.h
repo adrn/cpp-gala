@@ -30,7 +30,7 @@ class __attribute__((visibility("default"))) Simulation {
         bool has_interparticle_interactions;
 
         // Internal
-        std::vector<std::string> particle_ids;
+        std::vector<std::tuple<uint32_t, uint32_t>> particle_IDs;
         std::vector<gala::potential::BasePotential*> particle_potentials;
         vector_2d state_w;
         double state_time;

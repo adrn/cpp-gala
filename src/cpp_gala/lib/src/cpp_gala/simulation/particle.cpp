@@ -7,8 +7,8 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-ParticleCollection::ParticleCollection(vector_2d w,
-                               std::string name) {
+ParticleCollection::ParticleCollection(vector_2d w, std::string name)
+: ParticleCollection() {
     // store potential pointer and initialize
     this->w = w;
     this->n_particles = w.size();
@@ -17,8 +17,10 @@ ParticleCollection::ParticleCollection(vector_2d w,
     this->massless = true;
 
     for (int i=0; i < this->n_particles; i++)
-        this->ids.push_back(name + ":" + std::to_string(i));
+        this->IDs.push_back(std::make_tuple(this->ID, i));
 }
+
+uint32_t ParticleCollection::_count;
 
 ParticleCollection::ParticleCollection(vector_2d w,
                                        gala::potential::BasePotential *potential,
@@ -29,7 +31,7 @@ ParticleCollection::ParticleCollection(vector_2d w,
 }
 
 void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
-                                             std::vector<std::string> &ids,
+                                             std::vector<std::tuple<uint32_t, uint32_t>> &IDs,
                                              vector_2d *acc, int acc_start_idx) {
     /*
     Compute the acceleration from this particle collection for the input positions w
@@ -40,15 +42,15 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
 
     for (int j=0; j < w.size(); j++) {
         for (int i=0; i < this->n_particles; i++) {
-            if ((ids.size() > 0) && (ids[j] == this->ids[i])) {
+            if ((IDs.size() > 0)
+                    && (std::get<0>(IDs[j]) == this->ID)
+                    && (std::get<1>(IDs[j]) == std::get<1>(this->IDs[i]))) {
                 continue;
             }
 
             // the potential has to be centered at each particle:
-            // TODO: is this assign slow? could make q0 a pointer and replace the pointer?
-            this->potential->q0.assign(&this->w[i][0],
-                                       &this->w[i][this->n_dim]);
-            this->potential->acceleration(&w[j][0], t, &acc->at(j)[acc_start_idx]);
+            this->potential->q0 = &this->w[i];
+            this->potential->acceleration(&w[j][0], t, &(*acc)[j][acc_start_idx]);
         }
     }
 }
@@ -59,7 +61,7 @@ void ParticleCollection::get_acceleration_at(ParticleCollection &pc, double t,
     Compute the acceleration from this particle collection on all particles in the input particle
     collection
     */
-    this->get_acceleration_at(pc.w, t, pc.ids, acc);
+    this->get_acceleration_at(pc.w, t, pc.IDs, acc, acc_start_idx);
 }
 
 }} // namespace: gala::simulation

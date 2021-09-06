@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+import time
+
 # Test static potential parameter
 # from cpp_gala._potential import (KeplerPotential,
 #                                  StaticPotentialParameter)
@@ -170,39 +174,64 @@ from cpp_gala._integrate import LeapfrogIntegrator, BoostIntegrator
 
 import numpy as np
 
+# TEST PARTICLE
 M = StaticPotentialParameter(1.)
 pot = KeplerPotential(1., M)
-sim = Simulation()
+sim = Simulation(pot)
 
 ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
 ptcl1 = ParticleCollection(
     ptcl1_w,
-    potential=pot,
+    potential=None,
     name="derp1"
 )
 
-ptcl2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
-ptcl2 = ParticleCollection(
-    ptcl2_w,
-    potential=pot,
-    name="derp2"
-)
-
 sim.add_particle(ptcl1)
-sim.add_particle(ptcl2)
 
 print(sim.n_particles)
 
+integrator = LeapfrogIntegrator(sim)
+# integrator = BoostIntegrator(sim, choice='rk4')
+t = np.linspace(0, 100, 16384)
+ws = integrator.integrate(t)
+
+# print(ws)
+
+# NBODY
+# M = StaticPotentialParameter(1.)
+# pot = KeplerPotential(1., M)
+# sim = Simulation()
+
+# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
+# ptcl1 = ParticleCollection(
+#     ptcl1_w,
+#     potential=pot,
+#     name="derp1"
+# )
+
+# ptcl2_w = np.array([[-1., 0., 0., 0, 0.5, 0]])
+# ptcl2 = ParticleCollection(
+#     ptcl2_w,
+#     potential=pot,
+#     name="derp2"
+# )
+
+# sim.add_particle(ptcl1)
+# sim.add_particle(ptcl2)
+
+# print(sim.n_particles)
+
 # integrator = LeapfrogIntegrator(sim)
-integrator = BoostIntegrator(sim, choice='rk4')
-t = np.linspace(0, 100, 2048)
-for i in range(10):
-    ws = integrator.integrate(t)
+# # integrator = BoostIntegrator(sim, choice='rk4')
+# t = np.linspace(0, 100, 16384)
+# ws = integrator.integrate(t)
+
+# print(ws)
 
 import matplotlib.pyplot as plt
 plt.figure(figsize=(6, 6))
 plt.plot(ws[:, 0, 0], ws[:, 0, 1])
-plt.plot(ws[:, 1, 0], ws[:, 1, 1])
+# plt.plot(ws[:, 1, 0], ws[:, 1, 1])
 plt.show()
 
 import sys

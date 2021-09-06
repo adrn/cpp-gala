@@ -52,9 +52,10 @@ void Simulation::add_particle(ParticleCollection pc) {
         this->has_interparticle_interactions = true;
 
     this->state_w.insert(this->state_w.end(), pc.w.begin(), pc.w.end());
-    this->particle_ids.insert(this->particle_ids.end(), pc.ids.begin(), pc.ids.end());
-    for (int i=0; i < pc.n_particles; i++)
+    for (int i=0; i < pc.n_particles; i++) {
         this->particle_potentials.push_back(pc.potential);
+        this->particle_IDs.push_back(pc.IDs[i]);
+    }
 
     this->particles.insert(std::make_pair(pc.name, pc));
 }
@@ -71,10 +72,10 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
     for (i=0; i < this->n_particles; i++) {
         for (j=0; j < this->n_dim; j++) {
             // Set position derivative to velocity
-            dwdt->at(i)[j] = this->state_w[i][j + this->n_dim];
+            (*dwdt)[i][j] = this->state_w[i][j + this->n_dim];
 
             // Set velocity derivative (acceleration) to zero (to be filled below)
-            dwdt->at(i)[j + this->n_dim] = 0.;
+            (*dwdt)[i][j + this->n_dim] = 0.;
         }
     }
 
@@ -83,13 +84,13 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
         for (i=0; i < this->state_w.size(); i++)
             this->potential->acceleration(&this->state_w[i][0],
                                           this->state_time,
-                                          &dwdt->at(i).at(this->n_dim));
+                                          &(*dwdt)[i][this->n_dim]);
     }
 
     // Compute the acceleration from all particles
     if (this->has_interparticle_interactions) {
         for (auto &pair : this->particles)
-            pair.second.get_acceleration_at(this->state_w, this->state_time, this->particle_ids,
+            pair.second.get_acceleration_at(this->state_w, this->state_time, this->particle_IDs,
                                             dwdt, this->n_dim);
     }
 
