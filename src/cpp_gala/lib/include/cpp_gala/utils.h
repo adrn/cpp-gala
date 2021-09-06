@@ -14,6 +14,10 @@ using vector_3d = std::vector<std::vector<std::vector<double>>>;
 using vector_2d = std::vector<std::vector<double>>;
 using vector_1d = std::vector<double>;
 
+inline int i2d(int i, int j, int ni, int nj) {
+    return j + i * nj;
+}
+
 inline int i3d(int i, int j, int k, int ni, int nj, int nk) {
     return k + nk * (j + i * nj);
 }

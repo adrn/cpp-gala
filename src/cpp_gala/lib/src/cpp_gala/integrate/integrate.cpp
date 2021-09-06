@@ -34,65 +34,89 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 
 }
 
-// TODO: implement another that returns vector_2d with a flag "save_all" or something??
-vector_3d BaseIntegrator::integrate(const vector_1d t) {
-    if (t.size() < 2)
-        throw std::runtime_error("Input time array must have > 1 element.");
+vector_2d BaseIntegrator::integrate(const vector_1d t) {
+    // Call any custom setup needed before starting to step the integrator:
+    this->setup_integrate(t);
 
+    for (int n=1; n < t.size(); n++)
+        this->step(t[n-1], t[n] - t[n-1]);
+
+    return sim.state_w;
+}
+
+vector_3d BaseIntegrator::integrate_save_all(const vector_1d t) {
     // The return array:
     vector_3d result_w;
 
     // Store the initial values in the first block of the result array:
-    this->tmp_w = sim.state_w;
     result_w.push_back(this->sim.state_w);
 
     // Call any custom setup needed before starting to step the integrator:
-    this->setup_integrate(t[0], t[1] - t[0]);
+    this->setup_integrate(t);
 
     for (int n=1; n < t.size(); n++) {
         this->step(t[n-1], t[n] - t[n-1]);
 
-        // TODO: add a boolean flag to store all or just the final! as an attribute on the class
         // Store the w vector at this timestep
         result_w.push_back(sim.state_w);
-        // for (i=0; i < this->sim.n_particles; i++)
-        //     for (j=0; j < ps_ndim; j++)
-        //         result_w[n][i][j] = this->tmp_w[i][j];
     }
 
     return result_w;
 }
 
 void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
-    int i, j, ps_ndim = 2 * this->sim.n_dim;
+    int i, j, idx, ps_ndim = 2 * this->sim.n_dim;
     int ntimes = t.size();
 
-    if (t.size() < 2)
-        throw std::runtime_error("Input time array must have > 1 element.");
+    // Call any custom setup needed before starting to step the integrator:
+    this->setup_integrate(t);
+
+    for (int n=1; n < ntimes; n++) {
+        this->step(t[n-1], t[n] - t[n-1]);
+
+        // Store the w vector at this timestep
+        for (i=0; i < this->sim.n_particles; i++)
+            for (j=0; j < ps_ndim; j++) {
+                idx = i2d(i, j, this->sim.n_particles, ps_ndim);
+                result_w[idx] = sim.state_w[i][j];
+            }
+    }
+}
+
+void BaseIntegrator::integrate_save_all(const vector_1d t, double *result_w) {
+    int i, j, idx, ps_ndim = 2 * this->sim.n_dim;
+    int ntimes = t.size();
 
     // Store the initial values in the first block of the result array:
-    this->tmp_w = sim.state_w;
     for (i=0; i < this->sim.n_particles; i++)
         for (j=0; j < ps_ndim; j++)
             result_w[j + ps_ndim * i] = sim.state_w[i][j];
 
     // Call any custom setup needed before starting to step the integrator:
-    this->setup_integrate(t[0], t[1] - t[0]);
+    this->setup_integrate(t);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
 
-        // TODO: add a boolean flag to store all or just the final! as an attribute on the class
         // Store the w vector at this timestep
         for (i=0; i < this->sim.n_particles; i++)
-            for (j=0; j < ps_ndim; j++)
-                result_w[i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim)] = sim.state_w[i][j];
+            for (j=0; j < ps_ndim; j++) {
+                idx = i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim);
+                result_w[idx] = sim.state_w[i][j];
+            }
     }
 }
 
 // These are the methods that are overridden by subclasses
 // Note: If I don't include these, I get a "Symbol not found" error on import of cpp_gala._integrate
-void BaseIntegrator::setup_integrate(const double t0, const double dt) { }
+void BaseIntegrator::setup_integrate(const vector_1d &t) {
+    if (t.size() < 2)
+        throw std::runtime_error("Input time array must have > 1 element.");
+
+    // Store the initial values:
+    this->tmp_w = sim.state_w;
+}
+
 void BaseIntegrator::step(const double t, const double dt) { }
 
 
@@ -105,7 +129,12 @@ LeapfrogIntegrator::LeapfrogIntegrator(gala::simulation::Simulation sim)
         this->v_ip1_2.push_back(vector_1d(this->sim.n_dim, NAN));
 }
 
-void LeapfrogIntegrator::setup_integrate(const double t0, const double dt) {
+void LeapfrogIntegrator::setup_integrate(const vector_1d &t) {
+    BaseIntegrator::setup_integrate(t);
+
+    double dt = t[1] - t[0];
+    this->sim.set_state(this->sim.state_w, t[0]);
+
     // First step all of the velocities by 1/2 step to initialize
     this->sim.get_dwdt(&this->tmp_dwdt);
 

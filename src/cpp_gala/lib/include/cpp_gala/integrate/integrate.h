@@ -27,9 +27,12 @@ class PYBIND11_EXPORT BaseIntegrator {
         BaseIntegrator(gala::simulation::Simulation sim);
 
         // Methods:
-        vector_3d integrate(const vector_1d t);
+        vector_2d integrate(const vector_1d t);
+        vector_3d integrate_save_all(const vector_1d t);
         void integrate(const vector_1d t, double *result_w);
-        virtual void setup_integrate(const double t0, const double dt);
+        void integrate_save_all(const vector_1d t, double *result_w);
+
+        virtual void setup_integrate(const vector_1d &t);
         virtual void step(const double t, const double dt);
 };
 
@@ -39,7 +42,7 @@ class LeapfrogIntegrator : public BaseIntegrator {
         LeapfrogIntegrator(gala::simulation::Simulation sim);
 
         // Methods:
-        void setup_integrate(const double t0, const double dt) override;
+        void setup_integrate(const vector_1d &t) override;
         void step(const double t, const double dt) override;
 
     private:
