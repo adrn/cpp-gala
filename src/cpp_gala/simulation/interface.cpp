@@ -37,21 +37,17 @@ PYBIND11_MODULE(_simulation, mod) {
                 for (int i=0; i < w.shape(0); i++)
                     w_vec[i].assign(w.data(i), w.data(i) + w.shape(1));
 
-                new (&self) ParticleCollection(w_vec, potential, name);
-            }, "w"_a, "potential"_a = NULL, "name"_a = ""
+                if (potential == nullptr)
+                    new (&self) ParticleCollection(w_vec, name);
+                else
+                    new (&self) ParticleCollection(w_vec, potential, name);
+            }, "w"_a, "potential"_a = nullptr, "name"_a = ""
         )
-        .def_property_readonly("n_particles", [](ParticleCollection &pc) {
-            return pc.n_particles;
-        })
-        .def_property_readonly("n_dim", [](ParticleCollection &pc) {
-            return pc.n_dim;
-        })
-        .def_property_readonly("name", [](ParticleCollection &pc) {
-            return pc.name;
-        })
-        .def_property_readonly("_ids", [](ParticleCollection &pc) {
-            return pc.IDs;
-        });
+        .def_property_readonly("n_particles", [](ParticleCollection &pc) { return pc.n_particles; })
+        .def_property_readonly("n_dim", [](ParticleCollection &pc) { return pc.n_dim; })
+        .def_property_readonly("name", [](ParticleCollection &pc) { return pc.name; })
+        .def_property_readonly("_ids", [](ParticleCollection &pc) { return pc.IDs; })
+        .def_property_readonly("massless", [](ParticleCollection &pc) { return pc.massless; });
 
     py::class_<Simulation>(mod, "Simulation")
         .def(py::init<>())

@@ -81,7 +81,7 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
 
     if (this->has_ext_potential) {
         // Compute the acceleration from the external potential, if set
-        for (i=0; i < this->state_w.size(); i++)
+        for (i=0; i < this->n_particles; i++)
             this->potential->acceleration(&this->state_w[i][0],
                                           this->state_time,
                                           &(*dwdt)[i][this->n_dim]);
