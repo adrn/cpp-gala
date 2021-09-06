@@ -34,24 +34,16 @@ PYBIND11_MODULE(_integrate, mod) {
                 std::vector<double> t_vec;
                 t_vec.assign(t.data(), t.data() + t.size());
 
-                // Actually do the integration:
-                auto w_vec = self.integrate(t_vec);
+                auto w = array_t({(int)t_vec.size(),
+                                  self.sim.n_particles,
+                                  2 * self.sim.n_dim});
+                py::buffer_info w_buf = w.request();
+                double *w_ptr = (double*)w_buf.ptr;
 
-                // Copy data to an array:
-                auto w_arr = array_t({(int)t_vec.size(),
-                                      self.sim.n_particles,
-                                      2 * self.sim.n_dim});
-                auto w_arr_m = w_arr.mutable_unchecked();
+                // Actually do the integration: fills buffer
+                self.integrate(t_vec, w_ptr);
 
-                for (int i=0; i < t_vec.size(); i++) {
-                    for (int j=0; j < self.sim.n_particles; j++) {
-                        for (int k=0; k < 2 * self.sim.n_dim; k++) {
-                            w_arr_m(i, j, k) = w_vec[i][j][k];
-                        }
-                    }
-                }
-
-                return w_arr;
+                return w;
         });
 
     py::class_<BoostIntegrator, BaseIntegrator>(mod, "BoostIntegrator")

@@ -63,6 +63,33 @@ vector_3d BaseIntegrator::integrate(const vector_1d t) {
     return result_w;
 }
 
+void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
+    int i, j, ps_ndim = 2 * this->sim.n_dim;
+    int ntimes = t.size();
+
+    if (t.size() < 2)
+        throw std::runtime_error("Input time array must have > 1 element.");
+
+    // Store the initial values in the first block of the result array:
+    this->tmp_w = sim.state_w;
+    for (i=0; i < this->sim.n_particles; i++)
+        for (j=0; j < ps_ndim; j++)
+            result_w[j + ps_ndim * i] = sim.state_w[i][j];
+
+    // Call any custom setup needed before starting to step the integrator:
+    this->setup_integrate(t[0], t[1] - t[0]);
+
+    for (int n=1; n < ntimes; n++) {
+        this->step(t[n-1], t[n] - t[n-1]);
+
+        // TODO: add a boolean flag to store all or just the final! as an attribute on the class
+        // Store the w vector at this timestep
+        // for (i=0; i < this->sim.n_particles; i++)
+        //     for (j=0; j < ps_ndim; j++)
+        //         result_w[i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim)] = sim.state_w[i][j];
+    }
+}
+
 // These are the methods that are overridden by subclasses
 // Note: If I don't include these, I get a "Symbol not found" error on import of cpp_gala._integrate
 void BaseIntegrator::setup_integrate(const double t0, const double dt) { }

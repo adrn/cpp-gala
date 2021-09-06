@@ -23,6 +23,7 @@ class __attribute__((visibility("default"))) BaseIntegrator {
 
         // Methods:
         vector_3d integrate(const vector_1d t);
+        void integrate(const vector_1d t, double *result_w);
         virtual void setup_integrate(const double t0, const double dt);
         virtual void step(const double t, const double dt);
 };
