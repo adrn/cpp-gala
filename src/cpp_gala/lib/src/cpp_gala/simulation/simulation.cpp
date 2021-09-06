@@ -3,6 +3,8 @@
     - When add_particle(), add the potential for that PC to a list and have a lookup table to go
       from particle index to its potential. Need to do the same for Forces but not our problem just
       yet.
+    - Could also turn the vector stored in Particle into an array state_w, access that as a 2D
+      array instead of as a vector_2d
     - Also: using the do_step() interface to Boost integration may be slower than integrate with an
       observer function that stores the results...
 */

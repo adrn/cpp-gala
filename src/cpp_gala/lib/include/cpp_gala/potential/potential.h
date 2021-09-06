@@ -5,9 +5,12 @@
 #include <map>
 #include <vector>
 #include <cpp_gala/potential/potentialparameter.h>
+#include <cpp_gala/utils.h>
 // #include <pybind11/pybind11.h>
 
 #define DEFAULT_n_dim 3
+
+using namespace gala::utils;
 
 namespace gala { namespace potential {
 
@@ -19,14 +22,14 @@ class __attribute__((visibility("default"))) BasePotential {
         // Attributes:
         int n_dim; // phase-space dimensionality, 3 in most cases
         double G; // value of G in the unit system
-        std::vector<double> q0; // the origin of the potential
+        vector_1d *q0; // the origin of the potential
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors and Destructors:
         BasePotential();
         BasePotential(double G,
                       int n_dim=DEFAULT_n_dim,
-                      std::vector<double> q0={});
+                      vector_1d *q0=nullptr);
 
         // Methods::
         void shift_rotate_q(double *q);
@@ -42,7 +45,8 @@ class __attribute__((visibility("default"))) BasePotential {
         // void _hessian(double *q, double t, double *hess);
 
     private:
-        std::vector<double> tmp_q; // used for storing shifted/rotated q values
+        vector_1d _q0; // used for storing default q0 values
+        vector_1d tmp_q; // used for storing shifted/rotated q values
 
 };
 
@@ -53,7 +57,7 @@ class KeplerPotential : public BasePotential {
         KeplerPotential(double G,
                         BasePotentialParameter *M,
                         int n_dim=DEFAULT_n_dim,
-                        std::vector<double> q0={});
+                        vector_1d *q0=nullptr);
 
         // Methods::
         double _density(double *q, double t) override;
