@@ -1,16 +1,13 @@
-/*
-    TODO:
-    - Use templating to enable float versions of these, for speed? May not be worth it now...
-*/
-
+// Third-party
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>  // automatic type conversions
+
+// This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/particle.h>
 #include <cpp_gala/utils.h>
-#include <iostream>
 
 namespace py = pybind11;
 using namespace pybind11::literals;

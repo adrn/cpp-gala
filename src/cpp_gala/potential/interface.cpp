@@ -1,13 +1,10 @@
-/*
-    TODO:
-    - Use templating to enable float versions of these, for speed? May not be worth it now...
-*/
-
+// Third-party
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+
+// This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/potential/potentialparameter.h>
-#include <iostream>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
