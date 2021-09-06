@@ -24,7 +24,7 @@ class __attribute__((visibility("default"))) Simulation {
         int n_dim;
         int n_particles;
         gala::potential::BasePotential *potential;
-        std::map<std::string, ParticleCollection> particles;
+        std::map<std::tuple<std::string, uint32_t>, ParticleCollection> particles;
 
         bool has_ext_potential;
         bool has_interparticle_interactions;

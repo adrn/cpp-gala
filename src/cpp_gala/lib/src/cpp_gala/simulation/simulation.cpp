@@ -1,14 +1,5 @@
-/*
-    TODO: Idea for speed, to avoid copying data around every set_state() call.
-    - When add_particle(), add the potential for that PC to a list and have a lookup table to go
-      from particle index to its potential. Need to do the same for Forces but not our problem just
-      yet.
-    - Could also turn the vector stored in Particle into an array state_w, access that as a 2D
-      array instead of as a vector_2d
-    - Also: using the do_step() interface to Boost integration may be slower than integrate with an
-      observer function that stores the results...
-*/
 #include <iostream>
+#include <cmath>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/particle.h>
@@ -19,12 +10,11 @@ namespace gala { namespace simulation {
 
 // Base class
 Simulation::Simulation() {
-    // store potential pointer and initialize
     this->has_ext_potential = false;
     this->has_interparticle_interactions = false;
     this->n_dim = 0;
     this->n_particles = 0;
-    this->state_time = 0.;
+    this->state_time = NAN;
 }
 
 Simulation::Simulation(gala::potential::BasePotential *potential)
@@ -39,6 +29,12 @@ void Simulation::add_particle(ParticleCollection pc) {
     /*
     TODO: error if the name is the same as an existing particle?
     */
+
+    if (this->particles.count(std::make_tuple(pc.name, pc.ID)) != 0) {
+        throw std::invalid_argument(
+            "ParticleCollection already exists in this Simulation: Input ParticleCollection must "
+            "have a unique name and ID combination.");
+    }
 
     if (this->n_dim == 0) {
         this->n_dim = pc.n_dim;
@@ -57,7 +53,7 @@ void Simulation::add_particle(ParticleCollection pc) {
         this->particle_IDs.push_back(pc.IDs[i]);
     }
 
-    this->particles.insert(std::make_pair(pc.name, pc));
+    this->particles.insert(std::make_pair(std::make_tuple(pc.name, pc.ID), pc));
 }
 
 void Simulation::get_dwdt(vector_2d *dwdt) {
@@ -119,3 +115,15 @@ void Simulation::set_state(const vector_2d &w, const double t) {
 }
 
 }} // namespace: gala::simulation
+
+
+/*
+    Idea for speed, if we need it, to avoid copying data around every set_state() call.
+    - When add_particle(), add the potential for that PC to a list and have a lookup table to go
+      from particle index to its potential. Need to do the same for Forces but not our problem just
+      yet.
+    - Could also turn the vector stored in Particle into an array state_w, access that as a 2D
+      array instead of as a vector_2d
+    - Also: using the do_step() interface to Boost integration may be slower than integrate with an
+      observer function that stores the results...
+*/
