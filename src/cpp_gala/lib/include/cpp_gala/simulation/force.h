@@ -1,9 +1,11 @@
 #ifndef _GALA_FORCE_H
 #define _GALA_FORCE_H
 
+// Standard
 #include <string>
-#include <gala/potential/potential.h>
-#include <gala/potential/particle.h>
+
+// This package
+#include <cpp_gala/potential/potential.h>
 
 namespace gala { namespace simulation {
 

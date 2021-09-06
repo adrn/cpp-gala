@@ -1,12 +1,17 @@
 #ifndef _GALA_POTENTIAL_H
 #define _GALA_POTENTIAL_H
 
+// Standard
 #include <string>
 #include <map>
 #include <vector>
+
+// Third-party
+#include <pybind11/pybind11.h>
+
+// This package
 #include <cpp_gala/potential/potentialparameter.h>
 #include <cpp_gala/utils.h>
-// #include <pybind11/pybind11.h>
 
 #define DEFAULT_n_dim 3
 
@@ -14,9 +19,9 @@ using namespace gala::utils;
 
 namespace gala { namespace potential {
 
-// TODO: should we use pybind11_export here instead?
-class __attribute__((visibility("default"))) BasePotential {
-// class PYBIND11_EXPORT BasePotential {
+// Note: could change PYBIND11_EXPORT to __attribute__((visibility("default"))) if we want to remove
+// pybind11 dependence in here
+class PYBIND11_EXPORT BasePotential {
 
     public:
         // Attributes:

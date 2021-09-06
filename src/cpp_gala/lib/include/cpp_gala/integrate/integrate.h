@@ -1,8 +1,14 @@
 #ifndef _GALA_INTEGRATE_H
 #define _GALA_INTEGRATE_H
 
+// Standard
 #include <string>
 #include <vector>
+
+// Third-party
+#include <pybind11/pybind11.h>
+
+// This package
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/utils.h>
 
@@ -10,8 +16,7 @@ using namespace gala::utils;
 
 namespace gala { namespace integrate {
 
-// TODO: should we use pybind11_export here instead?
-class __attribute__((visibility("default"))) BaseIntegrator {
+class PYBIND11_EXPORT BaseIntegrator {
     public:
         // Attributes:
         gala::simulation::Simulation sim;

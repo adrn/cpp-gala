@@ -1,8 +1,11 @@
 #ifndef _GALA_BODY_H
 #define _GALA_BODY_H
 
+// Standard
 #include <vector>
 #include <string>
+
+// This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/utils.h>
 

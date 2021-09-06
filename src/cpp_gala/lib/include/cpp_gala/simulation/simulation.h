@@ -1,13 +1,14 @@
-/*
-- Simulation class that allows specifying "particles", potentials attached to particles, and interactions between particles
-- Pass integrator to simulation?
-*/
-
 #ifndef _GALA_SIMULATION_H
 #define _GALA_SIMULATION_H
 
+// Standard
 #include <vector>
 #include <string>
+
+// Third-party
+#include <pybind11/pybind11.h>
+
+// This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/particle.h>
 #include <cpp_gala/utils.h>
@@ -16,8 +17,7 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-class __attribute__((visibility("default"))) Simulation {
-// TODO: should we use pybind11_export here instead of visibility?
+class PYBIND11_EXPORT Simulation {
 
     public:
         // Attributes:
