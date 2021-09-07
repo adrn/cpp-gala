@@ -8,7 +8,8 @@ ext_modules = [
         "cpp_gala._potential",
         ["src/cpp_gala/potential/interface.cpp",
          "src/cpp_gala/lib/src/cpp_gala/potential/potential.cpp",
-         "src/cpp_gala/lib/src/cpp_gala/potential/potentialparameter.cpp"],
+         "src/cpp_gala/lib/src/cpp_gala/potential/potentialparameter.cpp",
+         "src/cpp_gala/lib/src/cpp_gala/potential/builtin.cpp",],
         cxx_std=14,
         include_dirs=['src/cpp_gala/lib/include'],
         libraries=['boost_system']

@@ -6,6 +6,7 @@
 // This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/potential/potentialparameter.h>
+#include <cpp_gala/potential/builtin.h>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
