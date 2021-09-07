@@ -57,8 +57,8 @@ class KeplerPotential : public BasePotential {
 
     public:
         // Constructors:
-        KeplerPotential(double G,
-                        BasePotentialParameter &M,
+        KeplerPotential(BasePotentialParameter &M,
+                        double G,
                         vector_1d &q0);
 
         // Methods::
@@ -72,9 +72,9 @@ class HernquistPotential : public BasePotential {
 
     public:
         // Constructors:
-        HernquistPotential(double G,
-                           BasePotentialParameter &M,
+        HernquistPotential(BasePotentialParameter &M,
                            BasePotentialParameter &a,
+                           double G,
                            vector_1d &q0);
 
         // Methods::

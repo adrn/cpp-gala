@@ -78,7 +78,7 @@ void BasePotential::acceleration(double *q, double t, double *acc) {
 /*
     Kepler
 */
-KeplerPotential::KeplerPotential(double G, BasePotentialParameter &M, vector_1d &q0)
+KeplerPotential::KeplerPotential(BasePotentialParameter &M, double G, vector_1d &q0)
 : BasePotential(G, q0) {
     this->parameters.insert(std::make_pair("M", &M));
 }
@@ -111,9 +111,8 @@ void KeplerPotential::_gradient(double *q, double t, double *grad) {
 /*
     Hernquist
 */
-HernquistPotential::HernquistPotential(double G,
-                                       BasePotentialParameter &M, BasePotentialParameter &a,
-                                       vector_1d &q0)
+HernquistPotential::HernquistPotential(BasePotentialParameter &M, BasePotentialParameter &a,
+                                       double G, vector_1d &q0)
 : BasePotential(G, q0) {
     this->parameters.insert(std::make_pair("M", &M));
     this->parameters.insert(std::make_pair("a", &a));
