@@ -185,4 +185,17 @@ PYBIND11_MODULE(_potential, mod) {
             }, "G"_a, "m"_a, "q0"_a=py::none()
         );
 
+    py::class_<HernquistPotential, BasePotential>(mod, "HernquistPotential")
+        .def("__init__", [](
+            BasePotential &self,
+            double G,
+            BasePotentialParameter &m,
+            BasePotentialParameter &a,
+            array_t q0) {
+                auto q0_vec = q0_helper(q0, DEFAULT_n_dim);
+                new (&self) HernquistPotential(G, m, a, q0_vec);
+
+            }, "G"_a, "m"_a, "a"_a, "q0"_a=py::none()
+        );
+
 }

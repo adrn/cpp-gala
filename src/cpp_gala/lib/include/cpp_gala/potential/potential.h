@@ -68,6 +68,22 @@ class KeplerPotential : public BasePotential {
         // void _hessian(double *q, double t, double *hess) override;
 };
 
+class HernquistPotential : public BasePotential {
+
+    public:
+        // Constructors:
+        HernquistPotential(double G,
+                           BasePotentialParameter &M,
+                           BasePotentialParameter &a,
+                           vector_1d &q0);
+
+        // Methods::
+        double _density(double *q, double t) override;
+        double _energy(double *q, double t) override;
+        void _gradient(double *q, double t, double *grad) override;
+        // void _hessian(double *q, double t, double *hess) override;
+};
+
 }} // namespace: gala::potential
 
 #endif

@@ -49,7 +49,7 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
             }
 
             // the potential has to be centered at each particle:
-            this->potential->q0 = &this->w[i];
+            this->potential->q0 = this->w[i];
             this->potential->acceleration(&w[j][0], t, &(*acc)[j][acc_start_idx]);
         }
     }
