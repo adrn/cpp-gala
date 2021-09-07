@@ -60,7 +60,7 @@ class KeplerPotential : public BasePotential {
     public:
         // Constructors:
         KeplerPotential(double G,
-                        BasePotentialParameter *M,
+                        BasePotentialParameter &M,
                         int n_dim=DEFAULT_n_dim,
                         vector_1d *q0=nullptr);
 

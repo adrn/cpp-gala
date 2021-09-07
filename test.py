@@ -180,6 +180,7 @@ pot = KeplerPotential(1., M)
 sim = Simulation(pot)
 
 ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
+# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0] for n in range(10)])
 ptcl1 = ParticleCollection(
     ptcl1_w,
     potential=None,
@@ -193,6 +194,7 @@ print(sim.n_particles)
 integrator = LeapfrogIntegrator(sim)
 # integrator = BoostIntegrator(sim, choice='rk4')
 t = np.linspace(0, 100, 16384)
+# t = np.linspace(0, 0.1, 10)
 ws = integrator.integrate(t)
 
 # print(ws)
@@ -228,11 +230,11 @@ ws = integrator.integrate(t)
 
 # print(ws)
 
-import matplotlib.pyplot as plt
-plt.figure(figsize=(6, 6))
-plt.plot(ws[:, 0, 0], ws[:, 0, 1])
-# plt.plot(ws[:, 1, 0], ws[:, 1, 1])
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.figure(figsize=(6, 6))
+# plt.plot(ws[:, 0, 0], ws[:, 0, 1])
+# # plt.plot(ws[:, 1, 0], ws[:, 1, 1])
+# plt.show()
 
 import sys
 sys.exit(0)

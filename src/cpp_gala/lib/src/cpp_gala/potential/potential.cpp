@@ -45,17 +45,17 @@ void BasePotential::_gradient(double *q, double t, double *grad) { }
 // These are the methods that should be called by anything that actually needs to use potentials
 double BasePotential::density(double *q, double t) {
     this->shift_rotate_q(q);
-    return _density(this->tmp_q.data(), t);
+    return this->_density(this->tmp_q.data(), t);
 }
 
 double BasePotential::energy(double *q, double t) {
     this->shift_rotate_q(q);
-    return _energy(this->tmp_q.data(), t);
+    return this->_energy(this->tmp_q.data(), t);
 }
 
 void BasePotential::gradient(double *q, double t, double *grad) {
     this->shift_rotate_q(q);
-    _gradient(this->tmp_q.data(), t, grad);
+    this->_gradient(this->tmp_q.data(), t, grad);
 }
 
 void BasePotential::acceleration(double *q, double t, double *acc) {
@@ -67,12 +67,17 @@ void BasePotential::acceleration(double *q, double t, double *acc) {
     }
 }
 
+/* ------------------------------------------------------------------------------------------------
+    Potential implementations
+*/
 
-// Potential implementations
-KeplerPotential::KeplerPotential(double G, BasePotentialParameter *M, int n_dim,
+/*
+    Kepler
+*/
+KeplerPotential::KeplerPotential(double G, BasePotentialParameter &M, int n_dim,
                                  vector_1d *q0)
 : BasePotential(G, n_dim, q0) {
-    parameters.insert(std::make_pair("M", M));
+    this->parameters.insert(std::make_pair("M", &M));
 }
 
 double KeplerPotential::_density(double *q, double t) {
@@ -86,18 +91,17 @@ double KeplerPotential::_density(double *q, double t) {
 
 double KeplerPotential::_energy(double *q, double t) {
     double r = gala::utils::xyz_to_r(q);
-    return - this->G * parameters["M"]->get_value(t) / r;
+    return - this->G * this->parameters["M"]->get_value(t) / r;
 }
 
 void KeplerPotential::_gradient(double *q, double t, double *grad) {
     double r = gala::utils::xyz_to_r(q);
-    double GM = this->G * parameters["M"]->get_value(t);
+    double GM = this->G * this->parameters["M"]->get_value(t);
     double fac = GM / pow(r, 3);
 
     grad[0] += fac * q[0];
     grad[1] += fac * q[1];
     grad[2] += fac * q[2];
-
 }
 
 

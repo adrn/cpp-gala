@@ -3,7 +3,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>  // automatic type conversions
 
-
 // This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/potential/potentialparameter.h>
@@ -160,7 +159,7 @@ PYBIND11_MODULE(_potential, mod) {
         .def("__init__", [](
             BasePotential &self,
             double G,
-            BasePotentialParameter* m,
+            BasePotentialParameter &m,
             int n_dim,
             array_t q0) {
                 vector_1d q0_vec;
