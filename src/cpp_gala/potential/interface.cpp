@@ -1,6 +1,8 @@
 // Third-party
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>  // automatic type conversions
+
 
 // This package
 #include <cpp_gala/potential/potential.h>
@@ -140,7 +142,17 @@ PYBIND11_MODULE(_potential, mod) {
     */
     py::class_<BasePotential>(mod, "BasePotential")
         .def(py::init<double, int, vector_1d*>(),
-             "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none());
+             "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none())
+        .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
+        .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
+        .def_property_readonly("q0", [](KeplerPotential &pot) {
+            return py::array(pot.q0->size(), pot.q0->data());
+        })
+        .def_property_readonly("parameters", [](KeplerPotential &pot) { return pot.parameters; })
+        .def("density", &density)
+        .def("energy", &energy)
+        .def("gradient", &gradient)
+        .def("acceleration", &acceleration);
 
     // TODO: how much of this boilerplate needs to be copy-pasta'd for each subclass? is there a
     // simpler way?
@@ -161,15 +173,6 @@ PYBIND11_MODULE(_potential, mod) {
                 }
 
             }, "G"_a, "m"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none()
-        )
-        .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
-        .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
-        .def_property_readonly("q0", [](KeplerPotential &pot) {
-            return py::array(pot.q0->size(), pot.q0->data());
-        })
-        .def("density", &density)
-        .def("energy", &energy)
-        .def("gradient", &gradient)
-        .def("acceleration", &acceleration);
+        );
 
 }
