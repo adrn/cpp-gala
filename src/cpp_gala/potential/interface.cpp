@@ -13,91 +13,13 @@ using namespace gala::potential;
 
 using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
-
-array_t density(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot n_dim?
-    py::buffer_info q_buf = q.request();
-    double *q_arr = (double*)q_buf.ptr;
-    int q_n_dim = q_buf.shape[1];
-
-    if (q_buf.ndim != 2) {
+void validate_pot_q(BasePotential &pot, array_t q) {
+    if (q.ndim() != 2)
         throw std::runtime_error("numpy.ndarray n_dim must be 2!");
-    } else if (pot->n_dim != q_n_dim) {
-        throw std::runtime_error("Input position dimensionality must be the same "
-                                 "as the potential dimensionality");
-    }
-
-    auto result = array_t(q_buf.shape[0]);
-    py::buffer_info result_buf = result.request();
-    double *result_arr = (double*)result_buf.ptr;
-
-    for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->density(&q_arr[q_n_dim * i], t);
-    }
-
-    return result;
+    else if (pot.n_dim != q.shape(1))
+        throw std::runtime_error(
+            "Input position dimensionality must be the same as the potential dimensionality");
 }
-
-
-array_t energy(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot n_dim?
-    py::buffer_info q_buf = q.request();
-    double *q_arr = (double*)q_buf.ptr;
-    int q_n_dim = q_buf.shape[1];
-
-    if (q_buf.ndim != 2) {
-        throw std::runtime_error("numpy.ndarray n_dim must be 2!");
-    } else if (pot->n_dim != q_n_dim) {
-        throw std::runtime_error("Input position dimensionality must be the same "
-                                 "as the potential dimensionality");
-    }
-
-    auto result = array_t(q_buf.shape[0]);
-    py::buffer_info result_buf = result.request();
-    double *result_arr = (double*)result_buf.ptr;
-
-    for (int i=0; i < q_buf.shape[0]; i++) {
-        result_arr[i] = pot->energy(&q_arr[q_n_dim * i], t);
-    }
-
-    return result;
-}
-
-
-array_t gradient(BasePotential *pot, array_t q, double t) {
-    // TODO: make a validate function to check q array and pot n_dim?
-    py::buffer_info q_buf = q.request();
-    double *q_arr = (double*)q_buf.ptr;
-    int q_n_dim = q_buf.shape[1];
-
-    if (q_buf.ndim != 2) {
-        throw std::runtime_error("numpy.ndarray n_dim must be 2!");
-    } else if (pot->n_dim != q_n_dim) {
-        throw std::runtime_error("Input position dimensionality must be the same "
-                                 "as the potential dimensionality");
-    }
-
-    auto result = array_t(q_buf.size);
-    result.resize({q_buf.shape[0], q_buf.shape[1]});
-
-    py::buffer_info result_buf = result.request();
-    double *result_arr = (double*)result_buf.ptr;
-
-    // Zero out the values:
-    for (int i=0; i < q_buf.size; i++)
-        result_arr[i] = 0.;
-
-    for (int i=0; i < q_buf.shape[0]; i++) {
-        pot->gradient(&q_arr[q_n_dim * i], t, &result_arr[q_n_dim * i]);
-    }
-
-    return result;
-}
-
-array_t acceleration(BasePotential *pot, array_t q, double t) {
-    return - gradient(pot, q, t);
-}
-
 
 PYBIND11_MODULE(_potential, mod) {
     /*
@@ -153,7 +75,7 @@ PYBIND11_MODULE(_potential, mod) {
         .def("get_value", &NonEquiInterpPotentialParameter::get_value);
 
     /*
-        Potentials
+        BasePotential
     */
     py::class_<BasePotential>(mod, "BasePotential")
         .def(py::init<double, int, vector_1d*>(),
@@ -164,13 +86,82 @@ PYBIND11_MODULE(_potential, mod) {
             return py::array(pot.q0->size(), pot.q0->data());
         })
         .def_property_readonly("parameters", [](KeplerPotential &pot) { return pot.parameters; })
-        .def("density", &density)
-        .def("energy", &energy)
-        .def("gradient", &gradient)
-        .def("acceleration", &acceleration);
+        .def("density", [](
+            BasePotential &self,
+            array_t q,
+            double t) {
+                validate_pot_q(self, q);
 
-    // TODO: how much of this boilerplate needs to be copy-pasta'd for each subclass? is there a
-    // simpler way?
+                auto result = array_t(q.shape(0));
+                double *q_ptr = q.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                for (int i=0; i < q.shape(0); i++)
+                    result_ptr[i] = self.density(&q_ptr[self.n_dim * i], t);
+
+                return result;
+        })
+        .def("energy", [](
+            BasePotential &self,
+            array_t q,
+            double t) {
+                validate_pot_q(self, q);
+
+                auto result = array_t(q.shape(0));
+                double *q_ptr = q.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                for (int i=0; i < q.shape(0); i++)
+                    result_ptr[i] = self.energy(&q_ptr[self.n_dim * i], t);
+
+                return result;
+        })
+        .def("gradient", [](
+            BasePotential &self,
+            array_t q,
+            double t) {
+                validate_pot_q(self, q);
+
+                auto result = array_t(q.size());
+                result.resize({q.shape(0), q.shape(1)});
+
+                double *q_ptr = q.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                // Zero out the values:
+                for (int i=0; i < result.size(); i++)
+                    result_ptr[i] = 0.;
+
+                for (int i=0; i < q.shape(0); i++)
+                    self.gradient(&q_ptr[self.n_dim * i], t, &result_ptr[self.n_dim * i]);
+
+                return result;
+        })
+        .def("acceleration", [](
+            BasePotential &self,
+            array_t q,
+            double t) {
+                validate_pot_q(self, q);
+
+                auto result = array_t(q.size());
+                result.resize({q.shape(0), q.shape(1)});
+
+                double *q_ptr = q.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                // Zero out the values:
+                for (int i=0; i < result.size(); i++)
+                    result_ptr[i] = 0.;
+
+                for (int i=0; i < q.shape(0); i++)
+                    self.acceleration(&q_ptr[self.n_dim * i], t, &result_ptr[self.n_dim * i]);
+
+                return result;
+        });
+
+    /*
+        Built-in potential classes
+    */
     py::class_<KeplerPotential, BasePotential>(mod, "KeplerPotential")
         .def("__init__", [](
             BasePotential &self,
