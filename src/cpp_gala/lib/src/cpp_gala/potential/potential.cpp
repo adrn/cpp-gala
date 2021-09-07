@@ -14,23 +14,21 @@ namespace gala { namespace potential {
 // Base class
 BasePotential::BasePotential() { }
 
-BasePotential::BasePotential(double G, int n_dim, vector_1d *q0) {
+BasePotential::BasePotential(double G, vector_1d &q0) {
     this->G = G;
-    this->n_dim = n_dim;
+    this->n_dim = DEFAULT_n_dim; // override this in subclasses if necessary
     this->q0 = q0;
 
-    for (int i=0; i < n_dim; i++)
+    for (int i=0; i < this->n_dim; i++)
         this->tmp_q.push_back(NAN);
 
-    if (q0 == nullptr) {
-        this->_q0 = vector_1d(n_dim, 0.);
-        this->q0 = &this->_q0;
-    }
+    if (q0.size() != this->n_dim)
+        throw std::invalid_argument("Size of q0 must equal n_dim");
 }
 
 void BasePotential::shift_rotate_q(double *q) {
     for (int i=0; i < this->n_dim; i++) {
-        this->tmp_q[i] = q[i] - (*this->q0)[i];
+        this->tmp_q[i] = q[i] - this->q0[i];
     }
 
     // TODO: deal with rotation...s
@@ -74,9 +72,8 @@ void BasePotential::acceleration(double *q, double t, double *acc) {
 /*
     Kepler
 */
-KeplerPotential::KeplerPotential(double G, BasePotentialParameter &M, int n_dim,
-                                 vector_1d *q0)
-: BasePotential(G, n_dim, q0) {
+KeplerPotential::KeplerPotential(double G, BasePotentialParameter &M, vector_1d &q0)
+: BasePotential(G, q0) {
     this->parameters.insert(std::make_pair("M", &M));
 }
 

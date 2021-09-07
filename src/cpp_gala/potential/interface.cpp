@@ -21,6 +21,18 @@ void validate_pot_q(BasePotential &pot, array_t q) {
             "Input position dimensionality must be the same as the potential dimensionality");
 }
 
+vector_1d q0_helper(array_t q0, int n_dim) {
+    vector_1d q0_vec(q0.data(), q0.data() + q0.size());
+
+    if (std::isnan(q0_vec[0])) {
+        q0_vec.clear();
+        for (int i=0; i<n_dim; i++)
+            q0_vec.push_back(0.);
+    }
+
+    return q0_vec;
+}
+
 PYBIND11_MODULE(_potential, mod) {
     /*
         PotentialParameters
@@ -78,12 +90,11 @@ PYBIND11_MODULE(_potential, mod) {
         BasePotential
     */
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<double, int, vector_1d*>(),
-             "G"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none())
+        .def(py::init<double, vector_1d&>(), "G"_a, "q0"_a=py::none())
         .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
         .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
         .def_property_readonly("q0", [](KeplerPotential &pot) {
-            return py::array(pot.q0->size(), pot.q0->data());
+            return py::array(pot.q0.size(), pot.q0.data());
         })
         .def_property_readonly("parameters", [](KeplerPotential &pot) { return pot.parameters; })
         .def("density", [](
@@ -167,19 +178,11 @@ PYBIND11_MODULE(_potential, mod) {
             BasePotential &self,
             double G,
             BasePotentialParameter &m,
-            int n_dim,
             array_t q0) {
-                vector_1d q0_vec(q0.data(), q0.data() + q0.size());
-                vector_1d *q0_ptr;
+                auto q0_vec = q0_helper(q0, DEFAULT_n_dim);
+                new (&self) KeplerPotential(G, m, q0_vec);
 
-                if (std::isnan(q0_vec[0])) {
-                    q0_ptr = &q0_vec;
-                } else
-                    q0_ptr = nullptr;
-
-                new (&self) KeplerPotential(G, m, n_dim, q0_ptr);
-
-            }, "G"_a, "m"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none()
+            }, "G"_a, "m"_a, "q0"_a=py::none()
         );
 
 }

@@ -25,16 +25,15 @@ class PYBIND11_EXPORT BasePotential {
 
     public:
         // Attributes:
-        int n_dim; // phase-space dimensionality, 3 in most cases
+        uint16_t n_dim;
         double G; // value of G in the unit system
-        vector_1d *q0; // the origin of the potential
+        vector_1d q0; // the origin of the potential
         std::map<std::string, BasePotentialParameter*> parameters;
 
         // Constructors and Destructors:
         BasePotential();
         BasePotential(double G,
-                      int n_dim=DEFAULT_n_dim,
-                      vector_1d *q0=nullptr);
+                      vector_1d &q0);
 
         // Methods::
         void shift_rotate_q(double *q);
@@ -50,7 +49,6 @@ class PYBIND11_EXPORT BasePotential {
         // void _hessian(double *q, double t, double *hess);
 
     private:
-        vector_1d _q0; // used for storing default q0 values
         vector_1d tmp_q; // used for storing shifted/rotated q values
 
 };
@@ -61,8 +59,7 @@ class KeplerPotential : public BasePotential {
         // Constructors:
         KeplerPotential(double G,
                         BasePotentialParameter &M,
-                        int n_dim=DEFAULT_n_dim,
-                        vector_1d *q0=nullptr);
+                        vector_1d &q0);
 
         // Methods::
         double _density(double *q, double t) override;
