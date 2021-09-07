@@ -169,14 +169,15 @@ PYBIND11_MODULE(_potential, mod) {
             BasePotentialParameter &m,
             int n_dim,
             array_t q0) {
-                vector_1d q0_vec;
-                q0_vec.assign(q0.data(), q0.data() + q0.size());
+                vector_1d q0_vec(q0.data(), q0.data() + q0.size());
+                vector_1d *q0_ptr;
 
                 if (std::isnan(q0_vec[0])) {
-                    new (&self) KeplerPotential(G, m, n_dim);
-                } else {
-                    new (&self) KeplerPotential(G, m, n_dim, &q0_vec);
-                }
+                    q0_ptr = &q0_vec;
+                } else
+                    q0_ptr = nullptr;
+
+                new (&self) KeplerPotential(G, m, n_dim, q0_ptr);
 
             }, "G"_a, "m"_a, "n_dim"_a=DEFAULT_n_dim, "q0"_a=py::none()
         );
