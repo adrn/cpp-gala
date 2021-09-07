@@ -1,3 +1,8 @@
+/*
+    TODO:
+    - Simulation should have a frame (to enable rotating frames)
+*/
+
 #include <iostream>
 #include <cmath>
 #include <cpp_gala/potential/potential.h>

@@ -1,3 +1,9 @@
+/*
+    TODO:
+    - Need a composite potential
+    - Handle rotation in potentials
+*/
+
 // Standard library
 #include <iostream>
 #include <cmath>
@@ -31,7 +37,7 @@ void BasePotential::shift_rotate_q(double *q) {
         this->tmp_q[i] = q[i] - this->q0[i];
     }
 
-    // TODO: deal with rotation...s
+    // TODO: deal with rotation...
 }
 
 // These are the methods that are overridden by subclasses
