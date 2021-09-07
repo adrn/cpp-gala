@@ -110,31 +110,47 @@ PYBIND11_MODULE(_potential, mod) {
         .def(py::init<double>(), "val"_a)
         .def("get_value", &StaticPotentialParameter::get_value);
 
-    py::class_<InterpolatedPotentialParameter, BasePotentialParameter>(
-            mod, "InterpolatedPotentialParameter")
+    py::class_<EquiInterpPotentialParameter, BasePotentialParameter>(
+            mod, "EquiInterpPotentialParameter")
         .def("__init__", [](
-            InterpolatedPotentialParameter &self,
+            EquiInterpPotentialParameter &self,
             array_t times,
-            array_t vals,
-            int interp_order) {
+            array_t vals) {
 
-                py::buffer_info times_buf = times.request();
-                double *times_arr = (double*)times_buf.ptr;
+                vector_1d times_vec;
+                times_vec.assign(times.data(), times.data() + times.size());
 
-                py::buffer_info vals_buf = vals.request();
-                double *vals_arr = (double*)vals_buf.ptr;
+                vector_1d vals_vec;
+                vals_vec.assign(vals.data(), vals.data() + vals.size());
 
-                if (times_buf.size != vals_buf.size) {
+                if (times_vec.size() != vals_vec.size())
                     throw std::runtime_error("times and vals arrays must have the same size");
-                } else if ((times_buf.ndim != 1) || (vals_buf.ndim != 1)){
-                    throw std::runtime_error("times and vals arrays must be 1D arrays");
-                }
 
-                new (&self) InterpolatedPotentialParameter(
-                    &times_arr[0], &vals_arr[0], times_buf.size, interp_order);
+                new (&self) EquiInterpPotentialParameter(times_vec, vals_vec);
             }
         )
-        .def("get_value", &InterpolatedPotentialParameter::get_value);
+        .def("get_value", &EquiInterpPotentialParameter::get_value);
+
+    py::class_<NonEquiInterpPotentialParameter, BasePotentialParameter>(
+            mod, "NonEquiInterpPotentialParameter")
+        .def("__init__", [](
+            NonEquiInterpPotentialParameter &self,
+            array_t times,
+            array_t vals) {
+
+                vector_1d times_vec;
+                times_vec.assign(times.data(), times.data() + times.size());
+
+                vector_1d vals_vec;
+                vals_vec.assign(vals.data(), vals.data() + vals.size());
+
+                if (times_vec.size() != vals_vec.size())
+                    throw std::runtime_error("times and vals arrays must have the same size");
+
+                new (&self) NonEquiInterpPotentialParameter(times_vec, vals_vec);
+            }
+        )
+        .def("get_value", &NonEquiInterpPotentialParameter::get_value);
 
     /*
         Potentials

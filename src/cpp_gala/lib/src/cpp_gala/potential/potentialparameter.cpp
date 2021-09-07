@@ -6,8 +6,11 @@
 
 // This package
 #include <cpp_gala/potential/potentialparameter.h>
+#include <cpp_gala/utils.h>
 
+using namespace gala::utils;
 using namespace gala::potential;
+using namespace boost::math;
 
 double BasePotentialParameter::get_value(double t) {
     return NAN;
@@ -25,30 +28,43 @@ double StaticPotentialParameter::get_value(double t) {
 }
 
 /*
-    InterpolatedPotentialParameter
+    EquiInterpPotentialParameter
 */
-InterpolatedPotentialParameter::InterpolatedPotentialParameter(double *times, double *vals,
-                                                               int ntimes, int interp_order) {
-    this->ntimes = ntimes;
+EquiInterpPotentialParameter::EquiInterpPotentialParameter(vector_1d times, vector_1d vals) {
+    this->times = times;
+    this->vals = vals;
 
-    // GSL stuff:
-    this->acc = gsl_interp_accel_alloc();
-    if (interp_order == 1) {
-        this->spline = gsl_spline_alloc(gsl_interp_linear, ntimes);
-    } else if (interp_order == 3) {
-        this->spline = gsl_spline_alloc(gsl_interp_cspline, ntimes);
-    }
+    // TODO: validate that times is equi-spaced and increasing...
 
-    gsl_spline_init(this->spline, times, vals, ntimes);
+    interpolators::cardinal_cubic_b_spline<double> *_interp =
+        new interpolators::cardinal_cubic_b_spline<double>(vals.data(), vals.size(), times[0],
+                                                           times[1] - times[0]);
+    this->interp = _interp;
 }
 
-double InterpolatedPotentialParameter::get_value(double t) {
-    double val = gsl_spline_eval(this->spline, t, this->acc);
-    return val;
+EquiInterpPotentialParameter::~EquiInterpPotentialParameter() {
+    delete interp;
 }
 
-InterpolatedPotentialParameter::~InterpolatedPotentialParameter() {
-    // free gsl shit
-    gsl_spline_free(this->spline);
-    gsl_interp_accel_free(this->acc);
+double EquiInterpPotentialParameter::get_value(double t) {
+    return (*this->interp)(t);
 }
+
+/*
+    NonEquiInterpPotentialParameter
+*/
+NonEquiInterpPotentialParameter::NonEquiInterpPotentialParameter(vector_1d times, vector_1d vals) {
+    this->times = times;
+    this->vals = vals;
+
+    // TODO: validate that times is increasing...
+
+    boost::math::barycentric_rational<double> *_interp =
+        new boost::math::barycentric_rational<double>(std::move(times), std::move(vals));
+    this->interp = _interp;
+}
+
+double NonEquiInterpPotentialParameter::get_value(double t) {
+    return (*this->interp)(t);
+}
+

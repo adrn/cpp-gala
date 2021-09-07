@@ -9,24 +9,24 @@ ext_modules = [
         ["src/cpp_gala/potential/interface.cpp",
          "src/cpp_gala/lib/src/cpp_gala/potential/potential.cpp",
          "src/cpp_gala/lib/src/cpp_gala/potential/potentialparameter.cpp"],
-        cxx_std=11,
+        cxx_std=14,
         include_dirs=['src/cpp_gala/lib/include'],
-        libraries=['gsl']
+        libraries=['boost_system']
     ),
     Pybind11Extension(
         "cpp_gala._simulation",
         ["src/cpp_gala/simulation/interface.cpp",
          "src/cpp_gala/lib/src/cpp_gala/simulation/simulation.cpp",
          "src/cpp_gala/lib/src/cpp_gala/simulation/particle.cpp"],
-        cxx_std=11,
+        cxx_std=14,
         include_dirs=['src/cpp_gala/lib/include'],
-        libraries=['gsl']
+        # libraries=['gsl']
     ),
     Pybind11Extension(
         "cpp_gala._integrate",
         ["src/cpp_gala/integrate/interface.cpp",
          "src/cpp_gala/lib/src/cpp_gala/integrate/integrate.cpp"],
-        cxx_std=11,
+        cxx_std=14,
         include_dirs=['src/cpp_gala/lib/include'],
         libraries=['boost_system']
     ),

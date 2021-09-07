@@ -5,8 +5,15 @@
 #include <string>
 
 // Third-party
-#include <gsl/gsl_spline.h>
 #include <pybind11/pybind11.h>
+#include <boost/math/interpolators/barycentric_rational.hpp>
+#include <boost/math/interpolators/cardinal_cubic_b_spline.hpp>
+
+// This package
+#include <cpp_gala/utils.h>
+
+using namespace gala::utils;
+using namespace boost::math;
 
 namespace gala { namespace potential {
 
@@ -36,27 +43,39 @@ class StaticPotentialParameter : public BasePotentialParameter {
 
 };
 
-class InterpolatedPotentialParameter : public BasePotentialParameter {
+class EquiInterpPotentialParameter : public BasePotentialParameter {
 
     public:
         // Attributes:
-        double *times;
-        double *vals;
-        int ntimes;
-
-        // GSL stuff:
-        gsl_interp_accel *acc;
-        gsl_spline *spline;
+        vector_1d times;
+        vector_1d vals;
+        interpolators::cardinal_cubic_b_spline<double> *interp;
 
         // Constructors and Destructuor:
-        // TODO: implement int, long, double, array constructors!
-        InterpolatedPotentialParameter(double *times, double *vals, int ntimes, int interp_order);
-        ~InterpolatedPotentialParameter();
+        EquiInterpPotentialParameter(vector_1d times, vector_1d vals);
+        ~EquiInterpPotentialParameter();
 
         // Methods:
         double get_value(double t) override;
 
 };
+
+class NonEquiInterpPotentialParameter : public BasePotentialParameter {
+
+    public:
+        // Attributes:
+        vector_1d times;
+        vector_1d vals;
+        barycentric_rational<double> *interp; // TODO: this is an arbitrary choice of interpolator
+
+        // Constructors and Destructuor:
+        NonEquiInterpPotentialParameter(vector_1d times, vector_1d vals);
+
+        // Methods:
+        double get_value(double t) override;
+
+};
+
 
 }} // namespace: gala::potential
 
