@@ -168,6 +168,7 @@ import time
 #
 
 from cpp_gala._potential import (KeplerPotential,
+                                 CompositePotential,
                                  StaticPotentialParameter)
 from cpp_gala._simulation import Simulation, ParticleCollection
 from cpp_gala._integrate import LeapfrogIntegrator, BoostIntegrator
@@ -176,26 +177,33 @@ import numpy as np
 
 # TEST PARTICLE
 M = StaticPotentialParameter(1.)
-pot = KeplerPotential(1., M)
-sim = Simulation(pot)
+# pot = KeplerPotential(M, 1.)
+pot = CompositePotential()
+pot1 = KeplerPotential(M, 1.)
+pot2 = KeplerPotential(M, 1.)
+pot.add_potential('1', pot1)
+pot.add_potential('2', pot2)
+print("density", pot.density(np.array([[1., 0, 0]]), 0.))
+print("gradient", pot.gradient(np.array([[1., 0, 0]]), 0.))
+# sim = Simulation(pot)
 
-ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
-# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0] for n in range(10)])
-ptcl1 = ParticleCollection(
-    ptcl1_w,
-    potential=None,
-    name="derp1"
-)
+# ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
+# # ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0] for n in range(10)])
+# ptcl1 = ParticleCollection(
+#     ptcl1_w,
+#     potential=None,
+#     name="derp1"
+# )
 
-sim.add_particle(ptcl1)
+# sim.add_particle(ptcl1)
 
-print(sim.n_particles)
+# print(sim.n_particles)
 
-integrator = LeapfrogIntegrator(sim)
-# integrator = BoostIntegrator(sim, choice='rk4')
-t = np.linspace(0, 100, 16384)
-# t = np.linspace(0, 0.1, 10)
-ws = integrator.integrate(t)
+# integrator = LeapfrogIntegrator(sim)
+# # integrator = BoostIntegrator(sim, choice='rk4')
+# t = np.linspace(0, 100, 16384)
+# # t = np.linspace(0, 0.1, 10)
+# ws = integrator.integrate(t)
 
 # print(ws)
 

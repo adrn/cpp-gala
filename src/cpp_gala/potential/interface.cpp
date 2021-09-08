@@ -91,13 +91,8 @@ PYBIND11_MODULE(_potential, mod) {
         BasePotential
     */
     py::class_<BasePotential>(mod, "BasePotential")
-        .def(py::init<double, vector_1d&>(), "G"_a, "q0"_a=py::none())
         .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
         .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
-        .def_property_readonly("q0", [](KeplerPotential &pot) {
-            return py::array(pot.q0.size(), pot.q0.data());
-        })
-        .def_property_readonly("parameters", [](KeplerPotential &pot) { return pot.parameters; })
         .def("density", [](
             BasePotential &self,
             array_t q,
@@ -172,11 +167,36 @@ PYBIND11_MODULE(_potential, mod) {
         });
 
     /*
+        BaseBuiltinPotential
+    */
+    py::class_<BaseBuiltinPotential, BasePotential>(mod, "BaseBuiltinPotential")
+        .def(py::init<double, vector_1d&>(), "G"_a, "q0"_a=py::none())
+        .def_property_readonly("q0", [](BaseBuiltinPotential &pot) {
+            return py::array(pot.q0.size(), pot.q0.data());
+        })
+        .def_property_readonly("parameters", [](BaseBuiltinPotential &pot) {
+            return pot.parameters;
+        });
+
+    /*
+        Composite potential
+    */
+    py::class_<CompositePotential, BasePotential>(mod, "CompositePotential")
+        .def(py::init<>())
+        .def("add_potential", [](
+            CompositePotential &self,
+            std::string name,
+            BaseBuiltinPotential &pot) {
+                self.add_potential(name, pot);
+            }
+        );
+
+    /*
         Built-in potential classes
     */
-    py::class_<KeplerPotential, BasePotential>(mod, "KeplerPotential")
+    py::class_<KeplerPotential, BaseBuiltinPotential>(mod, "KeplerPotential")
         .def("__init__", [](
-            BasePotential &self,
+            KeplerPotential &self,
             BasePotentialParameter &m,
             double G,
             array_t q0) {
@@ -186,9 +206,9 @@ PYBIND11_MODULE(_potential, mod) {
             }, "m"_a, "G"_a, "q0"_a=py::none()
         );
 
-    py::class_<HernquistPotential, BasePotential>(mod, "HernquistPotential")
+    py::class_<HernquistPotential, BaseBuiltinPotential>(mod, "HernquistPotential")
         .def("__init__", [](
-            BasePotential &self,
+            HernquistPotential &self,
             BasePotentialParameter &m,
             BasePotentialParameter &a,
             double G,

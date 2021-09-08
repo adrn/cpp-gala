@@ -17,7 +17,7 @@
 using namespace gala::utils;
 using namespace gala::potential;
 
-class KeplerPotential : public BasePotential {
+class KeplerPotential : public BaseBuiltinPotential {
 
     public:
         // Constructors:
@@ -32,7 +32,7 @@ class KeplerPotential : public BasePotential {
         // void _hessian(double *q, double t, double *hess) override;
 };
 
-class HernquistPotential : public BasePotential {
+class HernquistPotential : public BaseBuiltinPotential {
 
     public:
         // Constructors:

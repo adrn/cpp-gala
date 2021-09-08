@@ -15,7 +15,7 @@ using namespace gala::potential;
     Kepler
 */
 KeplerPotential::KeplerPotential(BasePotentialParameter &M, double G, vector_1d &q0)
-: BasePotential(G, q0) {
+: BaseBuiltinPotential(G, q0) {
     this->parameters.insert(std::make_pair("M", &M));
 }
 
@@ -49,7 +49,7 @@ void KeplerPotential::_gradient(double *q, double t, double *grad) {
 */
 HernquistPotential::HernquistPotential(BasePotentialParameter &M, BasePotentialParameter &a,
                                        double G, vector_1d &q0)
-: BasePotential(G, q0) {
+: BaseBuiltinPotential(G, q0) {
     this->parameters.insert(std::make_pair("M", &M));
     this->parameters.insert(std::make_pair("a", &a));
 }
