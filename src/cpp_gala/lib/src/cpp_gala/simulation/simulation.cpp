@@ -8,6 +8,7 @@
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/particle.h>
+#include <cpp_gala/simulation/frame.h>
 
 using namespace gala::utils;
 
@@ -22,17 +23,21 @@ Simulation::Simulation() {
     this->state_time = NAN;
 }
 
-Simulation::Simulation(gala::potential::BasePotential *potential)
+Simulation::Simulation(gala::potential::BasePotential *potential, gala::frame::BaseFrame *frame)
 : Simulation() {
     // store potential and initialize
     this->potential = potential;
     this->has_ext_potential = true;
+    this->frame = frame;
     this->n_dim = potential->n_dim;
+
+    // TODO: validate frame and potential same n_dim
 }
 
 void Simulation::add_particle(ParticleCollection pc) {
     /*
     TODO: error if the name is the same as an existing particle?
+    TODO: validate, can't add if frame present!
     */
 
     if (this->particles.count(std::make_tuple(pc.name, pc.ID)) != 0) {
@@ -86,6 +91,14 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
             this->potential->acceleration(&this->state_w[i][0],
                                           this->state_time,
                                           &(*dwdt)[i][this->n_dim]);
+    }
+
+    if (this->frame != nullptr) {
+        // Compute the effective forces from the reference frame
+        for (i=0; i < this->n_particles; i++)
+            this->frame->get_dwdt(&this->state_w[i][0],
+                                  this->state_time,
+                                  &(*dwdt)[i][this->n_dim]);
     }
 
     // Compute the acceleration from all particles

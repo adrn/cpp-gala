@@ -1,3 +1,8 @@
+/*
+    TODO:
+    - If the PotentialParameter has a shape or is a vector value, interpolate all values
+*/
+
 // Standard
 #include <cmath>
 

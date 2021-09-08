@@ -11,6 +11,7 @@
 // This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/particle.h>
+#include <cpp_gala/simulation/frame.h>
 #include <cpp_gala/utils.h>
 
 using namespace gala::utils;
@@ -24,6 +25,7 @@ class PYBIND11_EXPORT Simulation {
         int n_dim;
         int n_particles;
         gala::potential::BasePotential *potential;
+        gala::frame::BaseFrame *frame;
         std::map<std::tuple<std::string, uint32_t>, ParticleCollection> particles;
 
         bool has_ext_potential;
@@ -36,7 +38,8 @@ class PYBIND11_EXPORT Simulation {
         double state_time;
 
         // Constructors:
-        Simulation(gala::potential::BasePotential *potential);
+        Simulation(gala::potential::BasePotential *potential,
+                   gala::frame::BaseFrame *frame=nullptr);
         Simulation();
 
         // Methods:

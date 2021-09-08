@@ -1,6 +1,5 @@
 /*
     TODO:
-    - Need a composite potential
     - Handle rotation in potentials
 */
 

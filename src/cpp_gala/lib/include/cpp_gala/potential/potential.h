@@ -44,6 +44,7 @@ class PYBIND11_EXPORT BasePotential {
         virtual double _density(double *q, double t);
         virtual double _energy(double *q, double t);
         virtual void _gradient(double *q, double t, double *grad);
+        // void _hessian(double *q, double t, double *hess);
 
 };
 
@@ -87,8 +88,7 @@ class CompositePotential : public BasePotential {
         double density(double *q, double t) override;
         double energy(double *q, double t) override;
         void gradient(double *q, double t, double *grad) override;
-        // void acceleration(double *q, double t, double *grad) override;
-        // void _hessian(double *q, double t, double *hess);
+        // void hessian(double *q, double t, double *hess);
 };
 
 }} // namespace: gala::potential
