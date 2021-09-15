@@ -29,6 +29,7 @@ class PYBIND11_EXPORT Simulation {
         std::map<std::tuple<std::string, uint32_t>, ParticleCollection> particles;
 
         bool has_ext_potential;
+        bool has_frame;
         bool has_interparticle_interactions;
 
         // Internal

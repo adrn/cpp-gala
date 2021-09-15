@@ -91,8 +91,8 @@ PYBIND11_MODULE(_potential, mod) {
         BasePotential
     */
     py::class_<BasePotential>(mod, "BasePotential")
-        .def_property_readonly("n_dim", [](KeplerPotential &pot) { return pot.n_dim; })
-        .def_property_readonly("G", [](KeplerPotential &pot) { return pot.G; })
+        .def_property_readonly("n_dim", [](BasePotential &pot) { return pot.n_dim; })
+        .def_property_readonly("G", [](BasePotential &pot) { return pot.G; })
         .def("density", [](
             BasePotential &self,
             array_t q,

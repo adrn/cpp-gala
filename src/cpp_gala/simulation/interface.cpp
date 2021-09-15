@@ -12,6 +12,7 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace gala::simulation;
+using namespace gala::frame;
 using namespace gala::utils;
 
 using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
@@ -46,9 +47,61 @@ PYBIND11_MODULE(_simulation, mod) {
         .def_property_readonly("_ids", [](ParticleCollection &pc) { return pc.IDs; })
         .def_property_readonly("massless", [](ParticleCollection &pc) { return pc.massless; });
 
+    /*
+        Frames
+    */
+    py::class_<BaseFrame>(mod, "BaseFrame")
+        .def_property_readonly("n_dim", [](BaseFrame &frame) { return frame.n_dim; })
+        .def("energy", [](
+            BaseFrame &self,
+            array_t w,
+            double t) {
+                // TODO: equivalent to validate_pot_q
+
+                auto result = array_t(w.shape(0));
+                double *w_ptr = w.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                for (int i=0; i < w.shape(0); i++)
+                    result_ptr[i] = self.energy(&w_ptr[2 * self.n_dim * i], t);
+
+                return result;
+        })
+        .def("dwdt", [](
+            BaseFrame &self,
+            array_t w,
+            double t) {
+                // TODO: equivalent to validate_pot_q
+
+                auto result = array_t(w.size());
+                result.resize({w.shape(0), w.shape(1)});
+
+                double *w_ptr = w.mutable_data();
+                double *result_ptr = result.mutable_data();
+
+                // Zero out the values:
+                for (int i=0; i < result.size(); i++)
+                    result_ptr[i] = 0.;
+
+                for (int i=0; i < w.shape(0); i++)
+                    self.get_dwdt(&w_ptr[2 * self.n_dim * i], t, &result_ptr[2 * self.n_dim * i]);
+
+                return result;
+        });
+
+    py::class_<StaticFrame, BaseFrame>(mod, "StaticFrame")
+        .def(py::init<int>(), "n_dim"_a);
+
+    py::class_<ConstantRotatingFrame, BaseFrame>(mod, "ConstantRotatingFrame")
+        .def(py::init<vector_1d&>(), "Omega"_a);
+
+    /*
+        Simulation
+    */
     py::class_<Simulation>(mod, "Simulation")
         .def(py::init<>())
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
+        .def(py::init<gala::potential::BasePotential*, BaseFrame*>(), "potential"_a, "frame"_a)
         .def("add_particle", &Simulation::add_particle)
         .def_property_readonly("n_particles", [](Simulation &self){ return self.n_particles; })
         .def_property_readonly("n_dim", [](Simulation &self){ return self.n_dim; })

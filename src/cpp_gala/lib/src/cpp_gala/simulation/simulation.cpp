@@ -1,6 +1,5 @@
 /*
     TODO:
-    - Simulation should have a frame (to enable rotating frames)
 */
 
 #include <iostream>
@@ -17,6 +16,7 @@ namespace gala { namespace simulation {
 // Base class
 Simulation::Simulation() {
     this->has_ext_potential = false;
+    this->has_frame = false;
     this->has_interparticle_interactions = false;
     this->n_dim = 0;
     this->n_particles = 0;
@@ -31,14 +31,17 @@ Simulation::Simulation(gala::potential::BasePotential *potential, gala::frame::B
     this->frame = frame;
     this->n_dim = potential->n_dim;
 
-    // TODO: validate frame and potential same n_dim
+    if (frame != nullptr) {
+        this->has_frame = true;
+
+        if (this->frame->n_dim != this->potential->n_dim)
+            throw std::invalid_argument("Input frame and potential must have the same n_dim");
+    }
+
 }
 
 void Simulation::add_particle(ParticleCollection pc) {
-    /*
-    TODO: error if the name is the same as an existing particle?
-    TODO: validate, can't add if frame present!
-    */
+    /* */
 
     if (this->particles.count(std::make_tuple(pc.name, pc.ID)) != 0) {
         throw std::invalid_argument(
@@ -69,10 +72,11 @@ void Simulation::add_particle(ParticleCollection pc) {
 void Simulation::get_dwdt(vector_2d *dwdt) {
     /*
     Compute the phase-space derivative for the current state of the simulation.
-
-    TODO: error if n_particles == 0?
     */
     int i, j;
+
+    if (this->n_particles == 0)
+        return;
 
     // Zero out any existing values
     for (i=0; i < this->n_particles; i++) {
@@ -93,12 +97,12 @@ void Simulation::get_dwdt(vector_2d *dwdt) {
                                           &(*dwdt)[i][this->n_dim]);
     }
 
-    if (this->frame != nullptr) {
+    if (this->has_frame) {
         // Compute the effective forces from the reference frame
         for (i=0; i < this->n_particles; i++)
             this->frame->get_dwdt(&this->state_w[i][0],
                                   this->state_time,
-                                  &(*dwdt)[i][this->n_dim]);
+                                  &(*dwdt)[i][0]);
     }
 
     // Compute the acceleration from all particles
