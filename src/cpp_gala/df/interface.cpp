@@ -6,6 +6,7 @@
 #include <cpp_gala/df/streamdf.h>
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
+#include <cpp_gala/simulation/particle.h>
 #include <cpp_gala/utils.h>
 
 namespace py = pybind11;

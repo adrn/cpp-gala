@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 
+// Third-party
+#include <pybind11/pybind11.h>
+
 // This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/utils.h>
@@ -13,7 +16,7 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-class ParticleCollection {
+class PYBIND11_EXPORT ParticleCollection {
     /*
     Parameters
     ----------

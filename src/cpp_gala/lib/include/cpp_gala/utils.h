@@ -53,6 +53,22 @@ inline vector_1d cross(vector_1d &x, vector_1d &y) {
     return z;
 }
 
+inline vector_1d get_unit_vector(vector_1d &vec) {
+    vector_1d uvec;
+    double R = norm(vec);
+    for (int i=0; i < vec.size(); i++)
+        uvec.push_back(vec[i] / R);
+    return uvec;
+}
+
+inline vector_1d get_unit_vector(vector_1d &vec, std::size_t begin, std::size_t end) {
+    vector_1d uvec;
+    double R = norm(&vec[begin], end - begin);
+    for (int i=begin; i < end; i++)
+        uvec.push_back(vec[i] / R);
+    return uvec;
+}
+
 /*
     Indexing
 */

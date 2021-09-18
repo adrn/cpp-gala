@@ -33,6 +33,7 @@ void BasePotential::_gradient(double *q, double t, double *grad) {}
 double BasePotential::density(double *q, double t) { return NAN; }
 double BasePotential::energy(double *q, double t) { return NAN; }
 void BasePotential::gradient(double *q, double t, double *grad) {}
+
 void BasePotential::acceleration(double *q, double t, double *acc) {
     std::vector<double> tmp_grad(this->n_dim, 0.);
 
@@ -40,6 +41,23 @@ void BasePotential::acceleration(double *q, double t, double *acc) {
     for (int i=0; i < this->n_dim; i++) {
         acc[i] = acc[i] - tmp_grad[i];
     }
+}
+
+double BasePotential::dphi_dr(double *q, double t) {
+    double r = norm(q, this->n_dim);
+    vector_1d tmp_grad(this->n_dim, 0.);
+    gradient(q, t, &tmp_grad[0]);
+
+    double val = 0.;
+    for (int i=0; i < this->n_dim; i++)
+        val += tmp_grad[i] * q[i] / r;
+
+    return val;
+}
+
+double BasePotential::mass_enclosed(double *q, double t) {
+    double r = norm(q, this->n_dim);
+    return std::abs(r * r * dphi_dr(q, t) / this->G);
 }
 
 

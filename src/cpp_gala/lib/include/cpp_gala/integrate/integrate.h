@@ -16,7 +16,7 @@ using namespace gala::utils;
 
 namespace gala { namespace integrate {
 
-
+// TODO: make this an attribute of Simulation and have MockStreamSimulation implement custom
 typedef void step_callback_t(gala::simulation::Simulation &sim, const int step_i, const double t);
 
 

@@ -1,3 +1,7 @@
+/*
+    TODO:
+    - How slow is it to change all of the double *q crap to vector_1d &? Should probably even take vector_1d or vector_2d and return the right thing. */
+
 #ifndef _GALA_POTENTIAL_H
 #define _GALA_POTENTIAL_H
 
@@ -45,6 +49,9 @@ class PYBIND11_EXPORT BasePotential {
         virtual double _energy(double *q, double t);
         virtual void _gradient(double *q, double t, double *grad);
         // void _hessian(double *q, double t, double *hess);
+
+        double dphi_dr(double *q, double t);
+        double mass_enclosed(double *q, double t);
 
 };
 

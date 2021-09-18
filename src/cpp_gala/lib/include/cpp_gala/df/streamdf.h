@@ -30,7 +30,7 @@ class BaseStreamDF {
         // Methods:
         virtual vector_2d sample(gala::potential::BasePotential &potential,
                                  gala::simulation::ParticleCollection &progenitor,
-                                 uint32_t n_particles,
+                                 std::size_t n_particles,
                                  double t);
 };
 
@@ -42,7 +42,7 @@ class StreaklineStreamDF : public BaseStreamDF {
         // Methods:
         vector_2d sample(gala::potential::BasePotential &potential,
                          gala::simulation::ParticleCollection &progenitor,
-                         uint32_t n_particles,
+                         std::size_t n_particles,
                          double t) override;
 };
 
