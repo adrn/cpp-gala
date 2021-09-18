@@ -34,6 +34,14 @@ ext_modules = [
         include_dirs=['src/cpp_gala/lib/include'],
         libraries=['boost_system']
     ),
+    Pybind11Extension(
+        "cpp_gala._df",
+        ["src/cpp_gala/df/interface.cpp",
+         "src/cpp_gala/lib/src/cpp_gala/df/streamdf.cpp"],
+        cxx_std=CPP_STD,
+        include_dirs=['src/cpp_gala/lib/include'],
+        libraries=['boost_system']
+    ),
 ]
 
 setup(ext_modules=ext_modules)

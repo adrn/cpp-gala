@@ -17,14 +17,14 @@ using vector_1d = std::vector<double>;
     Coordinate system stuff
 */
 inline double norm(double *q, int size) {
-    double val;
+    double val = 0;
     for (int i=0; i < size; i++)
         val += q[i] * q[i];
     return sqrt(val);
 }
 
 inline double norm(vector_1d &q) {
-    double val;
+    double val = 0;
     for (int i=0; i < q.size(); i++)
         val += q[i] * q[i];
     return sqrt(val);
@@ -38,7 +38,7 @@ inline vector_1d norm(vector_2d &q) {
 }
 
 inline vector_1d cross(vector_1d &w) {
-    vector_1d z;
+    vector_1d z(3, NAN);
     z[0] = w[1] * w[5] - w[2] * w[4];
     z[1] = -w[0] * w[5] + w[2] * w[3];
     z[2] = w[0] * w[4] - w[1] * w[3];
@@ -46,7 +46,7 @@ inline vector_1d cross(vector_1d &w) {
 }
 
 inline vector_1d cross(vector_1d &x, vector_1d &y) {
-    vector_1d z;
+    vector_1d z(3, NAN);
     z[0] = x[1] * y[2] - x[2] * y[1];
     z[1] = -x[0] * y[2] + x[2] * y[0];
     z[2] = x[0] * y[1] - x[1] * y[0];

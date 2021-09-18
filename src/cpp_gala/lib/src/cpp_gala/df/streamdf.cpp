@@ -10,8 +10,10 @@ using namespace gala::utils;
 using namespace gala::df;
 
 double get_jacobi_radius(gala::potential::BasePotential &host_potential,
-                         gala::simulation::ParticleCollection &progenitor {
-    auto *sat_potential = &progenitor.potential;
+                         gala::simulation::ParticleCollection &progenitor,
+                         double t) {
+    // TODO: need to enforce that sat potential is not composite
+    auto *sat_potential = reinterpret_cast<gala::potential::BaseBuiltinPotential *>(progenitor.potential);
 
     // TODO: should add more robust (but slower) ways of computing the Jacobi radius
     if (sat_potential->parameters.find("M") == sat_potential->parameters.end())
@@ -67,7 +69,7 @@ vector_2d StreaklineStreamDF::sample(gala::potential::BasePotential &potential,
     vector_2d particles_w;
     vector_1d tmp_w;
 
-    auto Rjac = get_jacobi_radius(potential, progenitor);
+    auto Rjac = get_jacobi_radius(potential, progenitor, t);
     auto r_uvec = get_unit_vector(progenitor.get_x()[0]);
     auto v_uvec = get_unit_vector(progenitor.get_v()[0]);
     auto L = cross(progenitor.w[0]);
@@ -77,13 +79,13 @@ vector_2d StreaklineStreamDF::sample(gala::potential::BasePotential &potential,
 
     for (int n=0; n < n_particles; n++) {
         if (this->lead) {
-            tmp_w[i] = progenitor.w[0][i] - Rjac * r_uvec[i];
-            tmp_w[i+3] = progenitor.w[0][i+3] + dv * v_uvec[i];
+            tmp_w[n] = progenitor.w[0][n] - Rjac * r_uvec[n];
+            tmp_w[n+3] = progenitor.w[0][n+3] + dv * v_uvec[n];
             particles_w.push_back(tmp_w);
         }
         if (this->trail) {
-            tmp_w[i] = progenitor.w[0][i] + Rjac * r_uvec[i];
-            tmp_w[i+3] = progenitor.w[0][i+3] - dv * v_uvec[i];
+            tmp_w[n] = progenitor.w[0][n] + Rjac * r_uvec[n];
+            tmp_w[n+3] = progenitor.w[0][n+3] - dv * v_uvec[n];
             particles_w.push_back(tmp_w);
         }
     }
