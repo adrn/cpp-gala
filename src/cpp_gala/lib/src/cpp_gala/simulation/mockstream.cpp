@@ -25,7 +25,8 @@ void stream_step_callback(MockStreamSimulation &sim, const int step_i, const dou
     // TODO: determine whether we should release at this timestep, etc...
     particle_vec = sim.df->sample(sim.potential,
                                   sim.particles.find(sim.prog_key)->second,
-                                  nparticles);
+                                  nparticles,
+                                  t);
 
     for (int i=0; i < particle_vec.size(); i++) {
         auto ptcl_id = std::make_tuple(pc->ID, pc->n_particles + i);

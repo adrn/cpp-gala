@@ -64,4 +64,18 @@ void ParticleCollection::get_acceleration_at(ParticleCollection &pc, double t,
     this->get_acceleration_at(pc.w, t, pc.IDs, acc, acc_start_idx);
 }
 
+vector_2d ParticleCollection::get_x() {
+    vector_2d x;
+    for (int i=0; i < this->n_particles; i++)
+        x.push_back(slice(this->w[i], 0, this->n_dim));
+    return x;
+}
+
+vector_2d ParticleCollection::get_v() {
+    vector_2d v;
+    for (int i=0; i < this->n_particles; i++)
+        v.push_back(slice(this->w[i], this->n_dim, 2 * this->n_dim));
+    return v;
+}
+
 }} // namespace: gala::simulation

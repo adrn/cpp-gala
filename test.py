@@ -167,25 +167,28 @@ import time
 # Integrators
 #
 
-from cpp_gala._potential import (KeplerPotential,
-                                 CompositePotential,
-                                 StaticPotentialParameter)
-from cpp_gala._simulation import Simulation, ParticleCollection
-from cpp_gala._integrate import LeapfrogIntegrator, BoostIntegrator
+# from cpp_gala._potential import (KeplerPotential,
+#                                  CompositePotential,
+#                                  StaticPotentialParameter)
+# from cpp_gala._simulation import Simulation, ParticleCollection, StaticFrame
+# from cpp_gala._integrate import LeapfrogIntegrator, BoostIntegrator
 
-import numpy as np
+# import numpy as np
 
-# TEST PARTICLE
-M = StaticPotentialParameter(1.)
-# pot = KeplerPotential(M, 1.)
-pot = CompositePotential()
-pot1 = KeplerPotential(M, 1.)
-pot2 = KeplerPotential(M, 1.)
-pot.add_potential('1', pot1)
-pot.add_potential('2', pot2)
-print("density", pot.density(np.array([[1., 0, 0]]), 0.))
-print("gradient", pot.gradient(np.array([[1., 0, 0]]), 0.))
-# sim = Simulation(pot)
+# # TEST PARTICLE
+# M = StaticPotentialParameter(1.)
+# # pot = KeplerPotential(M, 1.)
+# pot = CompositePotential()
+# pot1 = KeplerPotential(M, 1.)
+# pot2 = KeplerPotential(M, 1.)
+# pot.add_potential('1', pot1)
+# pot.add_potential('2', pot2)
+# print("density", pot.density(np.array([[1., 0, 0]]), 0.))
+# print("gradient", pot.gradient(np.array([[1., 0, 0]]), 0.))
+
+# frame = StaticFrame(3)
+
+# sim = Simulation(pot, frame)
 
 # ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0]])
 # # ptcl1_w = np.array([[1., 0., 0., 0, -0.5, 0] for n in range(10)])
@@ -244,9 +247,8 @@ print("gradient", pot.gradient(np.array([[1., 0, 0]]), 0.))
 # # plt.plot(ws[:, 1, 0], ws[:, 1, 1])
 # plt.show()
 
-import sys
-sys.exit(0)
-
+# import sys
+# sys.exit(0)
 
 # -----------------------------------------------------------------------------
 # Simulation desired API
@@ -281,3 +283,41 @@ sys.exit(0)
 # M = InterpolatedPotentialParameter(ts, vals, 1)
 # pot = KeplerPotential(1., M, 3)
 # print(pot.get_n_dim())
+
+
+# -----------------------------------------------------------------------------
+# MockStream desired API
+#
+
+import numpy as np
+
+from cpp_gala._integrate import LeapfrogIntegrator
+from cpp_gala._potential import (HernquistPotential,
+                                 StaticPotentialParameter,
+                                 EquiInterpPotentialParameter)
+from cpp_gala._simulation import (ParticleCollection,
+                                  MockStreamSimulation,
+                                  FardalStreamDF,
+                                  StaticFrame)
+
+M = EquiInterpPotentialParameter()
+a = EquiInterpPotentialParameter()
+prog_pot = HernquistPotential(M, a)
+
+ext_M = StaticPotentialParameter(1e12)
+ext_a = StaticPotentialParameter(10.)
+ext_pot = HernquistPotential(ext_M, ext_a)
+
+frame = StaticFrame()
+
+progenitor = ParticleCollection(potential=prog_pot, ...)
+
+sim = MockStreamSimulation(potential=ext_pot,
+                           frame=frame,
+                           df=FardalStreamDF(),
+                           progenitor=progenitor)
+# sim.add_particle(perturber)
+integrator = LeapfrogIntegrator(sim)
+
+t = np.linspace(0, 10, 2048)
+sim.run(integrator, t, release_every=10)

@@ -54,6 +54,8 @@ class ParticleCollection {
         void get_acceleration_at(vector_2d &w, double t,
                                  std::vector<std::tuple<uint32_t, uint32_t>> &IDs,
                                  vector_2d *acc, int acc_start_idx=0);
+        vector_2d get_x();
+        vector_2d get_v();
         // TODO: figure this out, but will enable things like dynamical friction
         // void register_extra_force();
 
