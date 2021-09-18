@@ -13,7 +13,9 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-// Base class
+/*
+    Base class
+*/
 Simulation::Simulation() {
     this->has_ext_potential = false;
     this->has_frame = false;
@@ -40,7 +42,7 @@ Simulation::Simulation(gala::potential::BasePotential *potential, gala::frame::B
 
 }
 
-void Simulation::add_particle(ParticleCollection pc) {
+std::tuple<std::string, uint32_t> Simulation::add_particle(ParticleCollection pc) {
     /* */
 
     if (this->particles.count(std::make_tuple(pc.name, pc.ID)) != 0) {
@@ -66,7 +68,10 @@ void Simulation::add_particle(ParticleCollection pc) {
         this->particle_IDs.push_back(pc.IDs[i]);
     }
 
-    this->particles.insert(std::make_pair(std::make_tuple(pc.name, pc.ID), pc));
+    auto key = std::make_tuple(pc.name, pc.ID);
+    this->particles.insert(std::make_pair(key, pc));
+
+    return key;
 }
 
 void Simulation::get_dwdt(vector_2d *dwdt) {

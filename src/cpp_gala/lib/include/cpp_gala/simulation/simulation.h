@@ -44,7 +44,7 @@ class PYBIND11_EXPORT Simulation {
         Simulation();
 
         // Methods:
-        void add_particle(ParticleCollection pc);
+        std::tuple<std::string, uint32_t> add_particle(ParticleCollection pc);
 
         void get_dwdt(vector_2d *dwdt);
         vector_2d get_dwdt();

@@ -18,13 +18,18 @@ using namespace boost::numeric;
 using namespace gala::utils;
 using namespace gala::integrate;
 
+
+void null_step_callback(gala::simulation::Simulation &sim, const int i, const double t) { }
+
+
 /* ------------------------------------------------------------------------------------------------
     Base class
 
     TODO:
-    - Add option to store all vs. store only last timestep w
+    - Redundant methods below! integrate/integrate_save_all...
+
 */
-BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
+BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim, step_callback_t *step_callback) {
     this->sim = sim;
 
     for (int i=0; i < this->sim.n_particles; i++) {
@@ -32,37 +37,42 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
         this->tmp_dwdt.push_back(vector_1d(2 * this->sim.n_dim, NAN));
     }
 
+    if (step_callback == nullptr)
+        this->step_callback = &null_step_callback;
+    else
+        this->step_callback = step_callback;
+
 }
 
-vector_2d BaseIntegrator::integrate(const vector_1d t) {
-    // Call any custom setup needed before starting to step the integrator:
-    this->setup_integrate(t);
+// vector_2d BaseIntegrator::integrate(const vector_1d t) {
+//     // Call any custom setup needed before starting to step the integrator:
+//     this->setup_integrate(t);
 
-    for (int n=1; n < t.size(); n++)
-        this->step(t[n-1], t[n] - t[n-1]);
+//     for (int n=1; n < t.size(); n++)
+//         this->step(t[n-1], t[n] - t[n-1]);
 
-    return sim.state_w;
-}
+//     return sim.state_w;
+// }
 
-vector_3d BaseIntegrator::integrate_save_all(const vector_1d t) {
-    // The return array:
-    vector_3d result_w;
+// vector_3d BaseIntegrator::integrate_save_all(const vector_1d t) {
+//     // The return array:
+//     vector_3d result_w;
 
-    // Store the initial values in the first block of the result array:
-    result_w.push_back(this->sim.state_w);
+//     // Store the initial values in the first block of the result array:
+//     result_w.push_back(this->sim.state_w);
 
-    // Call any custom setup needed before starting to step the integrator:
-    this->setup_integrate(t);
+//     // Call any custom setup needed before starting to step the integrator:
+//     this->setup_integrate(t);
 
-    for (int n=1; n < t.size(); n++) {
-        this->step(t[n-1], t[n] - t[n-1]);
+//     for (int n=1; n < t.size(); n++) {
+//         this->step(t[n-1], t[n] - t[n-1]);
 
-        // Store the w vector at this timestep
-        result_w.push_back(sim.state_w);
-    }
+//         // Store the w vector at this timestep
+//         result_w.push_back(sim.state_w);
+//     }
 
-    return result_w;
-}
+//     return result_w;
+// }
 
 void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
     int i, j, idx, ps_ndim = 2 * this->sim.n_dim;
@@ -70,17 +80,19 @@ void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
+    this->step_callback(this->sim, 0, t[0]);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
-
-        // Store the w vector at this timestep
-        for (i=0; i < this->sim.n_particles; i++)
-            for (j=0; j < ps_ndim; j++) {
-                idx = i2d(i, j, this->sim.n_particles, ps_ndim);
-                result_w[idx] = sim.state_w[i][j];
-            }
+        this->step_callback(this->sim, n, t[n]);
     }
+
+    // Store the w vector at the final timestep
+    for (i=0; i < this->sim.n_particles; i++)
+        for (j=0; j < ps_ndim; j++) {
+            idx = i2d(i, j, this->sim.n_particles, ps_ndim);
+            result_w[idx] = sim.state_w[i][j];
+        }
 }
 
 void BaseIntegrator::integrate_save_all(const vector_1d t, double *result_w) {
@@ -94,9 +106,11 @@ void BaseIntegrator::integrate_save_all(const vector_1d t, double *result_w) {
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
+    this->step_callback(this->sim, 0, t[0]);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
+        this->step_callback(this->sim, n, t[n]);
 
         // Store the w vector at this timestep
         for (i=0; i < this->sim.n_particles; i++)
