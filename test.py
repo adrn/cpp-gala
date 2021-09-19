@@ -290,34 +290,40 @@ import time
 #
 
 import numpy as np
+from gala.units import galactic
 
-from cpp_gala._integrate import LeapfrogIntegrator
-from cpp_gala._potential import (HernquistPotential,
+from cpp_gala._potential import (KeplerPotential,
+                                 HernquistPotential,
+                                 CompositePotential,
                                  StaticPotentialParameter,
-                                 EquiInterpPotentialParameter)
-from cpp_gala._simulation import (ParticleCollection,
-                                  MockStreamSimulation,
-                                  FardalStreamDF,
-                                  StaticFrame)
+                                 EquiInterpPotentialParameter,
+                                 NonEquiInterpPotentialParameter)
+from cpp_gala._df import StreaklineStreamDF
+from cpp_gala._simulation import (MockStreamSimulation, Simulation,
+                                  ParticleCollection,
+                                  StaticFrame,
+                                  ConstantRotatingFrame)
+from cpp_gala._integrate import LeapfrogIntegrator
 
-M = EquiInterpPotentialParameter()
-a = EquiInterpPotentialParameter()
-prog_pot = HernquistPotential(M, a)
+df = StreaklineStreamDF(True, True, 42)
 
-ext_M = StaticPotentialParameter(1e12)
-ext_a = StaticPotentialParameter(10.)
-ext_pot = HernquistPotential(ext_M, ext_a)
+host_M = StaticPotentialParameter(5e11)
+host_a = StaticPotentialParameter(10.)
+host_pot = HernquistPotential(host_M, host_a, galactic.get_constant('G'))
+# host_pot = KeplerPotential(host_M, galactic.get_constant('G'))
 
-frame = StaticFrame()
+M = StaticPotentialParameter(1e6)
+a = StaticPotentialParameter(0.01)
+prog_pot = HernquistPotential(M, a, galactic.get_constant('G'))
 
-progenitor = ParticleCollection(potential=prog_pot, ...)
+prog_w = np.array([[10., 0, 0, 0, 0.23, 0]])
+prog = ParticleCollection(prog_w, prog_pot, name='progenitor')
 
-sim = MockStreamSimulation(potential=ext_pot,
-                           frame=frame,
-                           df=FardalStreamDF(),
-                           progenitor=progenitor)
-# sim.add_particle(perturber)
+sim = MockStreamSimulation(host_pot, df, prog)
+
 integrator = LeapfrogIntegrator(sim)
 
-t = np.linspace(0, 10, 2048)
-sim.run(integrator, t, release_every=10)
+t = np.linspace(0, 1, 10)
+ws = integrator.integrate(t)
+
+print(ws.shape)
