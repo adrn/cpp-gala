@@ -33,13 +33,15 @@ PYBIND11_MODULE(_integrate, mod) {
                 std::vector<double> t_vec;
                 t_vec.assign(t.data(), t.data() + t.size());
 
+                int nparticles = self.sim->get_n_particles();
+
                 array_t w;
                 if (save_all == true) {
                     w = array_t({(int)t_vec.size(),
-                                 self.sim->n_particles,
+                                 nparticles,
                                  2 * self.sim->n_dim});
                 } else {
-                    w = array_t({self.sim->n_particles,
+                    w = array_t({nparticles,
                                  2 * self.sim->n_dim});
                 }
 
@@ -67,13 +69,15 @@ PYBIND11_MODULE(_integrate, mod) {
                 std::vector<double> t_vec;
                 t_vec.assign(t.data(), t.data() + t.size());
 
+                int nparticles = self.sim->get_n_particles();
+
                 array_t w;
                 if (save_all == true) {
                     w = array_t({(int)t_vec.size(),
-                                 self.sim->n_particles,
+                                 nparticles,
                                  2 * self.sim->n_dim});
                 } else {
-                    w = array_t({self.sim->n_particles,
+                    w = array_t({nparticles,
                                  2 * self.sim->n_dim});
                 }
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cmath>
+#include <iostream>
 
 namespace gala { namespace utils {
 
@@ -90,6 +91,29 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n)
     return vec;
 }
 
+/*
+    Dev stuff
+*/
+
+inline void print_vector_1d(vector_1d &vec) {
+    std::string s = "[";
+    for (int i=0; i < vec.size(); i++) {
+        s.append(std::to_string(vec[i]));
+        if (i != (vec.size()-1))
+            s.append(", ");
+    }
+    s.append("]");
+    std::cout << s << std::endl;
+}
+
+inline void print_vector_2d(vector_2d &vec) {
+    std::cout << "[" << std::endl;
+    for (int i=0; i < vec.size(); i++) {
+        std::cout << "    ";
+        print_vector_1d(vec[i]);
+    }
+    std::cout << "]" << std::endl;
+}
 
 }} // namespace: gala::utils
 

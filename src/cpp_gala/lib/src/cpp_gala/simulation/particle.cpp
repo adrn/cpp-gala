@@ -47,6 +47,26 @@ void ParticleCollection::add_particles(vector_2d &w) {
     this->n_particles += w.size();
 }
 
+void ParticleCollection::get_acceleration_at(vector_1d &w, const double t,
+                                             std::tuple<uint32_t, uint32_t> &ID,
+                                             vector_1d &acc, int acc_start_idx) {
+    /*
+    Compute the acceleration from this particle collection for the input positions w
+    */
+    if (this->massless) {
+        return;
+    }
+
+    for (int i=0; i < this->n_particles; i++) {
+        if (ID == this->IDs[i])
+            continue;
+
+        // the potential has to be centered at each particle:
+        this->potential->set_q0(this->w[i]);
+        this->potential->acceleration(&w[0], t, &acc[acc_start_idx]);
+    }
+}
+
 void ParticleCollection::get_acceleration_at(vector_2d &w, const double t,
                                              std::vector<std::tuple<uint32_t, uint32_t>> &IDs,
                                              vector_2d *acc, int acc_start_idx) {
@@ -59,7 +79,7 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, const double t,
 
     for (int j=0; j < w.size(); j++) {
         for (int i=0; i < this->n_particles; i++) {
-            if ((IDs.size() > 0) && (IDs[j] == this->ID))
+            if ((IDs.size() > 0) && (IDs[j] == this->IDs[i]))
                 continue;
 
             // the potential has to be centered at each particle:

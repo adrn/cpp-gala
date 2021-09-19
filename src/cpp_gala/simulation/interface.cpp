@@ -128,37 +128,40 @@ PYBIND11_MODULE(_simulation, mod) {
         .def(py::init<gala::potential::BasePotential*>(), "potential"_a)
         .def(py::init<gala::potential::BasePotential*, BaseFrame*>(), "potential"_a, "frame"_a)
         .def("add_particle", &Simulation::add_particle)
-        .def_property_readonly("n_particles", [](Simulation &self){ return self.n_particles; })
+        .def_property_readonly("n_particles", [](Simulation &self){
+            return self.get_n_particles();
+        })
         .def_property_readonly("n_dim", [](Simulation &self){ return self.n_dim; })
-        .def_property_readonly("particle_ids", [](Simulation &self){ return self.particle_IDs; })
-        .def_property_readonly("state_t", [](Simulation &self){ return self.state_time; })
         .def_property_readonly("state_w", [](Simulation &self) {
-                auto w_vec = self.state_w;
+                auto w_vec = self.get_state_w();
+                int nparticles = self.get_n_particles();
 
                 // Array to return:
-                auto w = array_t(self.n_particles * 2 * self.n_dim);
-                for (int i=0; i < self.n_particles; i++) {
+                auto w = array_t(nparticles * 2 * self.n_dim);
+                for (int i=0; i < nparticles; i++) {
                     for (int j=0; j < 2 * self.n_dim; j++) {
                         w.mutable_at(j + 2 * self.n_dim * i) = w_vec[i][j];
                     }
                 }
-                w.resize({self.n_particles, 2 * self.n_dim});
+                w.resize({nparticles, 2 * self.n_dim});
 
                 return w;
             }
         )
         .def("get_dwdt", [](
-            Simulation &self) {
-                auto dwdt_vec = self.get_dwdt();
+            Simulation &self,
+            const double t) {
+                auto dwdt_vec = self.get_dwdt(t);
+                int nparticles = self.get_n_particles();
 
                 // Array to return:
-                auto dwdt = array_t(self.n_particles * 2 * self.n_dim);
-                for (int i=0; i < self.n_particles; i++) {
+                auto dwdt = array_t(nparticles * 2 * self.n_dim);
+                for (int i=0; i < nparticles; i++) {
                     for (int j=0; j < 2 * self.n_dim; j++) {
                         dwdt.mutable_at(j + 2 * self.n_dim * i) = dwdt_vec[i][j];
                     }
                 }
-                dwdt.resize({self.n_particles, 2 * self.n_dim});
+                dwdt.resize({nparticles, 2 * self.n_dim});
 
                 return dwdt;
             }

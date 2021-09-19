@@ -21,8 +21,9 @@ Simulation::Simulation() {
     this->has_frame = false;
     this->has_interparticle_interactions = false;
     this->n_dim = 0;
-    this->n_particles = 0;
-    this->state_time = NAN;
+
+    // subclasses use this to indicate to the integrators that particles may be spawned or destroyed
+    this->fixed_n_particles = true;
 }
 
 Simulation::Simulation(gala::potential::BasePotential *potential,
@@ -42,6 +43,13 @@ Simulation::Simulation(gala::potential::BasePotential *potential,
     }
 }
 
+ssize_t Simulation::get_n_particles() {
+    ssize_t n_particles = 0;
+    for (auto &pair : this->particles)
+        n_particles += pair.second.n_particles;
+    return n_particles;
+}
+
 std::tuple<std::string, uint32_t> Simulation::add_particle(ParticleCollection pc) {
     /* */
 
@@ -57,16 +65,9 @@ std::tuple<std::string, uint32_t> Simulation::add_particle(ParticleCollection pc
         throw std::runtime_error(
             "Input ParticleCollection must have the same n_dim as the simulation");
     }
-    this->n_particles += pc.n_particles;
 
     if (!pc.massless)
         this->has_interparticle_interactions = true;
-
-    this->state_w.insert(this->state_w.end(), pc.w.begin(), pc.w.end());
-    for (int i=0; i < pc.n_particles; i++) {
-        this->particle_potentials.push_back(pc.potential);
-        this->particle_IDs.push_back(pc.IDs[i]);
-    }
 
     auto key = std::make_tuple(pc.name, pc.ID);
     this->particles.insert(std::make_pair(key, pc));
@@ -74,71 +75,107 @@ std::tuple<std::string, uint32_t> Simulation::add_particle(ParticleCollection pc
     return key;
 }
 
-void Simulation::get_dwdt(vector_2d *dwdt) {
+void Simulation::get_dwdt(const double t, vector_2d &dwdt) {
     /*
     Compute the phase-space derivative for the current state of the simulation.
     */
-    int i, j;
+    int i, j, k;
 
-    if (this->n_particles == 0)
+    if (this->particles.size() == 0)
         return;
 
     // Zero out any existing values
-    for (i=0; i < this->n_particles; i++) {
-        for (j=0; j < this->n_dim; j++) {
-            // Set position derivative to velocity
-            (*dwdt)[i][j] = this->state_w[i][j + this->n_dim];
+    k = 0;
+    for (auto &pair : this->particles) {
+        for (i=0; i < pair.second.n_particles; i++) {
+            for (j=0; j < this->n_dim; j++) {
+                // Set position derivative to velocity
+                dwdt[k][j] = pair.second.w[i][j + this->n_dim];
 
-            // Set velocity derivative (acceleration) to zero (to be filled below)
-            (*dwdt)[i][j + this->n_dim] = 0.;
+                // Set velocity derivative (acceleration) to zero (to be filled below)
+                dwdt[k][j + this->n_dim] = 0.;
+            }
+            k++;
         }
     }
 
     if (this->has_ext_potential) {
         // Compute the acceleration from the external potential, if set
-        for (i=0; i < this->n_particles; i++)
-            this->potential->acceleration(&this->state_w[i][0],
-                                          this->state_time,
-                                          &(*dwdt)[i][this->n_dim]);
+        k = 0;
+        for (auto &pair : this->particles) {
+            for (i=0; i < pair.second.n_particles; i++) {
+                this->potential->acceleration(&pair.second.w[i][0],
+                                              t,
+                                              &dwdt[k][this->n_dim]);
+                k++;
+            }
+        }
     }
 
     if (this->has_frame) {
         // Compute the effective forces from the reference frame
-        for (i=0; i < this->n_particles; i++)
-            this->frame->get_dwdt(&this->state_w[i][0],
-                                  this->state_time,
-                                  &(*dwdt)[i][0]);
+        k = 0;
+        for (auto &pair : this->particles) {
+            for (i=0; i < pair.second.n_particles; i++) {
+                this->frame->get_dwdt(&pair.second.w[i][0],
+                                      t,
+                                      &dwdt[k][0]);
+                k++;
+            }
+        }
     }
 
     // Compute the acceleration from all particles
     if (this->has_interparticle_interactions) {
-        for (auto &pair : this->particles)
-            pair.second.get_acceleration_at(this->state_w, this->state_time, this->particle_IDs,
-                                            dwdt, this->n_dim);
+        for (auto &pair2 : this->particles) {
+            k = 0;
+            for (auto &pair1 : this->particles) {
+                for (i=0; i < pair1.second.n_particles; i++) {
+                    pair2.second.get_acceleration_at(pair1.second.w[i], t, pair1.second.IDs[i],
+                                                     dwdt[k], this->n_dim);
+                    k++;
+                }
+            }
+        }
     }
 
     // TODO: something about computing the extra force on particles...like from dynamical friction
 }
 
-vector_2d Simulation::get_dwdt() {
-    vector_2d dwdt(this->n_particles, vector_1d(2 * this->n_dim));
-    this->get_dwdt(&dwdt);
+vector_2d Simulation::get_dwdt(const double t) {
+    vector_2d dwdt(this->get_n_particles(), vector_1d(2 * this->n_dim));
+    this->get_dwdt(t, dwdt);
     return dwdt;
 }
 
-void Simulation::set_state(const vector_2d &w, const double t) {
-    int n=0;
-    this->state_time = t;
-    this->state_w = w;
-
+void Simulation::set_state_w(const vector_2d &w) {
+    int k=0;
     for (auto &pair : this->particles) {
         for (int i=0; i < pair.second.n_particles; i++) {
-            for (int j=0; j < this->n_dim; j++) {
-                pair.second.w[i][j] = w[n + i][j];
+            for (int j=0; j < 2 * this->n_dim; j++) {
+                pair.second.w[i][j] = w[k][j];
             }
+            k++;
         }
-        n += pair.second.n_particles;
     }
+}
+
+void Simulation::get_state_w(vector_2d &w) {
+    int k=0;
+    for (auto &pair : this->particles) {
+        for (int i=0; i < pair.second.n_particles; i++) {
+            for (int j=0; j < 2 * this->n_dim; j++) {
+                w[k][j] = pair.second.w[i][j];
+            }
+            k++;
+        }
+    }
+}
+
+vector_2d Simulation::get_state_w() {
+    vector_2d state_w(this->get_n_particles(), vector_1d(2 * this->n_dim, NAN));
+    this->get_state_w(state_w);
+    return state_w;
 }
 
 void Simulation::step_callback(const int i, const double t) {
@@ -146,15 +183,3 @@ void Simulation::step_callback(const int i, const double t) {
 }
 
 }} // namespace: gala::simulation
-
-
-/*
-    Idea for speed, if we need it, to avoid copying data around every set_state() call.
-    - When add_particle(), add the potential for that PC to a list and have a lookup table to go
-      from particle index to its potential. Need to do the same for Forces but not our problem just
-      yet.
-    - Could also turn the vector stored in Particle into an array state_w, access that as a 2D
-      array instead of as a vector_2d
-    - Also: using the do_step() interface to Boost integration may be slower than integrate with an
-      observer function that stores the results...
-*/

@@ -53,6 +53,9 @@ class PYBIND11_EXPORT ParticleCollection {
 
         // Methods:
         void add_particles(vector_2d &w);
+        void get_acceleration_at(vector_1d &w, const double t,
+                                 std::tuple<uint32_t, uint32_t> &ID,
+                                 vector_1d &acc, int acc_start_idx=0);
         void get_acceleration_at(ParticleCollection &pc, const double t,
                                  vector_2d *acc, int acc_start_idx=0);
         void get_acceleration_at(vector_2d &w, const double t,
