@@ -7,6 +7,8 @@
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/simulation/particle.h>
+#include <cpp_gala/simulation/mockstream.h>
+#include <cpp_gala/df/streamdf.h>
 #include <cpp_gala/utils.h>
 
 namespace py = pybind11;
@@ -19,6 +21,7 @@ using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 PYBIND11_MODULE(_simulation, mod) {
     py::module::import("cpp_gala._potential");
+    py::module::import("cpp_gala._df");
 
     py::class_<ParticleCollection>(mod, "ParticleCollection")
         .def("__init__", [](
@@ -41,11 +44,33 @@ PYBIND11_MODULE(_simulation, mod) {
                     new (&self) ParticleCollection(w_vec, potential, name);
             }, "w"_a, "potential"_a = nullptr, "name"_a = ""
         )
+        .def("add_particles", [](
+            ParticleCollection &self,
+            array_t w) {
+                vector_2d w_vec(w.shape(0), vector_1d(w.shape(1)));
+                for (int i=0; i < w.shape(0); i++)
+                    w_vec[i].assign(w.data(i), w.data(i) + w.shape(1));
+
+                self.add_particles(w_vec);
+            }
+        )
         .def_property_readonly("n_particles", [](ParticleCollection &pc) { return pc.n_particles; })
         .def_property_readonly("n_dim", [](ParticleCollection &pc) { return pc.n_dim; })
         .def_property_readonly("name", [](ParticleCollection &pc) { return pc.name; })
+        .def_property_readonly("ID", [](ParticleCollection &pc) { return pc.ID; })
         .def_property_readonly("_ids", [](ParticleCollection &pc) { return pc.IDs; })
-        .def_property_readonly("massless", [](ParticleCollection &pc) { return pc.massless; });
+        .def_property_readonly("massless", [](ParticleCollection &pc) { return pc.massless; })
+        .def_property_readonly("w", [](ParticleCollection &pc) {
+            // Array to return:
+            auto result_arr = array_t(pc.n_particles * 2 * pc.n_dim);
+            for (int i=0; i < pc.n_particles; i++) {
+                for (int j=0; j < 2 * pc.n_dim; j++) {
+                    result_arr.mutable_at(j + 2 * pc.n_dim * i) = pc.w[i][j];
+                }
+            }
+            result_arr.resize({pc.n_particles, 2 * pc.n_dim});
+            return result_arr;
+        });
 
     /*
         Frames
@@ -138,4 +163,17 @@ PYBIND11_MODULE(_simulation, mod) {
                 return dwdt;
             }
         );
+
+    /*
+        MockStream
+    */
+    py::class_<MockStreamSimulation, Simulation>(mod, "MockStreamSimulation")
+        .def(py::init<gala::potential::BasePotential*,
+                      gala::df::BaseStreamDF&,
+                      ParticleCollection&>(), "potential"_a, "df"_a, "progenitor"_a)
+        .def(py::init<gala::potential::BasePotential*,
+                      gala::df::BaseStreamDF&,
+                      ParticleCollection&,
+                      BaseFrame*>(), "potential"_a, "df"_a, "progenitor"_a, "frame"_a);
+
 }
