@@ -47,7 +47,7 @@ void ParticleCollection::add_particles(vector_2d &w) {
     this->n_particles += w.size();
 }
 
-void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
+void ParticleCollection::get_acceleration_at(vector_2d &w, const double t,
                                              std::vector<std::tuple<uint32_t, uint32_t>> &IDs,
                                              vector_2d *acc, int acc_start_idx) {
     /*
@@ -59,11 +59,8 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
 
     for (int j=0; j < w.size(); j++) {
         for (int i=0; i < this->n_particles; i++) {
-            if ((IDs.size() > 0)
-                    && (std::get<0>(IDs[j]) == this->ID)
-                    && (std::get<1>(IDs[j]) == std::get<1>(this->IDs[i]))) {
+            if ((IDs.size() > 0) && (IDs[j] == this->ID))
                 continue;
-            }
 
             // the potential has to be centered at each particle:
             this->potential->set_q0(this->w[i]);
@@ -72,7 +69,7 @@ void ParticleCollection::get_acceleration_at(vector_2d &w, double t,
     }
 }
 
-void ParticleCollection::get_acceleration_at(ParticleCollection &pc, double t,
+void ParticleCollection::get_acceleration_at(ParticleCollection &pc, const double t,
                                              vector_2d *acc, int acc_start_idx) {
     /*
     Compute the acceleration from this particle collection on all particles in the input particle
