@@ -19,9 +19,6 @@ using namespace gala::utils;
 using namespace gala::integrate;
 
 
-void null_step_callback(gala::simulation::Simulation &sim, const int i, const double t) { }
-
-
 /* ------------------------------------------------------------------------------------------------
     Base class
 
@@ -29,18 +26,13 @@ void null_step_callback(gala::simulation::Simulation &sim, const int i, const do
     - Redundant methods below! integrate/integrate_save_all...
 
 */
-BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim, step_callback_t *step_callback) {
+BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
     this->sim = sim;
 
     for (int i=0; i < this->sim.n_particles; i++) {
         this->tmp_w.push_back(vector_1d(2 * this->sim.n_dim, NAN));
         this->tmp_dwdt.push_back(vector_1d(2 * this->sim.n_dim, NAN));
     }
-
-    if (step_callback == nullptr)
-        this->step_callback = &null_step_callback;
-    else
-        this->step_callback = step_callback;
 
 }
 
@@ -80,11 +72,11 @@ void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
-    this->step_callback(this->sim, 0, t[0]);
+    this->sim.step_callback(0, t[0]);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
-        this->step_callback(this->sim, n, t[n]);
+        this->sim.step_callback(n, t[n]);
     }
 
     // Store the w vector at the final timestep
@@ -106,11 +98,11 @@ void BaseIntegrator::integrate_save_all(const vector_1d t, double *result_w) {
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
-    this->step_callback(this->sim, 0, t[0]);
+    this->sim.step_callback(0, t[0]);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
-        this->step_callback(this->sim, n, t[n]);
+        this->sim.step_callback(n, t[n]);
 
         // Store the w vector at this timestep
         for (i=0; i < this->sim.n_particles; i++)

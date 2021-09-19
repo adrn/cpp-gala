@@ -40,16 +40,18 @@ class PYBIND11_EXPORT Simulation {
 
         // Constructors:
         Simulation(gala::potential::BasePotential *potential,
-                   gala::frame::BaseFrame *frame=nullptr);
+                   gala::frame::BaseFrame *frame = nullptr);
         Simulation();
 
         // Methods:
         std::tuple<std::string, uint32_t> add_particle(ParticleCollection pc);
 
+        // Used by integrators:
         void get_dwdt(vector_2d *dwdt);
         vector_2d get_dwdt();
 
         void set_state(const vector_2d &w, const double t);
+        virtual void step_callback(const int i, const double t);
 };
 
 }} // namespace: gala::simulation

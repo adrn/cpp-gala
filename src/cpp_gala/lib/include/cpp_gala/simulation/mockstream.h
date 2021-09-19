@@ -31,6 +31,9 @@ class MockStreamSimulation : public Simulation {
             ParticleCollection *progenitor,
             gala::frame::BaseFrame *frame=nullptr);
 
+        // Methods:
+        void step_callback(const int i, const double t) override;
+
 };
 
 #endif

@@ -25,7 +25,8 @@ Simulation::Simulation() {
     this->state_time = NAN;
 }
 
-Simulation::Simulation(gala::potential::BasePotential *potential, gala::frame::BaseFrame *frame)
+Simulation::Simulation(gala::potential::BasePotential *potential,
+                       gala::frame::BaseFrame *frame)
 : Simulation() {
     // store potential and initialize
     this->potential = potential;
@@ -39,7 +40,6 @@ Simulation::Simulation(gala::potential::BasePotential *potential, gala::frame::B
         if (this->frame->n_dim != this->potential->n_dim)
             throw std::invalid_argument("Input frame and potential must have the same n_dim");
     }
-
 }
 
 std::tuple<std::string, uint32_t> Simulation::add_particle(ParticleCollection pc) {
@@ -139,6 +139,10 @@ void Simulation::set_state(const vector_2d &w, const double t) {
         }
         n += pair.second.n_particles;
     }
+}
+
+void Simulation::step_callback(const int i, const double t) {
+    // Default callback is a no-op
 }
 
 }} // namespace: gala::simulation

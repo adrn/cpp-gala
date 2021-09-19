@@ -16,10 +16,6 @@ using namespace gala::utils;
 
 namespace gala { namespace integrate {
 
-// TODO: make this an attribute of Simulation and have MockStreamSimulation implement custom
-typedef void step_callback_t(gala::simulation::Simulation &sim, const int step_i, const double t);
-
-
 class PYBIND11_EXPORT BaseIntegrator {
     public:
         // Attributes:
@@ -28,7 +24,7 @@ class PYBIND11_EXPORT BaseIntegrator {
         vector_2d tmp_dwdt;  // temporary container for per-step dw/dt
 
         // Constructors and Destructors:
-        BaseIntegrator(gala::simulation::Simulation sim, step_callback_t *step_callback=nullptr);
+        BaseIntegrator(gala::simulation::Simulation sim);
 
         // Methods:
         // vector_2d integrate(const vector_1d t);
@@ -38,8 +34,6 @@ class PYBIND11_EXPORT BaseIntegrator {
 
         virtual void setup_integrate(const vector_1d &t);
         virtual void step(const double t, const double dt);
-        step_callback_t *step_callback;
-
 };
 
 class LeapfrogIntegrator : public BaseIntegrator {
