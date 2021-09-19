@@ -45,13 +45,14 @@ class PYBIND11_EXPORT ParticleCollection {
 
         // Constructors:
         ParticleCollection() { ID = ++_count; }
-        ParticleCollection(vector_2d w,
-                           std::string name);
+        ParticleCollection(std::string name);
+        ParticleCollection(vector_2d w, std::string name);
         ParticleCollection(vector_2d w,
                            gala::potential::BasePotential *potential,
                            std::string name);
 
         // Methods:
+        void add_particles(vector_2d &w);
         void get_acceleration_at(ParticleCollection &pc, double t,
                                  vector_2d *acc, int acc_start_idx=0);
         void get_acceleration_at(vector_2d &w, double t,

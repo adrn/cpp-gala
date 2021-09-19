@@ -7,17 +7,17 @@ using namespace gala::utils;
 
 namespace gala { namespace simulation {
 
-ParticleCollection::ParticleCollection(vector_2d w, std::string name)
+ParticleCollection::ParticleCollection(std::string name)
 : ParticleCollection() {
-    // store potential pointer and initialize
-    this->w = w;
-    this->n_particles = w.size();
-    this->n_dim = w[0].size() / 2;
+    this->n_particles = 0;
+    this->n_dim = 0;
     this->name = name;
     this->massless = true;
+}
 
-    for (int i=0; i < this->n_particles; i++)
-        this->IDs.push_back(std::make_tuple(this->ID, i));
+ParticleCollection::ParticleCollection(vector_2d w, std::string name)
+: ParticleCollection(name) {
+    this->add_particles(w);
 }
 
 uint32_t ParticleCollection::_count;
@@ -28,6 +28,23 @@ ParticleCollection::ParticleCollection(vector_2d w,
 : ParticleCollection::ParticleCollection(w, name) {
     this->potential = potential;
     this->massless = false;
+}
+
+void ParticleCollection::add_particles(vector_2d &w) {
+    if (w.size() == 0)
+        throw std::invalid_argument("Input phase-space position w must have size > 0");
+
+    if (this->n_dim == 0)
+        this->n_dim = w[0].size() / 2;
+    else if (this->n_dim != (w[0].size() / 2))
+        throw std::invalid_argument("Input phase-space position n_dim must match other particles.");
+
+    for (int i=0; i < w.size(); i++) {
+        this->w.push_back(w[i]);
+        this->IDs.push_back(std::make_tuple(this->ID, i + this->n_particles));
+    }
+
+    this->n_particles += w.size();
 }
 
 void ParticleCollection::get_acceleration_at(vector_2d &w, double t,

@@ -21,7 +21,8 @@ ext_modules = [
         ["src/cpp_gala/simulation/interface.cpp",
          "src/cpp_gala/lib/src/cpp_gala/simulation/simulation.cpp",
          "src/cpp_gala/lib/src/cpp_gala/simulation/particle.cpp",
-         "src/cpp_gala/lib/src/cpp_gala/simulation/frame.cpp"],
+         "src/cpp_gala/lib/src/cpp_gala/simulation/frame.cpp",
+         "src/cpp_gala/lib/src/cpp_gala/simulation/mockstream.cpp"],
         cxx_std=CPP_STD,
         include_dirs=['src/cpp_gala/lib/include'],
         # libraries=['gsl']

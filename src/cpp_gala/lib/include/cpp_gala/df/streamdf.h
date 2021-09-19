@@ -5,10 +5,12 @@
 #include <vector>
 #include <string>
 
+// Third-party
+#include <pybind11/pybind11.h>
+
 // This package
 #include <cpp_gala/potential/potential.h>
 #include <cpp_gala/simulation/particle.h>
-#include <cpp_gala/simulation/simulation.h>
 #include <cpp_gala/utils.h>
 
 using namespace gala::utils;
@@ -16,7 +18,7 @@ using namespace gala::utils;
 namespace gala { namespace df {
 
 
-class BaseStreamDF {
+class PYBIND11_EXPORT BaseStreamDF {
 
     public:
         // Attributes:
