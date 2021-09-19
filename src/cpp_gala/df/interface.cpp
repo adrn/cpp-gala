@@ -16,7 +16,6 @@ using namespace gala::df;
 using array_t = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 PYBIND11_MODULE(_df, mod) {
-    py::module::import("cpp_gala._simulation");
     py::module::import("cpp_gala._potential");
 
     // TODO: do we need to expose this...?

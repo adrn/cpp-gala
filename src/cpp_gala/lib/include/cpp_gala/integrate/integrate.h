@@ -19,12 +19,12 @@ namespace gala { namespace integrate {
 class PYBIND11_EXPORT BaseIntegrator {
     public:
         // Attributes:
-        gala::simulation::Simulation sim;
+        gala::simulation::Simulation *sim;
         vector_2d tmp_w;  // temporary container for per-step phase-space positions
         vector_2d tmp_dwdt;  // temporary container for per-step dw/dt
 
         // Constructors and Destructors:
-        BaseIntegrator(gala::simulation::Simulation sim);
+        BaseIntegrator(gala::simulation::Simulation &sim);
 
         // Methods:
         // vector_2d integrate(const vector_1d t);
@@ -39,7 +39,7 @@ class PYBIND11_EXPORT BaseIntegrator {
 class LeapfrogIntegrator : public BaseIntegrator {
     public:
         // Constructors and Destructors:
-        LeapfrogIntegrator(gala::simulation::Simulation sim);
+        LeapfrogIntegrator(gala::simulation::Simulation &sim);
 
         // Methods:
         void setup_integrate(const vector_1d &t) override;
@@ -52,7 +52,7 @@ class LeapfrogIntegrator : public BaseIntegrator {
 class BoostIntegrator : public BaseIntegrator {
     public:
         // Constructors and Destructors:
-        BoostIntegrator(gala::simulation::Simulation sim, std::string choice, int sub_steps=0);
+        BoostIntegrator(gala::simulation::Simulation &sim, std::string choice, int sub_steps=0);
 
         // Methods:
         // void setup_integrate(double t0, double dt) override;

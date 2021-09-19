@@ -18,13 +18,13 @@ PYBIND11_MODULE(_integrate, mod) {
 
     // TODO: do we need to expose this...?
     py::class_<BaseIntegrator>(mod, "BaseIntegrator")
-        .def(py::init<gala::simulation::Simulation>(), "sim"_a)
+        .def(py::init<gala::simulation::Simulation&>(), "sim"_a)
         .def_property_readonly("sim", [](BaseIntegrator &self) {
             return self.sim;
         });
 
     py::class_<LeapfrogIntegrator, BaseIntegrator>(mod, "LeapfrogIntegrator")
-        .def(py::init<gala::simulation::Simulation>(), "sim"_a)
+        .def(py::init<gala::simulation::Simulation&>(), "sim"_a)
         .def("integrate", [](
             LeapfrogIntegrator &self,
             array_t t,
@@ -36,11 +36,11 @@ PYBIND11_MODULE(_integrate, mod) {
                 array_t w;
                 if (save_all == true) {
                     w = array_t({(int)t_vec.size(),
-                                 self.sim.n_particles,
-                                 2 * self.sim.n_dim});
+                                 self.sim->n_particles,
+                                 2 * self.sim->n_dim});
                 } else {
-                    w = array_t({self.sim.n_particles,
-                                 2 * self.sim.n_dim});
+                    w = array_t({self.sim->n_particles,
+                                 2 * self.sim->n_dim});
                 }
 
                 py::buffer_info w_buf = w.request();
@@ -57,7 +57,7 @@ PYBIND11_MODULE(_integrate, mod) {
         }, "t"_a, "save_all"_a = true);
 
     py::class_<BoostIntegrator, BaseIntegrator>(mod, "BoostIntegrator")
-        .def(py::init<gala::simulation::Simulation, std::string, int>(),
+        .def(py::init<gala::simulation::Simulation&, std::string, int>(),
              "sim"_a, "choice"_a, "sub_steps"_a=0)
         .def("integrate", [](
             BoostIntegrator &self,
@@ -70,11 +70,11 @@ PYBIND11_MODULE(_integrate, mod) {
                 array_t w;
                 if (save_all == true) {
                     w = array_t({(int)t_vec.size(),
-                                 self.sim.n_particles,
-                                 2 * self.sim.n_dim});
+                                 self.sim->n_particles,
+                                 2 * self.sim->n_dim});
                 } else {
-                    w = array_t({self.sim.n_particles,
-                                 2 * self.sim.n_dim});
+                    w = array_t({self.sim->n_particles,
+                                 2 * self.sim->n_dim});
                 }
 
                 py::buffer_info w_buf = w.request();

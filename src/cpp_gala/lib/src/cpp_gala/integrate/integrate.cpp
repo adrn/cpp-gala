@@ -26,12 +26,12 @@ using namespace gala::integrate;
     - Redundant methods below! integrate/integrate_save_all...
 
 */
-BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
-    this->sim = sim;
+BaseIntegrator::BaseIntegrator(gala::simulation::Simulation &sim) {
+    this->sim = &sim;
 
-    for (int i=0; i < this->sim.n_particles; i++) {
-        this->tmp_w.push_back(vector_1d(2 * this->sim.n_dim, NAN));
-        this->tmp_dwdt.push_back(vector_1d(2 * this->sim.n_dim, NAN));
+    for (int i=0; i < this->sim->n_particles; i++) {
+        this->tmp_w.push_back(vector_1d(2 * this->sim->n_dim, NAN));
+        this->tmp_dwdt.push_back(vector_1d(2 * this->sim->n_dim, NAN));
     }
 
 }
@@ -43,7 +43,7 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 //     for (int n=1; n < t.size(); n++)
 //         this->step(t[n-1], t[n] - t[n-1]);
 
-//     return sim.state_w;
+//     return this->sim->state_w;
 // }
 
 // vector_3d BaseIntegrator::integrate_save_all(const vector_1d t) {
@@ -51,7 +51,7 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 //     vector_3d result_w;
 
 //     // Store the initial values in the first block of the result array:
-//     result_w.push_back(this->sim.state_w);
+//     result_w.push_back(this->sim->state_w);
 
 //     // Call any custom setup needed before starting to step the integrator:
 //     this->setup_integrate(t);
@@ -60,55 +60,57 @@ BaseIntegrator::BaseIntegrator(gala::simulation::Simulation sim) {
 //         this->step(t[n-1], t[n] - t[n-1]);
 
 //         // Store the w vector at this timestep
-//         result_w.push_back(sim.state_w);
+//         result_w.push_back(this->sim->state_w);
 //     }
 
 //     return result_w;
 // }
 
 void BaseIntegrator::integrate(const vector_1d t, double *result_w) {
-    int i, j, idx, ps_ndim = 2 * this->sim.n_dim;
+    int i, j, idx, ps_ndim = 2 * this->sim->n_dim;
     int ntimes = t.size();
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
-    this->sim.step_callback(0, t[0]);
+    this->sim->step_callback(0, t[0]);
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
-        this->sim.step_callback(n, t[n]);
+        this->sim->step_callback(n, t[n]);
     }
 
     // Store the w vector at the final timestep
-    for (i=0; i < this->sim.n_particles; i++)
+    for (i=0; i < this->sim->n_particles; i++)
         for (j=0; j < ps_ndim; j++) {
-            idx = i2d(i, j, this->sim.n_particles, ps_ndim);
-            result_w[idx] = sim.state_w[i][j];
+            idx = i2d(i, j, this->sim->n_particles, ps_ndim);
+            result_w[idx] = this->sim->state_w[i][j];
         }
 }
 
 void BaseIntegrator::integrate_save_all(const vector_1d t, double *result_w) {
-    int i, j, idx, ps_ndim = 2 * this->sim.n_dim;
+    int i, j, idx, ps_ndim = 2 * this->sim->n_dim;
     int ntimes = t.size();
 
     // Store the initial values in the first block of the result array:
-    for (i=0; i < this->sim.n_particles; i++)
+    for (i=0; i < this->sim->n_particles; i++)
         for (j=0; j < ps_ndim; j++)
-            result_w[j + ps_ndim * i] = sim.state_w[i][j];
+            result_w[j + ps_ndim * i] = this->sim->state_w[i][j];
 
     // Call any custom setup needed before starting to step the integrator:
     this->setup_integrate(t);
-    this->sim.step_callback(0, t[0]);
+    std::cout << "step callback \n";
+    this->sim->step_callback(0, t[0]);
+    std::cout << "done step callback \n";
 
     for (int n=1; n < ntimes; n++) {
         this->step(t[n-1], t[n] - t[n-1]);
-        this->sim.step_callback(n, t[n]);
+        this->sim->step_callback(n, t[n]);
 
         // Store the w vector at this timestep
-        for (i=0; i < this->sim.n_particles; i++)
+        for (i=0; i < this->sim->n_particles; i++)
             for (j=0; j < ps_ndim; j++) {
-                idx = i3d(n, i, j, ntimes, this->sim.n_particles, ps_ndim);
-                result_w[idx] = sim.state_w[i][j];
+                idx = i3d(n, i, j, ntimes, this->sim->n_particles, ps_ndim);
+                result_w[idx] = this->sim->state_w[i][j];
             }
     }
 }
@@ -120,7 +122,7 @@ void BaseIntegrator::setup_integrate(const vector_1d &t) {
         throw std::runtime_error("Input time array must have > 1 element.");
 
     // Store the initial values:
-    this->tmp_w = sim.state_w;
+    this->tmp_w = this->sim->state_w;
 }
 
 void BaseIntegrator::step(const double t, const double dt) { }
@@ -129,25 +131,25 @@ void BaseIntegrator::step(const double t, const double dt) { }
 /* ------------------------------------------------------------------------------------------------
     Leapfrog
 */
-LeapfrogIntegrator::LeapfrogIntegrator(gala::simulation::Simulation sim)
+LeapfrogIntegrator::LeapfrogIntegrator(gala::simulation::Simulation &sim)
 : BaseIntegrator(sim) {
-    for (int i=0; i < this->sim.n_particles; i++)
-        this->v_ip1_2.push_back(vector_1d(this->sim.n_dim, NAN));
+    for (int i=0; i < this->sim->n_particles; i++)
+        this->v_ip1_2.push_back(vector_1d(this->sim->n_dim, NAN));
 }
 
 void LeapfrogIntegrator::setup_integrate(const vector_1d &t) {
     BaseIntegrator::setup_integrate(t);
 
     double dt = t[1] - t[0];
-    this->sim.set_state(this->sim.state_w, t[0]);
+    this->sim->set_state(this->sim->state_w, t[0]);
 
     // First step all of the velocities by 1/2 step to initialize
-    this->sim.get_dwdt(&this->tmp_dwdt);
+    this->sim->get_dwdt(&this->tmp_dwdt);
 
-    for (int i=0; i < this->sim.n_particles; i++)
-        for (int j=0; j < this->sim.n_dim; j++) {
-            this->v_ip1_2[i][j] = this->sim.state_w[i][this->sim.n_dim + j]
-                + dt/2 * this->tmp_dwdt[i][this->sim.n_dim + j];
+    for (int i=0; i < this->sim->n_particles; i++)
+        for (int j=0; j < this->sim->n_dim; j++) {
+            this->v_ip1_2[i][j] = this->sim->state_w[i][this->sim->n_dim + j]
+                + dt/2 * this->tmp_dwdt[i][this->sim->n_dim + j];
         }
 }
 
@@ -155,29 +157,29 @@ void LeapfrogIntegrator::step(const double t, const double dt) {
     int i, j;
 
     // Evolve the positions forward by a full step, using the retarded velocities
-    for (i=0; i < this->sim.n_particles; i++)
-        for (j=0; j < this->sim.n_dim; j++)
+    for (i=0; i < this->sim->n_particles; i++)
+        for (j=0; j < this->sim->n_dim; j++)
             this->tmp_w[i][j] += dt * this->v_ip1_2[i][j];
 
     // Set the simulation state where now the velocity values are 1/2 step behind
-    this->sim.set_state(this->tmp_w, t);
+    this->sim->set_state(this->tmp_w, t);
 
     // Compute the acceleration at the new positions:
-    this->sim.get_dwdt(&this->tmp_dwdt);
+    this->sim->get_dwdt(&this->tmp_dwdt);
 
     // Evolve the velocity forward first by a half step, snapshot the time-aligned position and
     // velocity, then finish the full step to leapfrog over the positions
-    for (i=0; i < this->sim.n_particles; i++) {
-        for (j=0; j < this->sim.n_dim; j++) {
-            this->tmp_w[i][this->sim.n_dim + j] = this->v_ip1_2[i][j]
-                + dt/2 * this->tmp_dwdt[i][this->sim.n_dim + j];
-            this->v_ip1_2[i][j] = this->tmp_w[i][this->sim.n_dim + j]
-                + dt/2 * this->tmp_dwdt[i][this->sim.n_dim + j];
+    for (i=0; i < this->sim->n_particles; i++) {
+        for (j=0; j < this->sim->n_dim; j++) {
+            this->tmp_w[i][this->sim->n_dim + j] = this->v_ip1_2[i][j]
+                + dt/2 * this->tmp_dwdt[i][this->sim->n_dim + j];
+            this->v_ip1_2[i][j] = this->tmp_w[i][this->sim->n_dim + j]
+                + dt/2 * this->tmp_dwdt[i][this->sim->n_dim + j];
         }
     }
 
     // Set the simulation state: the position and velocity should be synced, so ready for output
-    this->sim.set_state(this->tmp_w, t + dt);
+    this->sim->set_state(this->tmp_w, t + dt);
 }
 
 
@@ -185,7 +187,7 @@ void LeapfrogIntegrator::step(const double t, const double dt) {
     Boost
 */
 
-BoostIntegrator::BoostIntegrator(gala::simulation::Simulation sim,
+BoostIntegrator::BoostIntegrator(gala::simulation::Simulation &sim,
                                  std::string choice, int sub_steps)
 : BaseIntegrator(sim) {
     /*
@@ -209,10 +211,10 @@ template <typename T>
 void BoostIntegrator::step_worker(T stepper, const double t, const double dt) {
     stepper.do_step([this](const vector_2d &w, vector_2d &dw, const double t) {
         // TODO: this currently just gets the 3-acceleration, but need to compute the 6-acc
-        this->sim.set_state(w, t);
-        this->sim.get_dwdt(&dw);
+        this->sim->set_state(w, t);
+        this->sim->get_dwdt(&dw);
     }, this->tmp_w, t, dt);
-    this->sim.set_state(this->tmp_w, t + dt);
+    this->sim->set_state(this->tmp_w, t + dt);
 }
 
 // List of steppers here:
